@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pradera-50: #f0fde4;
+  --color-pradera-100: #d9f5b0;
+  --color-pradera-200: #bceb78;
+  --color-pradera-300: #9bdf40;
+  --color-pradera-400: #7ad40a;
+  --color-pradera-500: #58CC02;
+  --color-pradera-600: #3fa002;
+  --color-pradera-700: #2e7501;
+  --color-pradera-800: #1d4a00;
+  --color-pradera-900: #0c2000;
+
+  --color-desierto-50: #fff3e0;
+  --color-desierto-100: #ffe0b3;
+  --color-desierto-200: #ffcc80;
+  --color-desierto-300: #ffb84d;
+  --color-desierto-400: #ffa31a;
+  --color-desierto-500: #FF9600;
+  --color-desierto-600: #cc7800;
+  --color-desierto-700: #995a00;
+  --color-desierto-800: #663c00;
+  --color-desierto-900: #331e00;
+
+  --color-lagos-50: #e0f4ff;
+  --color-lagos-100: #b3e3ff;
+  --color-lagos-200: #80d1ff;
+  --color-lagos-300: #4dbfff;
+  --color-lagos-400: #1aadff;
+  --color-lagos-500: #00A3FF;
+  --color-lagos-600: #0082cc;
+  --color-lagos-700: #006299;
+  --color-lagos-800: #004166;
+  --color-lagos-900: #002133;
+
+  --color-bosque-50: #f0edff;
+  --color-bosque-100: #d5ceff;
+  --color-bosque-200: #b8adff;
+  --color-bosque-300: #9b8cff;
+  --color-bosque-400: #7e6bff;
+  --color-bosque-500: #7B68EE;
+  --color-bosque-600: #5f4fbf;
+  --color-bosque-700: #44398f;
+  --color-bosque-800: #2a2460;
+  --color-bosque-900: #100f30;
+
+  --color-montana-50: #ffe8e8;
+  --color-montana-100: #ffc5c5;
+  --color-montana-200: #ffa3a3;
+  --color-montana-300: #ff8080;
+  --color-montana-400: #ff5e5e;
+  --color-montana-500: #FF6B6B;
+  --color-montana-600: #cc5555;
+  --color-montana-700: #994040;
+  --color-montana-800: #662b2b;
+  --color-montana-900: #331515;
+
+  --color-volcan-50: #ffe8e8;
+  --color-volcan-100: #ffc2c2;
+  --color-volcan-200: #ff9c9c;
+  --color-volcan-300: #ff7575;
+  --color-volcan-400: #ff4f4f;
+  --color-volcan-500: #FF4444;
+  --color-volcan-600: #cc3333;
+  --color-volcan-700: #992626;
+  --color-volcan-800: #661a1a;
+  --color-volcan-900: #330d0d;
+
+  --color-valle-50: #e0fbfb;
+  --color-valle-100: #b3f4f5;
+  --color-valle-200: #80edef;
+  --color-valle-300: #4de6e9;
+  --color-valle-400: #1adfe3;
+  --color-valle-500: #00D2D3;
+  --color-valle-600: #00a8a9;
+  --color-valle-700: #007e7f;
+  --color-valle-800: #005454;
+  --color-valle-900: #002a2a;
+
+  --color-castillo-50: #fef8e0;
+  --color-castillo-100: #fcecb3;
+  --color-castillo-200: #fbe080;
+  --color-castillo-300: #f9d54d;
+  --color-castillo-400: #f8c91a;
+  --color-castillo-500: #F7D44A;
+  --color-castillo-600: #d4b43a;
+  --color-castillo-700: #a08b2b;
+  --color-castillo-800: #6d5e1d;
+  --color-castillo-900: #3a320e;
+
+  --font-sans: 'Nunito', sans-serif;
+}
+
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap');
+
+body {
+  font-family: 'Nunito', sans-serif;
+}

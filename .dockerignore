@@ -1,0 +1,24 @@
+# ─── Dependencias ───
+node_modules/
+.pnpm-store/
+
+# ─── Build outputs ───
+dist/
+.next/
+*.tsbuildinfo
+
+# ─── Environment ───
+.env
+.env.local
+.env.*.local
+
+# ─── Git ───
+.git/
+.gitignore
+.gitattributes
+
+# ─── Logs ───
+*.log
+
+# ─── Turbo ───
+.turbo/

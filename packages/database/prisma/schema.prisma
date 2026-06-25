@@ -1,0 +1,304 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum LessonType {
+  THEORY
+  PRACTICE
+  CHALLENGE
+  EXAM
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+  EXPERT
+}
+
+enum SubmissionStatus {
+  PENDING
+  COMPILING
+  EVALUATING
+  ACCEPTED
+  WRONG_ANSWER
+  RUNTIME_ERROR
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  COMPILATION_ERROR
+}
+
+enum LeagueName {
+  BRONCE
+  PLATA
+  ORO
+  PLATINO
+  DIAMANTE
+  LEGENDARIO
+}
+
+// ─── Auth / Users ────────────────────────────────────────
+
+model User {
+  id           String   @id @default(uuid())
+  cmsUserId    Int      @unique
+  username     String   @unique
+  email        String?
+  displayName  String
+  avatarUrl    String?
+  role         Role     @default(STUDENT)
+
+  xp           Int      @default(0)
+  gems         Int      @default(0)
+  level        Int      @default(1)
+  streak       Int      @default(0)
+  lastActiveAt DateTime?
+
+  submissions      Submission[]
+  achievements     UserAchievement[]
+  weeklyRankings   WeeklyRanking[]
+  dailyMissions    DailyMission[]
+  examAttempts     ExamAttempt[]
+  certificates     Certificate[]
+  notifications    Notification[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Ruta de Aprendizaje ─────────────────────────────────
+
+model Course {
+  id        String   @id @default(uuid())
+  title     String
+  slug      String   @unique
+  level     Int
+  region    String
+  xpReward  Int      @default(100)
+  order     Int
+  modules   Module[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Module {
+  id        String   @id @default(uuid())
+  courseId   String
+  course    Course   @relation(fields: [courseId], references: [id])
+  title     String
+  order     Int
+  lessons   Lesson[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Lesson {
+  id        String     @id @default(uuid())
+  moduleId   String
+  module    Module     @relation(fields: [moduleId], references: [id])
+  title     String
+  order     Int
+  type      LessonType
+  content   Json?
+  xpReward  Int        @default(50)
+  problems  Problem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Problemas (solo referencia a CMS) ───────────────────
+
+model Problem {
+  id          String     @id @default(uuid())
+  cmsTaskId   Int        @unique
+  cmsTaskName String
+  title       String
+  difficulty  Difficulty @default(EASY)
+  xpReward    Int        @default(50)
+
+  lessonId    String?
+  lesson      Lesson?    @relation(fields: [lessonId], references: [id])
+  order       Int        @default(0)
+
+  submissions  Submission[]
+  examProblems ExamProblem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// ─── Evaluaciones ────────────────────────────────────────
+
+model Submission {
+  id              String           @id @default(uuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id])
+  problemId       String
+  problem         Problem          @relation(fields: [problemId], references: [id])
+  code            String
+  language        String           @default("python")
+  status          SubmissionStatus @default(PENDING)
+  score           Float?
+
+  cmsSubmissionId Int?
+  cmsResults      Json?
+
+  submittedAt DateTime  @default(now())
+  evaluatedAt DateTime?
+}
+
+// ─── Gamificación ────────────────────────────────────────
+
+model Achievement {
+  id          String   @id @default(uuid())
+  code        String   @unique
+  title       String
+  description String
+  iconUrl     String?
+  xpReward    Int      @default(0)
+  users       UserAchievement[]
+}
+
+model UserAchievement {
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  achievementId String
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+  unlockedAt    DateTime    @default(now())
+
+  @@id([userId, achievementId])
+}
+
+model League {
+  id        String     @id @default(uuid())
+  name      LeagueName @unique
+  minXp     Int        @default(0)
+  maxXp     Int?
+  order     Int
+  rankings  WeeklyRanking[]
+}
+
+model WeeklyRanking {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  weekStart DateTime
+  xpEarned  Int      @default(0)
+  position  Int?
+  leagueId  String
+  league    League   @relation(fields: [leagueId], references: [id])
+
+  @@unique([userId, weekStart])
+}
+
+model DailyMission {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  date        DateTime
+  description String
+  type        String
+  target      Int
+  progress    Int      @default(0)
+  completed   Boolean  @default(false)
+  xpReward    Int      @default(50)
+  claimed     Boolean  @default(false)
+
+  @@unique([userId, date, type])
+}
+
+// ─── Exámenes ────────────────────────────────────────────
+
+model Exam {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  courseId    String?
+  duration    Int
+  startAt     DateTime?
+  endAt       DateTime?
+  xpReward    Int      @default(200)
+  problems    ExamProblem[]
+  attempts    ExamAttempt[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ExamProblem {
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id])
+  problemId String
+  problem   Problem  @relation(fields: [problemId], references: [id])
+  points    Int      @default(100)
+  order     Int
+
+  @@id([examId, problemId])
+}
+
+model ExamAttempt {
+  id        String   @id @default(uuid())
+  examId    String
+  exam      Exam     @relation(fields: [examId], references: [id])
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  startAt   DateTime @default(now())
+  endAt     DateTime?
+  score     Float?
+  answers   ExamAnswer[]
+
+  createdAt DateTime @default(now())
+}
+
+model ExamAnswer {
+  id            String           @id @default(uuid())
+  attemptId     String
+  attempt       ExamAttempt      @relation(fields: [attemptId], references: [id])
+  examProblemId String
+  code          String
+  status        SubmissionStatus @default(PENDING)
+  score         Float?
+  submittedAt   DateTime         @default(now())
+}
+
+// ─── Certificados ────────────────────────────────────────
+
+model Certificate {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  courseId  String?
+  type      String
+  metadata  Json?
+  pdfUrl    String?
+  issuedAt  DateTime @default(now())
+}
+
+// ─── Notificaciones ─────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  body      String?
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
