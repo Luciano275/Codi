@@ -72,7 +72,6 @@ model User {
   weeklyRankings   WeeklyRanking[]
   dailyMissions    DailyMission[]
   examAttempts     ExamAttempt[]
-  certificates     Certificate[]
   notifications    Notification[]
 
   createdAt DateTime @default(now())
@@ -275,19 +274,6 @@ model ExamAnswer {
   status        SubmissionStatus @default(PENDING)
   score         Float?
   submittedAt   DateTime         @default(now())
-}
-
-// ─── Certificados ────────────────────────────────────────
-
-model Certificate {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  courseId  String?
-  type      String
-  metadata  Json?
-  pdfUrl    String?
-  issuedAt  DateTime @default(now())
 }
 
 // ─── Notificaciones ─────────────────────────────────────
