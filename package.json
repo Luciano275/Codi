@@ -2,6 +2,7 @@
   "name": "codi",
   "private": true,
   "scripts": {
+    "start:dev": "turbo dev",
     "dev": "turbo dev",
     "build": "turbo build",
     "lint": "turbo lint",

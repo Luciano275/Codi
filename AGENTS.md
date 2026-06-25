@@ -62,8 +62,9 @@ pnpm db:studio                         # prisma studio
 
 | Goal | Command |
 |------|---------|
-| Dev all apps | `pnpm dev` |
-| Dev single NestJS app | `pnpm --filter @codi/api dev` |
+| Dev all apps | `pnpm start:dev` (alias de `turbo dev`) |
+| Dev single NestJS app | `pnpm --filter @codi/api start:dev` |
+| Dev web | `pnpm --filter @codi/web dev` |
 | Typecheck a package | `pnpm --filter @codi/<pkg> lint` (runs `tsc --noEmit`) |
 | Typecheck web | `pnpm --filter @codi/web lint` (runs `next lint`) |
 | Build database (tsc) | `pnpm --filter @codi/database build` |
