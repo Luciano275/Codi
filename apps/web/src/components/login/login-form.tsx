@@ -1,22 +1,41 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
+import { useAuth } from '@/lib/auth-context';
 
 export default function LoginForm() {
+  const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((r) => setTimeout(r, 1000));
-    setLoading(false);
+    setError('');
+
+    try {
+      await login(email, password);
+      router.push('/dashboard');
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message === 'Unauthorized'
+            ? 'Usuario o contraseña incorrectos'
+            : err.message
+          : 'Error de conexión con el servidor',
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -113,6 +132,16 @@ export default function LoginForm() {
               ¿Olvidaste tu contraseña?
             </a>
           </div>
+
+          {error && (
+            <div
+              role="alert"
+              className="flex items-center gap-2 rounded-xl bg-red-500/15 border border-red-500/30 px-4 py-3 text-sm text-red-400"
+            >
+              <AlertCircle className="h-4 w-4 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
 
           <div aria-live="polite" aria-atomic="true">
             <motion.button
