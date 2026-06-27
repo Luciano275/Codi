@@ -77,7 +77,7 @@ export default function LoginForm() {
               <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
               <input
                 id="email"
-                type="email"
+                type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ejemplo@codi.com"

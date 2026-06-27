@@ -1,7 +1,7 @@
 import { prisma } from '@codi/database';
 import type { User, CmsUserSource } from '@codi/database';
-import { verifyCmsPassword } from './crypto';
-import type { CmsUserRow, CmsAdminRow, LoginResult, UserProfile } from './types';
+import { verifyCmsPassword } from './crypto.js';
+import type { CmsUserRow, CmsAdminRow, LoginResult, UserProfile } from './types.js';
 
 export { verifyCmsPassword };
 export type { LoginResult, UserProfile };

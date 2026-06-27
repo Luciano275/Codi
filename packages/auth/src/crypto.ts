@@ -1,11 +1,10 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const { compareSync } = require('bcryptjs');
+import * as bcrypt from 'bcryptjs';
 
 export function verifyCmsPassword(stored: string, input: string): boolean {
   const [method, ...rest] = stored.split(':');
   const payload = rest.join(':');
   if (method === 'bcrypt') {
-    return compareSync(input, payload);
+    return bcrypt.compareSync(input, payload);
   }
   if (method === 'plaintext') {
     return payload === input;
