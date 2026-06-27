@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-pradera-50: #f0fde4;
@@ -6,7 +6,7 @@
   --color-pradera-200: #bceb78;
   --color-pradera-300: #9bdf40;
   --color-pradera-400: #7ad40a;
-  --color-pradera-500: #58CC02;
+  --color-pradera-500: #58cc02;
   --color-pradera-600: #3fa002;
   --color-pradera-700: #2e7501;
   --color-pradera-800: #1d4a00;
@@ -17,7 +17,7 @@
   --color-desierto-200: #ffcc80;
   --color-desierto-300: #ffb84d;
   --color-desierto-400: #ffa31a;
-  --color-desierto-500: #FF9600;
+  --color-desierto-500: #ff9600;
   --color-desierto-600: #cc7800;
   --color-desierto-700: #995a00;
   --color-desierto-800: #663c00;
@@ -28,7 +28,7 @@
   --color-lagos-200: #80d1ff;
   --color-lagos-300: #4dbfff;
   --color-lagos-400: #1aadff;
-  --color-lagos-500: #00A3FF;
+  --color-lagos-500: #00a3ff;
   --color-lagos-600: #0082cc;
   --color-lagos-700: #006299;
   --color-lagos-800: #004166;
@@ -39,7 +39,7 @@
   --color-bosque-200: #b8adff;
   --color-bosque-300: #9b8cff;
   --color-bosque-400: #7e6bff;
-  --color-bosque-500: #7B68EE;
+  --color-bosque-500: #7b68ee;
   --color-bosque-600: #5f4fbf;
   --color-bosque-700: #44398f;
   --color-bosque-800: #2a2460;
@@ -50,7 +50,7 @@
   --color-montana-200: #ffa3a3;
   --color-montana-300: #ff8080;
   --color-montana-400: #ff5e5e;
-  --color-montana-500: #FF6B6B;
+  --color-montana-500: #ff6b6b;
   --color-montana-600: #cc5555;
   --color-montana-700: #994040;
   --color-montana-800: #662b2b;
@@ -61,7 +61,7 @@
   --color-volcan-200: #ff9c9c;
   --color-volcan-300: #ff7575;
   --color-volcan-400: #ff4f4f;
-  --color-volcan-500: #FF4444;
+  --color-volcan-500: #ff4444;
   --color-volcan-600: #cc3333;
   --color-volcan-700: #992626;
   --color-volcan-800: #661a1a;
@@ -72,7 +72,7 @@
   --color-valle-200: #80edef;
   --color-valle-300: #4de6e9;
   --color-valle-400: #1adfe3;
-  --color-valle-500: #00D2D3;
+  --color-valle-500: #00d2d3;
   --color-valle-600: #00a8a9;
   --color-valle-700: #007e7f;
   --color-valle-800: #005454;
@@ -83,15 +83,31 @@
   --color-castillo-200: #fbe080;
   --color-castillo-300: #f9d54d;
   --color-castillo-400: #f8c91a;
-  --color-castillo-500: #F7D44A;
+  --color-castillo-500: #f7d44a;
   --color-castillo-600: #d4b43a;
   --color-castillo-700: #a08b2b;
   --color-castillo-800: #6d5e1d;
   --color-castillo-900: #3a320e;
 
-  --font-sans: 'Nunito', sans-serif;
+  --font-sans: var(--font-nunito), 'Nunito', sans-serif;
 }
 
-body {
-  font-family: 'Nunito', sans-serif;
+#main-content {
+  scroll-margin-top: 2rem;
+}
+
+*:focus-visible {
+  outline: 2px solid #00d2d3;
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
