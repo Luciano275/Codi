@@ -10,11 +10,13 @@
     "lint": "eslint \"{src,test}/**/*.ts\""
   },
   "dependencies": {
-    "@nestjs/common": "^11.1.27",
-    "@nestjs/core": "^11.1.27",
-    "@nestjs/axios": "^4.0.1",
-    "@nestjs/platform-express": "^11.1.27",
     "@codi/database": "workspace:*",
+    "@codi/config": "workspace:*",
+    "@nestjs/axios": "^4.0.1",
+    "@nestjs/common": "^11.1.27",
+    "@nestjs/config": "^4.0.4",
+    "@nestjs/core": "^11.1.27",
+    "@nestjs/platform-express": "^11.1.27",
     "axios": "^1.7.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.0"
@@ -23,6 +25,6 @@
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@types/node": "^22.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^6.0.3"
   }
 }
