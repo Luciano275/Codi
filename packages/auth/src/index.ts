@@ -1,2 +1,3 @@
 export { prisma } from '@codi/database';
-export type { UserProfile, SubmissionResult, CmsTestResult, CourseProgress, LeagueInfo } from '@codi/types';
+export { AuthService, verifyCmsPassword, toProfile } from './auth.service';
+export type { LoginResult, UserProfile, LoginInput } from './types';
