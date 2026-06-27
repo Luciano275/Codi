@@ -18,4 +18,6 @@ if (process.env.NODE_ENV !== 'production') {
   globalForPrisma.prisma = prisma;
 }
 
+export { PrismaService } from './prisma.service';
+export { PrismaModule } from './prisma.module';
 export * from '@prisma/client';
