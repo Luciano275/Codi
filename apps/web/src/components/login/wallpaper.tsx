@@ -32,7 +32,7 @@ export default function FullScreenWallpaper() {
             alt="Escuela de Educación Técnica Nº 3117"
             width={300}
             height={250}
-            className="w-full max-w-[60px] h-auto rounded-xl object-contain"
+            className="w-full max-w-15 h-auto rounded-xl object-contain"
           />
           <div>
             <p className="text-white text-[16px] font-bold uppercase tracking-widest drop-shadow-sm">
