@@ -8,6 +8,11 @@ datasource db {
 
 // ─── Enums ───────────────────────────────────────────────
 
+enum CmsUserSource {
+  USER
+  ADMIN
+}
+
 enum Role {
   STUDENT
   TEACHER
@@ -52,13 +57,15 @@ enum LeagueName {
 // ─── Auth / Users ────────────────────────────────────────
 
 model User {
-  id           String   @id @default(uuid())
-  cmsUserId    Int      @unique
-  username     String   @unique
+  id           String        @id @default(uuid())
+  cmsUserId    Int
+  cmsSource    CmsUserSource
+  passwordHash String?
+  username     String        @unique
   email        String?
   displayName  String
   avatarUrl    String?
-  role         Role     @default(STUDENT)
+  role         Role          @default(STUDENT)
 
   xp           Int      @default(0)
   gems         Int      @default(0)
@@ -75,6 +82,8 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@unique([cmsUserId, cmsSource])
 }
 
 // ─── Ruta de Aprendizaje ─────────────────────────────────
@@ -154,7 +163,7 @@ model Submission {
   status          SubmissionStatus @default(PENDING)
   score           Float?
 
-  cmsSubmissionId Int?
+  cmsSubmissionId Int?   @unique
   cmsResults      Json?
 
   submittedAt DateTime  @default(now())
