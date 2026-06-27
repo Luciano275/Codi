@@ -3,18 +3,22 @@ import { HttpModule } from '@nestjs/axios';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
 import { config } from '@codi/config';
+import { PrismaModule } from '@codi/database';
+import { CmsAdapterController } from './cms-adapter.controller';
+import { CmsAdapterService } from './cms-adapter.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: resolve(process.cwd(), '../../.env'),
-      load: [() => config]
+      load: [() => config],
     }),
-    HttpModule
+    HttpModule,
+    PrismaModule,
   ],
-  controllers: [],
-  providers: [],
-  exports: [],
+  controllers: [CmsAdapterController],
+  providers: [CmsAdapterService],
+  exports: [CmsAdapterService],
 })
 export class CmsAdapterModule {}
