@@ -1,4 +1,7 @@
 -- CreateEnum
+CREATE TYPE "CmsUserSource" AS ENUM ('USER', 'ADMIN');
+
+-- CreateEnum
 CREATE TYPE "Role" AS ENUM ('STUDENT', 'TEACHER', 'ADMIN');
 
 -- CreateEnum
@@ -14,9 +17,11 @@ CREATE TYPE "SubmissionStatus" AS ENUM ('PENDING', 'COMPILING', 'EVALUATING', 'A
 CREATE TYPE "LeagueName" AS ENUM ('BRONCE', 'PLATA', 'ORO', 'PLATINO', 'DIAMANTE', 'LEGENDARIO');
 
 -- CreateTable
-CREATE TABLE "User" (
+CREATE TABLE "codi_user" (
     "id" TEXT NOT NULL,
     "cmsUserId" INTEGER NOT NULL,
+    "cmsSource" "CmsUserSource" NOT NULL,
+    "passwordHash" TEXT,
     "username" TEXT NOT NULL,
     "email" TEXT,
     "displayName" TEXT NOT NULL,
@@ -30,11 +35,11 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "User_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_user_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Course" (
+CREATE TABLE "codi_course" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
@@ -45,11 +50,11 @@ CREATE TABLE "Course" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Course_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_course_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Module" (
+CREATE TABLE "codi_module" (
     "id" TEXT NOT NULL,
     "courseId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -57,11 +62,11 @@ CREATE TABLE "Module" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Module_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_module_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Lesson" (
+CREATE TABLE "codi_lesson" (
     "id" TEXT NOT NULL,
     "moduleId" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -72,11 +77,11 @@ CREATE TABLE "Lesson" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Lesson_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_lesson_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Problem" (
+CREATE TABLE "codi_problem" (
     "id" TEXT NOT NULL,
     "cmsTaskId" INTEGER NOT NULL,
     "cmsTaskName" TEXT NOT NULL,
@@ -88,11 +93,11 @@ CREATE TABLE "Problem" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Problem_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_problem_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Submission" (
+CREATE TABLE "codi_submission" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "problemId" TEXT NOT NULL,
@@ -105,11 +110,11 @@ CREATE TABLE "Submission" (
     "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "evaluatedAt" TIMESTAMP(3),
 
-    CONSTRAINT "Submission_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_submission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Achievement" (
+CREATE TABLE "codi_achievement" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "title" TEXT NOT NULL,
@@ -117,31 +122,31 @@ CREATE TABLE "Achievement" (
     "iconUrl" TEXT,
     "xpReward" INTEGER NOT NULL DEFAULT 0,
 
-    CONSTRAINT "Achievement_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_achievement_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "UserAchievement" (
+CREATE TABLE "codi_user_achievement" (
     "userId" TEXT NOT NULL,
     "achievementId" TEXT NOT NULL,
     "unlockedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "UserAchievement_pkey" PRIMARY KEY ("userId","achievementId")
+    CONSTRAINT "codi_user_achievement_pkey" PRIMARY KEY ("userId","achievementId")
 );
 
 -- CreateTable
-CREATE TABLE "League" (
+CREATE TABLE "codi_league" (
     "id" TEXT NOT NULL,
     "name" "LeagueName" NOT NULL,
     "minXp" INTEGER NOT NULL DEFAULT 0,
     "maxXp" INTEGER,
     "order" INTEGER NOT NULL,
 
-    CONSTRAINT "League_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_league_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "WeeklyRanking" (
+CREATE TABLE "codi_weekly_ranking" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "weekStart" TIMESTAMP(3) NOT NULL,
@@ -149,11 +154,11 @@ CREATE TABLE "WeeklyRanking" (
     "position" INTEGER,
     "leagueId" TEXT NOT NULL,
 
-    CONSTRAINT "WeeklyRanking_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_weekly_ranking_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "DailyMission" (
+CREATE TABLE "codi_daily_mission" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "date" TIMESTAMP(3) NOT NULL,
@@ -165,11 +170,11 @@ CREATE TABLE "DailyMission" (
     "xpReward" INTEGER NOT NULL DEFAULT 50,
     "claimed" BOOLEAN NOT NULL DEFAULT false,
 
-    CONSTRAINT "DailyMission_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_daily_mission_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Exam" (
+CREATE TABLE "codi_exam" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "description" TEXT,
@@ -181,21 +186,21 @@ CREATE TABLE "Exam" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Exam_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_exam_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ExamProblem" (
+CREATE TABLE "codi_exam_problem" (
     "examId" TEXT NOT NULL,
     "problemId" TEXT NOT NULL,
     "points" INTEGER NOT NULL DEFAULT 100,
     "order" INTEGER NOT NULL,
 
-    CONSTRAINT "ExamProblem_pkey" PRIMARY KEY ("examId","problemId")
+    CONSTRAINT "codi_exam_problem_pkey" PRIMARY KEY ("examId","problemId")
 );
 
 -- CreateTable
-CREATE TABLE "ExamAttempt" (
+CREATE TABLE "codi_exam_attempt" (
     "id" TEXT NOT NULL,
     "examId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
@@ -204,11 +209,11 @@ CREATE TABLE "ExamAttempt" (
     "score" DOUBLE PRECISION,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "ExamAttempt_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_exam_attempt_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "ExamAnswer" (
+CREATE TABLE "codi_exam_answer" (
     "id" TEXT NOT NULL,
     "attemptId" TEXT NOT NULL,
     "examProblemId" TEXT NOT NULL,
@@ -217,11 +222,11 @@ CREATE TABLE "ExamAnswer" (
     "score" DOUBLE PRECISION,
     "submittedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "ExamAnswer_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_exam_answer_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Notification" (
+CREATE TABLE "codi_notification" (
     "id" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "type" TEXT NOT NULL,
@@ -230,77 +235,80 @@ CREATE TABLE "Notification" (
     "read" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT "Notification_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "codi_notification_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_cmsUserId_key" ON "User"("cmsUserId");
+CREATE UNIQUE INDEX "codi_user_username_key" ON "codi_user"("username");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
+CREATE UNIQUE INDEX "codi_user_cmsUserId_cmsSource_key" ON "codi_user"("cmsUserId", "cmsSource");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Course_slug_key" ON "Course"("slug");
+CREATE UNIQUE INDEX "codi_course_slug_key" ON "codi_course"("slug");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Problem_cmsTaskId_key" ON "Problem"("cmsTaskId");
+CREATE UNIQUE INDEX "codi_problem_cmsTaskId_key" ON "codi_problem"("cmsTaskId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Achievement_code_key" ON "Achievement"("code");
+CREATE UNIQUE INDEX "codi_submission_cmsSubmissionId_key" ON "codi_submission"("cmsSubmissionId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "League_name_key" ON "League"("name");
+CREATE UNIQUE INDEX "codi_achievement_code_key" ON "codi_achievement"("code");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "WeeklyRanking_userId_weekStart_key" ON "WeeklyRanking"("userId", "weekStart");
+CREATE UNIQUE INDEX "codi_league_name_key" ON "codi_league"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DailyMission_userId_date_type_key" ON "DailyMission"("userId", "date", "type");
+CREATE UNIQUE INDEX "codi_weekly_ranking_userId_weekStart_key" ON "codi_weekly_ranking"("userId", "weekStart");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "codi_daily_mission_userId_date_type_key" ON "codi_daily_mission"("userId", "date", "type");
 
 -- AddForeignKey
-ALTER TABLE "Module" ADD CONSTRAINT "Module_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "Course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_module" ADD CONSTRAINT "codi_module_courseId_fkey" FOREIGN KEY ("courseId") REFERENCES "codi_course"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Lesson" ADD CONSTRAINT "Lesson_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "Module"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_lesson" ADD CONSTRAINT "codi_lesson_moduleId_fkey" FOREIGN KEY ("moduleId") REFERENCES "codi_module"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Problem" ADD CONSTRAINT "Problem_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "Lesson"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "codi_problem" ADD CONSTRAINT "codi_problem_lessonId_fkey" FOREIGN KEY ("lessonId") REFERENCES "codi_lesson"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Submission" ADD CONSTRAINT "Submission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_submission" ADD CONSTRAINT "codi_submission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Submission" ADD CONSTRAINT "Submission_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_submission" ADD CONSTRAINT "codi_submission_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "codi_problem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserAchievement" ADD CONSTRAINT "UserAchievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_user_achievement" ADD CONSTRAINT "codi_user_achievement_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "UserAchievement" ADD CONSTRAINT "UserAchievement_achievementId_fkey" FOREIGN KEY ("achievementId") REFERENCES "Achievement"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_user_achievement" ADD CONSTRAINT "codi_user_achievement_achievementId_fkey" FOREIGN KEY ("achievementId") REFERENCES "codi_achievement"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WeeklyRanking" ADD CONSTRAINT "WeeklyRanking_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_weekly_ranking" ADD CONSTRAINT "codi_weekly_ranking_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "WeeklyRanking" ADD CONSTRAINT "WeeklyRanking_leagueId_fkey" FOREIGN KEY ("leagueId") REFERENCES "League"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_weekly_ranking" ADD CONSTRAINT "codi_weekly_ranking_leagueId_fkey" FOREIGN KEY ("leagueId") REFERENCES "codi_league"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "DailyMission" ADD CONSTRAINT "DailyMission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_daily_mission" ADD CONSTRAINT "codi_daily_mission_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExamProblem" ADD CONSTRAINT "ExamProblem_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_exam_problem" ADD CONSTRAINT "codi_exam_problem_examId_fkey" FOREIGN KEY ("examId") REFERENCES "codi_exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExamProblem" ADD CONSTRAINT "ExamProblem_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "Problem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_exam_problem" ADD CONSTRAINT "codi_exam_problem_problemId_fkey" FOREIGN KEY ("problemId") REFERENCES "codi_problem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExamAttempt" ADD CONSTRAINT "ExamAttempt_examId_fkey" FOREIGN KEY ("examId") REFERENCES "Exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_exam_attempt" ADD CONSTRAINT "codi_exam_attempt_examId_fkey" FOREIGN KEY ("examId") REFERENCES "codi_exam"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExamAttempt" ADD CONSTRAINT "ExamAttempt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_exam_attempt" ADD CONSTRAINT "codi_exam_attempt_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "ExamAnswer" ADD CONSTRAINT "ExamAnswer_attemptId_fkey" FOREIGN KEY ("attemptId") REFERENCES "ExamAttempt"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_exam_answer" ADD CONSTRAINT "codi_exam_answer_attemptId_fkey" FOREIGN KEY ("attemptId") REFERENCES "codi_exam_attempt"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Notification" ADD CONSTRAINT "Notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "codi_notification" ADD CONSTRAINT "codi_notification_userId_fkey" FOREIGN KEY ("userId") REFERENCES "codi_user"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -84,6 +84,7 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@unique([cmsUserId, cmsSource])
+  @@map("codi_user")
 }
 
 // ─── Ruta de Aprendizaje ─────────────────────────────────
@@ -100,6 +101,8 @@ model Course {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("codi_course")
 }
 
 model Module {
@@ -112,6 +115,8 @@ model Module {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("codi_module")
 }
 
 model Lesson {
@@ -127,6 +132,8 @@ model Lesson {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("codi_lesson")
 }
 
 // ─── Problemas (solo referencia a CMS) ───────────────────
@@ -148,6 +155,8 @@ model Problem {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("codi_problem")
 }
 
 // ─── Evaluaciones ────────────────────────────────────────
@@ -168,6 +177,8 @@ model Submission {
 
   submittedAt DateTime  @default(now())
   evaluatedAt DateTime?
+
+  @@map("codi_submission")
 }
 
 // ─── Gamificación ────────────────────────────────────────
@@ -180,6 +191,8 @@ model Achievement {
   iconUrl     String?
   xpReward    Int      @default(0)
   users       UserAchievement[]
+
+  @@map("codi_achievement")
 }
 
 model UserAchievement {
@@ -190,6 +203,7 @@ model UserAchievement {
   unlockedAt    DateTime    @default(now())
 
   @@id([userId, achievementId])
+  @@map("codi_user_achievement")
 }
 
 model League {
@@ -199,6 +213,8 @@ model League {
   maxXp     Int?
   order     Int
   rankings  WeeklyRanking[]
+
+  @@map("codi_league")
 }
 
 model WeeklyRanking {
@@ -212,6 +228,7 @@ model WeeklyRanking {
   league    League   @relation(fields: [leagueId], references: [id])
 
   @@unique([userId, weekStart])
+  @@map("codi_weekly_ranking")
 }
 
 model DailyMission {
@@ -228,6 +245,7 @@ model DailyMission {
   claimed     Boolean  @default(false)
 
   @@unique([userId, date, type])
+  @@map("codi_daily_mission")
 }
 
 // ─── Exámenes ────────────────────────────────────────────
@@ -246,6 +264,8 @@ model Exam {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@map("codi_exam")
 }
 
 model ExamProblem {
@@ -257,6 +277,7 @@ model ExamProblem {
   order     Int
 
   @@id([examId, problemId])
+  @@map("codi_exam_problem")
 }
 
 model ExamAttempt {
@@ -271,6 +292,8 @@ model ExamAttempt {
   answers   ExamAnswer[]
 
   createdAt DateTime @default(now())
+
+  @@map("codi_exam_attempt")
 }
 
 model ExamAnswer {
@@ -282,6 +305,8 @@ model ExamAnswer {
   status        SubmissionStatus @default(PENDING)
   score         Float?
   submittedAt   DateTime         @default(now())
+
+  @@map("codi_exam_answer")
 }
 
 // ─── Notificaciones ─────────────────────────────────────
@@ -295,4 +320,8 @@ model Notification {
   body      String?
   read      Boolean  @default(false)
   createdAt DateTime @default(now())
+
+  @@map("codi_notification")
 }
+
+

@@ -11,7 +11,7 @@ export const config = {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
   },
   database: {
-    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/codi',
+    url: process.env.DATABASE_URL || 'postgresql://localhost:5432/cmsdb',
   },
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
