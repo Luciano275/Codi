@@ -155,7 +155,7 @@ export default function LoginForm() {
                 {loading ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" aria-hidden="true" />
-                    <span className="sr-only">Iniciando sesión...</span>
+                    <span>Iniciando sesión...</span>
                   </>
                 ) : (
                   'Iniciar sesión'
