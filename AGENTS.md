@@ -48,8 +48,8 @@ packages/
 
 ```sh
 pnpm db:generate                       # prisma generate
-pnpm db:migrate --name <name>          # prisma migrate dev
-pnpm db:migrate:deploy                 # prisma migrate deploy (para fresh clone)
+pnpm db:migrate                        # prisma migrate deploy (aplica migraciones)
+pnpm db:migrate:dev                    # prisma migrate dev (solo desarrollo local)
 pnpm db:push                           # prisma db push
 pnpm db:studio                         # prisma studio
 ```
@@ -58,7 +58,7 @@ pnpm db:studio                         # prisma studio
 - En fresh clone: copiar `.env.example` → `.env`, ajustar credenciales, luego:
   ```sh
   pnpm install
-  pnpm db:migrate:deploy     # crea las tablas codi_* en cmsdb
+  pnpm db:migrate            # crea las tablas codi_* en cmsdb
   pnpm db:generate           # genera el cliente Prisma
   pnpm build
   ```
