@@ -26,6 +26,12 @@ packages/
   validators/   @codi/validators   — Zod v4 schemas
 ```
 
+## Database — single DB (`cmsdb`) with `codi_*` prefix
+
+- **BD única**: `cmsdb`. Las tablas del CMS (`users`, `admins`, `tasks`, etc.) coexisten con las tablas de Codi (`codi_user`, `codi_course`, etc.).
+- **Prefijo `codi_`**: todas las entidades de Codi usan `@@map("codi_<name>")` en Prisma.
+- **Queries raw** al CMS usan `public.<tabla>` (ej: `public.users`).
+
 ## Prisma (v7 — critical differences from v6)
 
 - **`schema.prisma`** has NO `url` field in `datasource db` — that belongs in `prisma.config.ts`.
@@ -43,12 +49,19 @@ packages/
 ```sh
 pnpm db:generate                       # prisma generate
 pnpm db:migrate --name <name>          # prisma migrate dev
+pnpm db:migrate:deploy                 # prisma migrate deploy (para fresh clone)
 pnpm db:push                           # prisma db push
 pnpm db:studio                         # prisma studio
 ```
 
 - Migration files commit to `packages/database/prisma/migrations/`.
-- The `codi` PG user needs `CREATEDB` privilege for shadow database (`ALTER USER codi CREATEDB`).
+- En fresh clone: copiar `.env.example` → `.env`, ajustar credenciales, luego:
+  ```sh
+  pnpm install
+  pnpm db:migrate:deploy     # crea las tablas codi_* en cmsdb
+  pnpm db:generate           # genera el cliente Prisma
+  pnpm build
+  ```
 
 ## Architecture notes
 
