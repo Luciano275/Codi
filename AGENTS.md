@@ -47,8 +47,9 @@ packages/
 - All Prisma commands must run from `packages/database/` or via `pnpm --filter @codi/database` (scripts in `turbo.json` or root `package.json`).
 
 ```sh
+pnpm db:setup                          # crea tablas codi_* + baselines migration (fresh clone)
 pnpm db:generate                       # prisma generate
-pnpm db:migrate                        # prisma migrate deploy (aplica migraciones)
+pnpm db:migrate                        # prisma migrate deploy (aplica migraciones pendientes)
 pnpm db:migrate:dev                    # prisma migrate dev (solo desarrollo local)
 pnpm db:push                           # prisma db push
 pnpm db:studio                         # prisma studio
@@ -58,10 +59,13 @@ pnpm db:studio                         # prisma studio
 - En fresh clone: copiar `.env.example` → `.env`, ajustar credenciales, luego:
   ```sh
   pnpm install
-  pnpm db:migrate            # crea las tablas codi_* en cmsdb
+  pnpm db:setup              # crea tablas codi_* en cmsdb + baselines migration
   pnpm db:generate           # genera el cliente Prisma
   pnpm build
+  pnpm dev
   ```
+- Después de `db:setup`, las migraciones futuras se aplican normalmente con `pnpm db:migrate`.
+- `prisma migrate dev` debe usarse solo localmente (`pnpm db:migrate:dev`) — nunca en cmsdb compartida porque detecta las tablas del CMS como "no gestionadas" y ofrece resetear la BD.
 
 ## Architecture notes
 
