@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { Mail, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import { useAuth } from '@/lib/auth-context';
 
@@ -13,7 +13,6 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -74,13 +73,13 @@ export default function LoginForm() {
               Correo electrónico o usuario
             </label>
             <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
               <input
                 id="email"
                 type="text"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ejemplo@codi.com"
+                placeholder="tu_usuario"
                 className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00D2D3]/50 focus:border-[#00D2D3]/50 transition-all duration-200"
                 required
                 aria-required="true"
@@ -118,16 +117,6 @@ export default function LoginForm() {
           </div>
 
           <div className="flex items-center justify-between">
-            <label htmlFor="remember" className="flex items-center gap-2 cursor-pointer select-none">
-              <input
-                id="remember"
-                type="checkbox"
-                checked={remember}
-                onChange={() => setRemember(!remember)}
-                className="w-4 h-4 rounded border-white/30 bg-white/10 text-[#00D2D3] focus:ring-[#00D2D3]/40 cursor-pointer accent-[#00D2D3]"
-              />
-              <span className="text-sm text-white/70 font-medium">Recordarme</span>
-            </label>
             <a href="/forgot-password" className="text-sm font-semibold text-[#00D2D3] hover:text-[#00E8E9] transition-colors">
               ¿Olvidaste tu contraseña?
             </a>
