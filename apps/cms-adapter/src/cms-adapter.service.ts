@@ -26,7 +26,7 @@ export class CmsAdapterService {
 
   async syncTasks() {
     const tasks = await this.prisma.$queryRawUnsafe<CmsTaskRow[]>(
-      `SELECT id, name, title FROM cmsdb.public.tasks`,
+      `SELECT id, name, title FROM public.tasks`,
     );
 
     let created = 0;
@@ -83,11 +83,11 @@ export class CmsAdapterService {
              ORDER BY tc.codename
            )::text
          END AS evaluations
-       FROM cmsdb.public.submission_results sr
-       LEFT JOIN cmsdb.public.evaluations e
+       FROM public.submission_results sr
+       LEFT JOIN public.evaluations e
          ON e.submission_id = sr.submission_id
         AND e.dataset_id = sr.dataset_id
-       LEFT JOIN cmsdb.public.testcases tc
+       LEFT JOIN public.testcases tc
          ON tc.id = e.testcase_id
        WHERE sr.submission_id = $1
        GROUP BY sr.submission_id, sr.score, sr.compilation_outcome`,

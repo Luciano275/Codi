@@ -54,7 +54,7 @@ export class AuthService {
 
     const [cmsUser] = await prisma.$queryRawUnsafe<CmsUserRow[]>(
       `SELECT id, username, password, first_name, last_name, email
-       FROM cmsdb.public.users WHERE username = $1`,
+       FROM public.users WHERE username = $1`,
       username,
     );
 
@@ -73,7 +73,7 @@ export class AuthService {
 
     const [cmsAdmin] = await prisma.$queryRawUnsafe<CmsAdminRow[]>(
       `SELECT id, username, authentication, name, permission_all
-       FROM cmsdb.public.admins WHERE username = $1 AND enabled = true`,
+       FROM public.admins WHERE username = $1 AND enabled = true`,
       username,
     );
 
