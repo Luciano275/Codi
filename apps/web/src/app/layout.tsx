@@ -1,13 +1,29 @@
 import type { Metadata, Viewport } from 'next';
-import { Nunito } from 'next/font/google';
+import { Fredoka, Quicksand, Patrick_Hand } from 'next/font/google';
 import { config } from '@codi/config';
 import './globals.css';
 import SkipLink from '@/components/skip-link';
+import ProgressBarProvider from '@/components/progress-bar';
 
-const nunito = Nunito({
+const superPandora = Fredoka({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-nunito',
+  variable: '--font-super-pandora',
+  weight: ['400', '500', '600', '700'],
+});
+
+const simplyOlive = Quicksand({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-simply-olive',
+  weight: ['400', '500', '600', '700'],
+});
+
+const candyBeans = Patrick_Hand({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-candy-beans',
+  weight: ['400'],
 });
 
 export const metadata: Metadata = {
@@ -60,19 +76,21 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="es" className={nunito.variable}>
+    <html lang="es" className={`${superPandora.variable} ${simplyOlive.variable} ${candyBeans.variable}`}>
       <body
         suppressHydrationWarning
         className="min-h-screen font-sans antialiased"
       >
         <SkipLink />
-        <main id="main-content">
+        <ProgressBarProvider>
+          <main id="main-content">
           {children}
         </main>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        </ProgressBarProvider>
       </body>
     </html>
   );
