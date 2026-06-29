@@ -169,7 +169,7 @@ export default function ModulesClient({ course: initial }: { course: CourseWithM
 
       <div className="space-y-3">
         {course.modules.map((mod) => (
-          <div key={mod.id} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm">
+          <Link key={mod.id} href={`/dashboard/admin/lessons?moduleId=${mod.id}&courseId=${course.id}`} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-lg">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-50 text-amber-600">
               <BookOpen className="h-5 w-5" />
             </div>
@@ -177,16 +177,13 @@ export default function ModulesClient({ course: initial }: { course: CourseWithM
               <p className="truncate font-medium text-gray-900">Módulo {mod.order}: {mod.title}</p>
               <p className="text-xs text-gray-400">{mod._count.lessons} lecciones</p>
             </div>
-            <Link href={`/dashboard/admin/lessons?moduleId=${mod.id}&courseId=${course.id}`} className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-lagos-200 hover:text-lagos-600">
-              Lecciones
-            </Link>
             <button onClick={() => openEdit(mod)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
               <Pencil className="h-4 w-4" />
             </button>
             <button onClick={() => handleDelete(mod.id)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
               <Trash2 className="h-4 w-4" />
             </button>
-          </div>
+          </Link>
         ))}
         {course.modules.length === 0 && (
           <p className="py-10 text-center text-sm text-gray-400">Este curso no tiene módulos.</p>

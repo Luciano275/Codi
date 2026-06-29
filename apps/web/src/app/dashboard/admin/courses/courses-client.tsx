@@ -200,7 +200,7 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
 
       <div className="space-y-3">
         {courses.map((c) => (
-          <div key={c.id} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm">
+          <Link key={c.id} href={`/dashboard/admin/courses/${c.id}`} className="flex items-center gap-4 rounded-2xl border border-gray-100 bg-white px-5 py-4 shadow-sm transition-shadow hover:shadow-lg">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-lagos-50 text-lagos-600">
               <FolderOpen className="h-5 w-5" />
             </div>
@@ -208,16 +208,13 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
               <p className="truncate font-medium text-gray-900">{c.title}</p>
               <p className="text-xs text-gray-400">Nivel {c.level} &middot; {c._count.modules} módulos &middot; Orden {c.order}</p>
             </div>
-            <Link href={`/dashboard/admin/courses/${c.id}`} className="flex items-center gap-1.5 rounded-xl border border-gray-200 px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-lagos-200 hover:text-lagos-600">
-              Módulos
-            </Link>
             <button onClick={() => openEdit(c)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
               <Pencil className="h-4 w-4" />
             </button>
             <button onClick={() => handleDelete(c.id)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
               <Trash2 className="h-4 w-4" />
             </button>
-          </div>
+          </Link>
         ))}
         {courses.length === 0 && (
           <p className="py-10 text-center text-sm text-gray-400">No hay cursos todavía.</p>
