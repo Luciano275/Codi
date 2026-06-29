@@ -7,3 +7,5 @@ export const publicRoutePrefixes = []
 export const authRoutes = [
   '/'
 ]
+
+export const adminRoutesPrefix = '/dashboard/admin'

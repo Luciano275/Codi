@@ -1,0 +1,103 @@
+import { cookies } from 'next/headers';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+
+export async function serverFetch<T>(path: string): Promise<T> {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('session')?.value;
+
+  const res = await fetch(`${API_URL}${path}`, {
+    headers: {
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      'Content-Type': 'application/json',
+    },
+    cache: 'no-store',
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ message: res.statusText }));
+    throw new Error(err.message || `API error: ${res.status}`);
+  }
+
+  return res.json();
+}
+
+export interface Course {
+  id: string;
+  title: string;
+  slug: string;
+  level: number;
+  region: string;
+  xpReward: number;
+  order: number;
+  modules: Module[];
+}
+
+export interface Module {
+  id: string;
+  title: string;
+  order: number;
+  lessons: Lesson[];
+}
+
+export interface Lesson {
+  id: string;
+  title: string;
+  order: number;
+  type: string;
+  xpReward: number;
+  content: Record<string, unknown>;
+  problems: Problem[];
+  module: {
+    id: string;
+    title: string;
+    course: { id: string; title: string; slug: string };
+    lessons: { id: string; title: string; order: number; type: string }[];
+  };
+}
+
+export interface Problem {
+  id: string;
+  cmsTaskId: number;
+  title: string;
+  difficulty: string;
+  xpReward: number;
+}
+
+export interface ProgressData {
+  totalLessons: number;
+  completedLessons: number;
+  courses: {
+    courseId: string;
+    courseTitle: string;
+    completedLessons: number;
+    totalLessons: number;
+    completed: boolean;
+  }[];
+}
+
+export interface RankingUser {
+  rank: number;
+  id: string;
+  username: string;
+  displayName: string;
+  avatarUrl: string | null;
+  xp: number;
+  level: number;
+}
+
+export async function fetchCourses(): Promise<Course[]> {
+  return serverFetch<Course[]>('/api/courses');
+}
+
+export async function fetchLesson(id: string): Promise<Lesson> {
+  return serverFetch<Lesson>(`/api/lessons/${id}`);
+}
+
+export async function fetchProgress(): Promise<ProgressData> {
+  return serverFetch<ProgressData>('/api/courses/progress/me');
+}
+
+export async function fetchGlobalRanking(limit = 10): Promise<RankingUser[]> {
+  return serverFetch<RankingUser[]>(`/api/ranking/global?limit=${limit}`);
+}
