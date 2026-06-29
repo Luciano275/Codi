@@ -1,46 +1,19 @@
-'use client';
-
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense } from 'react';
 import Image from 'next/image';
-import { LogOut, User, Shield, Zap, Gem, Trophy } from 'lucide-react';
-import { useAuth } from '@/lib/auth-context';
+import { User, Shield, Zap, Gem, Trophy } from 'lucide-react';
+import { auth } from '@/lib/auth';
+import { DashboardSkeleton } from '@/components/skeletons/dashboard';
+import { LogoutButton } from './logout-button';
 
-export default function DashboardPage() {
-  const router = useRouter();
-  const { user, loading, logout } = useAuth();
-
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push('/');
-    }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#0f0f1a] flex items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#00D2D3] border-t-transparent" />
-      </div>
-    );
-  }
-
-  if (!user) return null;
+async function DashboardContent() {
+  const user = (await auth())!;
 
   return (
     <div className="min-h-screen bg-[#0f0f1a] text-white">
       <header className="border-b border-white/10 px-6 py-4">
         <div className="mx-auto flex max-w-5xl items-center justify-between">
           <Image src="/logo.png" alt="Codi" width={100} height={100} className="h-8 w-auto" />
-          <button
-            onClick={() => {
-              logout();
-              router.push('/');
-            }}
-            className="flex items-center gap-2 rounded-xl border border-white/20 px-4 py-2 text-sm text-white/70 transition-colors hover:border-red-500/50 hover:text-red-400"
-          >
-            <LogOut className="h-4 w-4" />
-            Cerrar sesión
-          </button>
+          <LogoutButton />
         </div>
       </header>
 
@@ -104,5 +77,13 @@ export default function DashboardPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
   );
 }
