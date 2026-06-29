@@ -45,6 +45,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const TOKEN_KEY = 'codi_token';
+const CACHE_KEY = 'codi_user_cache';
+
+function cacheUser(user: UserProfile) {
+  try {
+    sessionStorage.setItem(CACHE_KEY, JSON.stringify(user));
+  } catch {
+    /* quota exceeded */
+  }
+}
+
+function clearCache() {
+  try {
+    sessionStorage.removeItem(CACHE_KEY);
+  } catch {
+    /* noop */
+  }
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -59,11 +76,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     setToken(stored);
+
+    const cached = sessionStorage.getItem(CACHE_KEY);
+    if (cached) {
+      try {
+        setUser(JSON.parse(cached) as UserProfile);
+      } catch {
+        /* invalid cache */
+      }
+    }
+
     apiGet<MeResponse>('/api/auth/me', stored)
-      .then((res) => setUser(res.user))
+      .then((res) => {
+        setUser(res.user);
+        cacheUser(res.user);
+      })
       .catch(() => {
         localStorage.removeItem(TOKEN_KEY);
         setToken(null);
+        clearCache();
       })
       .finally(() => setLoading(false));
   }, []);
@@ -74,12 +105,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       password,
     });
     localStorage.setItem(TOKEN_KEY, res.token);
+    fetch('/api/auth/session', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: res.token }),
+    });
+    cacheUser(res.user);
     setToken(res.token);
     setUser(res.user);
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
+    fetch('/api/auth/session', { method: 'DELETE' });
+    clearCache();
     setToken(null);
     setUser(null);
   }, []);
