@@ -31,7 +31,7 @@ export class AuthService {
   async login(username: string, password: string): Promise<LoginResult> {
     const user = await this.verifyAndSync(username, password);
     if (!user) {
-      throw new Error('Invalid credentials');
+      throw new Error('Los datos no son correctos');
     }
 
     const token = this.jwtSign({ sub: user.id, role: user.role });
