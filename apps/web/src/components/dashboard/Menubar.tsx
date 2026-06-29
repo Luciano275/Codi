@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
+import { usePathname } from 'next/navigation';
+import Link from 'next/link';
 import {
   Map,
   Code2,
@@ -20,7 +21,6 @@ interface MenubarProps {
 }
 
 export default function Menubar({ userRole }: MenubarProps) {
-  const router = useRouter();
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
 
@@ -81,11 +81,9 @@ export default function Menubar({ userRole }: MenubarProps) {
             const active = isActive(item.href);
             return (
               <li key={item.id}>
-                <button
-                  onClick={() => {
-                    router.push(item.href);
-                    setCollapsed(true);
-                  }}
+                <Link
+                  href={item.href}
+                  onClick={() => setCollapsed(true)}
                   className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                     active
                       ? 'bg-white text-pradera-600 shadow-xs'
@@ -99,7 +97,7 @@ export default function Menubar({ userRole }: MenubarProps) {
                   {active && (
                     <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400" />
                   )}
-                </button>
+                </Link>
               </li>
             );
           })}
@@ -111,11 +109,9 @@ export default function Menubar({ userRole }: MenubarProps) {
             <p className="mb-1 px-3 font-simply-olive text-[10px] font-semibold uppercase tracking-wider text-gray-400">
               Administración
             </p>
-            <button
-              onClick={() => {
-                router.push('/dashboard/admin/lessons');
-                setCollapsed(true);
-              }}
+            <Link
+              href="/dashboard/admin/courses"
+              onClick={() => setCollapsed(true)}
               className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
                 pathname.startsWith('/dashboard/admin')
                   ? 'bg-white text-bosque-600 shadow-xs'
@@ -125,11 +121,11 @@ export default function Menubar({ userRole }: MenubarProps) {
               <Shield
                 className={`h-5 w-5 ${pathname.startsWith('/dashboard/admin') ? 'text-bosque-500' : 'text-gray-400'}`}
               />
-              <span>Gestión de lecciones</span>
+              <span>Cursos</span>
               {pathname.startsWith('/dashboard/admin') && (
                 <div className="ml-auto h-2 w-2 rounded-full bg-bosque-400" />
               )}
-            </button>
+            </Link>
           </div>
         )}
 

@@ -17,8 +17,11 @@ import {
   Eye,
   Edit3,
   ExternalLink,
+  ChevronRight,
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
+import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -86,17 +89,21 @@ function LessonForm({
   allProblems,
   onSave,
   onCancel,
+  initialCourseId,
+  initialModuleId,
 }: {
   lesson?: Lesson | null;
   courses: Course[];
   allProblems: Problem[];
   onSave: (data: any) => Promise<void>;
   onCancel: () => void;
+  initialCourseId?: string;
+  initialModuleId?: string;
 }) {
   const [title, setTitle] = useState(lesson?.title ?? '');
   const [type, setType] = useState<LessonType>(lesson?.type ?? 'THEORY');
-  const [courseId, setCourseId] = useState(lesson?.module.course.id ?? '');
-  const [moduleId, setModuleId] = useState(lesson?.module.id ?? '');
+  const [courseId, setCourseId] = useState(lesson?.module.course.id ?? initialCourseId ?? '');
+  const [moduleId, setModuleId] = useState(lesson?.module.id ?? initialModuleId ?? '');
   const [order, setOrder] = useState(lesson?.order ?? 1);
   const [xpReward, setXpReward] = useState(lesson?.xpReward ?? 50);
   const [description, setDescription] = useState(
@@ -444,6 +451,10 @@ function LessonForm({
 }
 
 export default function AdminLessonsPage() {
+  const searchParams = useSearchParams();
+  const filterModuleId = searchParams.get('moduleId') || '';
+  const filterCourseId = searchParams.get('courseId') || '';
+
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [allProblems, setAllProblems] = useState<Problem[]>([]);
@@ -452,6 +463,8 @@ export default function AdminLessonsPage() {
   const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [initialFormCourseId, setInitialFormCourseId] = useState('');
+  const [initialFormModuleId, setInitialFormModuleId] = useState('');
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -465,8 +478,8 @@ export default function AdminLessonsPage() {
       setLessons(lessonsData);
       setCourses(coursesData);
       setAllProblems(problemsData);
-    } catch (e: any) {
-      setError(e.message || 'Error al cargar datos');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Error al cargar datos');
     } finally {
       setLoading(false);
     }
@@ -523,8 +536,37 @@ export default function AdminLessonsPage() {
     );
   }
 
+  const displayedLessons = filterModuleId
+    ? lessons.filter((l) => l.module.id === filterModuleId)
+    : lessons;
+
+  const filterCourse = courses.find((c) => c.id === filterCourseId);
+  const filterModule = filterCourse?.modules.find((m) => m.id === filterModuleId);
+
   return (
     <div className="mx-auto max-w-5xl">
+      {/* Breadcrumb */}
+      {filterCourse && (
+        <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
+          <Link href="/dashboard/admin/courses" className="transition-colors hover:text-lagos-600">
+            Cursos
+          </Link>
+          <ChevronRight className="h-3.5 w-3.5" />
+          <Link
+            href={`/dashboard/admin/courses/${filterCourse.id}`}
+            className="transition-colors hover:text-lagos-600"
+          >
+            {filterCourse.title}
+          </Link>
+          {filterModule && (
+            <>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-gray-600">{filterModule.title}</span>
+            </>
+          )}
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-6 flex items-center justify-between">
         <div>
@@ -538,6 +580,8 @@ export default function AdminLessonsPage() {
         <button
           onClick={() => {
             setEditingLesson(null);
+            setInitialFormCourseId(filterCourseId);
+            setInitialFormModuleId(filterModuleId);
             setShowForm(true);
           }}
           className="flex items-center gap-2 rounded-xl bg-pradera-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pradera-600"
@@ -581,6 +625,8 @@ export default function AdminLessonsPage() {
                 setShowForm(false);
                 setEditingLesson(null);
               }}
+              initialCourseId={initialFormCourseId}
+              initialModuleId={initialFormModuleId}
             />
           </div>
         </div>
@@ -588,15 +634,15 @@ export default function AdminLessonsPage() {
 
       {/* Lessons list */}
       <div className="space-y-3">
-        {lessons.length === 0 ? (
+        {displayedLessons.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
             <FileText className="mx-auto mb-3 h-10 w-10 text-gray-300" />
             <p className="font-simply-olive text-gray-500">
-              No hay lecciones aún. Creá la primera.
+              {filterModuleId ? 'Este módulo no tiene lecciones.' : 'No hay lecciones aún. Creá la primera.'}
             </p>
           </div>
         ) : (
-          lessons.map((lesson) => (
+          displayedLessons.map((lesson) => (
             <div
               key={lesson.id}
               className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md"
