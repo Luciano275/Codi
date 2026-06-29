@@ -5,6 +5,9 @@ import { resolve } from 'path';
 import { config } from '@codi/config';
 import { AuthModule } from './auth/auth.module';
 import { SubmissionsModule } from './submissions/submissions.module';
+import { CoursesModule } from './courses/courses.module';
+import { RankingModule } from './ranking/ranking.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -16,6 +19,9 @@ import { SubmissionsModule } from './submissions/submissions.module';
     PrismaModule,
     AuthModule,
     SubmissionsModule,
+    CoursesModule,
+    RankingModule,
+    AdminModule,
   ],
   controllers: [],
   providers: [],
