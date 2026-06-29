@@ -39,7 +39,7 @@ export class AuthService {
     try {
       return await this.codiAuth.login(username, password);
     } catch {
-      throw new UnauthorizedException('Invalid credentials');
+      throw new UnauthorizedException('Los datos no son correctos');
     }
   }
 
