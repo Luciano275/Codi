@@ -103,7 +103,7 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading}>
           <div>
             <label htmlFor="email" className="block text-sm font-semibold text-white/80 mb-1.5">
-              Correo electrónico o usuario
+              Nombre de Usuario
             </label>
             <div className="relative">
               <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
