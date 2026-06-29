@@ -1,19 +1,35 @@
-import Menubar from "@/components/dashboard/Menubar"
-import Topbar from "@/components/dashboard/Topbar"
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import Topbar from '@/components/dashboard/Topbar';
+import Menubar from '@/components/dashboard/Menubar';
+import QuickActions from '@/components/dashboard/QuickActions';
+import PageTransition from '@/components/dashboard/PageTransition';
 
-export default function DashboardLayout (
-  {children}
-  : {
-    children: React.ReactNode
+export default async function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const user = await auth();
+
+  if (!user) {
+    redirect('/');
   }
-) {
+
   return (
-    <div className="min-h-screen flex flex-col">
-      <Topbar />
-      <section className="flex flex-1 bg-black/40">
-        <Menubar />
-        {children}
-      </section>
+    <div className="h-screen overflow-hidden bg-gray-50">
+      <Topbar user={user} />
+      <div className="flex h-[calc(100vh-5rem)]">
+        <Menubar userRole={user.role} />
+        <main className="flex flex-1 flex-col overflow-y-auto">
+          <PageTransition>
+            <div className="min-h-0 p-6">
+              {children}
+            </div>
+          </PageTransition>
+          <QuickActions />
+        </main>
+      </div>
     </div>
-  )
+  );
 }
