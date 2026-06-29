@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin "@tailwindcss/typography";
 
 @theme {
   --color-pradera-50: #f0fde4;
@@ -89,7 +90,10 @@
   --color-castillo-800: #6d5e1d;
   --color-castillo-900: #3a320e;
 
-  --font-sans: var(--font-nunito), 'Nunito', sans-serif;
+  --font-sans: var(--font-simply-olive), 'Quicksand', 'Nunito', sans-serif;
+  --font-super-pandora: var(--font-super-pandora), 'Fredoka', sans-serif;
+  --font-simply-olive: var(--font-simply-olive), 'Quicksand', sans-serif;
+  --font-candy-beans: var(--font-candy-beans), 'Patrick Hand', cursive;
 }
 
 #main-content {
