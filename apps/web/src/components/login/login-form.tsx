@@ -5,11 +5,26 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
-import { useAuth } from '@/lib/auth-context';
+import { apiPost } from '@/lib/api-client';
+
+interface LoginResponse {
+  token: string;
+  user: {
+    id: string;
+    displayName: string;
+    username: string;
+    email: string;
+    role: string;
+    xp: number;
+    gems: number;
+    level: number;
+    cmsUserId: number;
+    streak: number;
+  };
+}
 
 export default function LoginForm() {
   const router = useRouter();
-  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -22,7 +37,25 @@ export default function LoginForm() {
     setError('');
 
     try {
-      await login(email, password);
+      const res = await apiPost<LoginResponse>('/api/auth/login', {
+        username: email,
+        password,
+      });
+
+      localStorage.setItem('codi_token', res.token);
+
+      try {
+        sessionStorage.setItem('codi_user_cache', JSON.stringify(res.user));
+      } catch {
+        /* quota exceeded */
+      }
+
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: res.token }),
+      });
+
       router.push('/dashboard');
     } catch (err) {
       setError(

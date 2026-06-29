@@ -1,7 +1,21 @@
 import { cache } from 'react';
 import { cookies } from 'next/headers';
 import { jwtVerify } from 'jose';
-import type { UserProfile } from './auth-context';
+
+export interface UserProfile {
+  id: string;
+  cmsUserId: number;
+  cmsSource: string;
+  username: string;
+  displayName: string;
+  email: string;
+  avatarUrl: string;
+  role: string;
+  xp: number;
+  gems: number;
+  level: number;
+  streak: number;
+}
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 const secret = new TextEncoder().encode(

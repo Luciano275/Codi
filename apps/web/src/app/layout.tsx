@@ -3,7 +3,6 @@ import { Nunito } from 'next/font/google';
 import { config } from '@codi/config';
 import './globals.css';
 import SkipLink from '@/components/skip-link';
-import { AuthProvider } from '@/lib/auth-context';
 
 const nunito = Nunito({
   subsets: ['latin'],
@@ -67,11 +66,9 @@ export default function RootLayout({
         className="min-h-screen font-sans antialiased"
       >
         <SkipLink />
-        <AuthProvider>
-          <main id="main-content">
-            {children}
-          </main>
-        </AuthProvider>
+        <main id="main-content">
+          {children}
+        </main>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
