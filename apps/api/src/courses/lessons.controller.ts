@@ -1,10 +1,16 @@
-import { Controller, Get, Param, UseGuards, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Param, UseGuards, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { CoursesService } from './courses.service';
+import type { User } from '@codi/database';
 
 @Controller('lessons')
 export class LessonsController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly coursesService: CoursesService,
+  ) {}
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
@@ -29,5 +35,23 @@ export class LessonsController {
 
     if (!lesson) throw new NotFoundException('Lesson not found');
     return lesson;
+  }
+
+  @Post(':id/complete')
+  @UseGuards(JwtAuthGuard)
+  async complete(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.coursesService.completeLesson(user.id, id);
+  }
+
+  @Post(':id/uncomplete')
+  @UseGuards(JwtAuthGuard)
+  async uncomplete(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.coursesService.uncompleteLesson(user.id, id);
+  }
+
+  @Get(':id/status')
+  @UseGuards(JwtAuthGuard)
+  async status(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.coursesService.getLessonStatus(user.id, id);
   }
 }

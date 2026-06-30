@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 
 @Injectable()
@@ -68,15 +68,23 @@ export class CoursesService {
       0,
     );
 
-    const acceptedSubmissions = await this.prisma.submission.findMany({
-      where: {
-        userId,
-        status: 'ACCEPTED',
-      },
-      select: { problemId: true },
-    });
+    const [acceptedSubmissions, completedLessons] = await Promise.all([
+      this.prisma.submission.findMany({
+        where: { userId, status: 'ACCEPTED' },
+        select: { problemId: true },
+      }),
+      this.prisma.lessonCompletion.findMany({
+        where: { userId },
+        select: { lessonId: true },
+      }),
+    ]);
 
     const acceptedProblemIds = new Set(acceptedSubmissions.map((s) => s.problemId));
+    const completedLessonIds = new Set(completedLessons.map((c) => c.lessonId));
+
+    const isLessonCompleted = (lesson: { id: string; problems: { id: string }[] }) =>
+      completedLessonIds.has(lesson.id) ||
+      lesson.problems.some((p) => acceptedProblemIds.has(p.id));
 
     const courseProgress = courses.map((course) => {
       const totalCourseLessons = course.modules.reduce(
@@ -84,21 +92,17 @@ export class CoursesService {
         0,
       );
 
-      const completedLessons = course.modules.reduce((s, m) => {
-        return (
-          s +
-          m.lessons.filter((l) =>
-            l.problems.some((p) => acceptedProblemIds.has(p.id)),
-          ).length
-        );
-      }, 0);
+      const completed = course.modules.reduce(
+        (s, m) => s + m.lessons.filter(isLessonCompleted).length,
+        0,
+      );
 
       return {
         courseId: course.id,
         courseTitle: course.title,
-        completedLessons,
+        completedLessons: completed,
         totalLessons: totalCourseLessons,
-        completed: completedLessons === totalCourseLessons && totalCourseLessons > 0,
+        completed: completed === totalCourseLessons && totalCourseLessons > 0,
       };
     });
 
@@ -109,5 +113,62 @@ export class CoursesService {
       completedLessons: completedOverall,
       courses: courseProgress,
     };
+  }
+
+  async completeLesson(userId: string, lessonId: string) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { id: true, xpReward: true },
+    });
+    if (!lesson) throw new NotFoundException('Lesson not found');
+
+    const existing = await this.prisma.lessonCompletion.findUnique({
+      where: { userId_lessonId: { userId, lessonId } },
+    });
+    if (existing) throw new ConflictException('Lesson already completed');
+
+    const [completion] = await this.prisma.$transaction([
+      this.prisma.lessonCompletion.create({
+        data: { userId, lessonId },
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { xp: { increment: lesson.xpReward } },
+      }),
+    ]);
+
+    return { completed: true, xpAwarded: lesson.xpReward };
+  }
+
+  async uncompleteLesson(userId: string, lessonId: string) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      select: { id: true, xpReward: true },
+    });
+    if (!lesson) throw new NotFoundException('Lesson not found');
+
+    const existing = await this.prisma.lessonCompletion.findUnique({
+      where: { userId_lessonId: { userId, lessonId } },
+    });
+    if (!existing) throw new NotFoundException('Lesson not completed');
+
+    await this.prisma.$transaction([
+      this.prisma.lessonCompletion.delete({
+        where: { userId_lessonId: { userId, lessonId } },
+      }),
+      this.prisma.user.update({
+        where: { id: userId },
+        data: { xp: { decrement: lesson.xpReward } },
+      }),
+    ]);
+
+    return { completed: false, xpRefunded: lesson.xpReward };
+  }
+
+  async getLessonStatus(userId: string, lessonId: string) {
+    const completion = await this.prisma.lessonCompletion.findUnique({
+      where: { userId_lessonId: { userId, lessonId } },
+    });
+    return { completed: !!completion, completedAt: completion?.completedAt ?? null };
   }
 }
