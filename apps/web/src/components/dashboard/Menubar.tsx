@@ -31,7 +31,7 @@ export default function Menubar({ userRole }: MenubarProps) {
     { id: 'ranking', label: 'Ranking', icon: BarChart3, href: '#' },
     { id: 'eventos', label: 'Eventos', icon: Calendar, href: '#' },
     { id: 'certificados', label: 'Certificados', icon: Award, href: '#' },
-    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: '#' },
+    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: '/dashboard/settings' },
   ];
 
   const isActive = (href: string) => {
