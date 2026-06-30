@@ -3,10 +3,11 @@ import { JwtService } from '@nestjs/jwt';
 import {
   AuthService as CodiAuthService,
   verifyCmsPassword,
+  toProfile,
 } from '@codi/auth';
 import type { LoginResult, UserProfile } from '@codi/auth';
 import { prisma } from '@codi/database';
-import type { CmsUserSource } from '@codi/database';
+import type { User, CmsUserSource } from '@codi/database';
 
 type CmsUserRow = {
   id: number;
@@ -91,6 +92,35 @@ export class AuthService {
     }
 
     return null;
+  }
+
+  async trackActivity(user: User): Promise<UserProfile> {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today.getTime() - 86400000);
+
+    let streak = user.streak;
+
+    if (!user.lastActiveAt || user.lastActiveAt < yesterday) {
+      streak = 1;
+    } else if (user.lastActiveAt >= yesterday && user.lastActiveAt < today) {
+      streak += 1;
+    }
+
+    if (streak !== user.streak || !user.lastActiveAt || user.lastActiveAt < today) {
+      const updated = await prisma.user.update({
+        where: { id: user.id },
+        data: { streak, lastActiveAt: now },
+      });
+      return toProfile(updated);
+    }
+
+    return toProfile(user);
+  }
+
+  async updateProfile(userId: string, data: { displayName?: string; email?: string; avatarUrl?: string }): Promise<UserProfile> {
+    const user = await prisma.user.update({ where: { id: userId }, data });
+    return toProfile(user);
   }
 
   private async upsertUser(params: {
