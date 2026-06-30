@@ -12,6 +12,13 @@ export class AdminProblemsController {
 
   @Get()
   async findAll(@Query('search') search?: string) {
+    // Auto-sync all CMS tasks into codi_problem so they appear in the picker
+    await this.prisma.$executeRawUnsafe(
+      `INSERT INTO codi_problem (id, "cmsTaskId", "cmsTaskName", title, "createdAt", "updatedAt")
+       SELECT gen_random_uuid()::text, id, name, title, NOW(), NOW() FROM public.tasks
+       ON CONFLICT ("cmsTaskId") DO NOTHING`,
+    );
+
     const where = search
       ? {
           OR: [
