@@ -122,21 +122,46 @@ function LessonForm({
   const [saving, setSaving] = useState(false);
   const [showProblemPicker, setShowProblemPicker] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [problems, setProblems] = useState(allProblems);
 
   const filteredCourses = courses.filter((c) => c.modules.length > 0);
   const selectedCourse = courses.find((c) => c.id === courseId);
   const availableModules = selectedCourse?.modules ?? [];
 
-  const filteredProblems = allProblems.filter(
+  const filteredProblems = problems.filter(
     (p) =>
       p.title.toLowerCase().includes(problemSearch.toLowerCase()) ||
       p.cmsTaskName.toLowerCase().includes(problemSearch.toLowerCase()),
   );
 
+  const difficultySelectClass = (d: Difficulty) => {
+    const colors: Record<string, string> = {
+      EASY: 'bg-pradera-100 text-pradera-700',
+      MEDIUM: 'bg-desierto-100 text-desierto-700',
+      HARD: 'bg-volcan-100 text-volcan-700',
+      EXPERT: 'bg-bosque-100 text-bosque-700',
+    };
+    return colors[d] ?? 'bg-gray-100 text-gray-600';
+  };
+
   const toggleProblem = (id: string) => {
     setSelectedProblemIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
+  };
+
+  const updateDifficulty = async (problemId: string, difficulty: string) => {
+    try {
+      await apiFetch(`/api/admin/problems/${problemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ difficulty }),
+      });
+      setProblems((prev) =>
+        prev.map((p) => (p.id === problemId ? { ...p, difficulty: difficulty as Difficulty } : p)),
+      );
+    } catch {
+      // silently fail
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -359,7 +384,7 @@ function LessonForm({
         {selectedProblemIds.length > 0 && (
           <div className="mb-3 flex flex-wrap gap-2">
             {selectedProblemIds.map((pid) => {
-              const p = allProblems.find((x) => x.id === pid);
+              const p = problems.find((x) => x.id === pid);
               return (
                 <span
                   key={pid}
@@ -416,9 +441,17 @@ function LessonForm({
                         #{p.cmsTaskId}
                       </span>
                     </span>
-                    <span className="rounded bg-gray-200 px-2 py-0.5 text-[10px] font-medium text-gray-500">
-                      {p.difficulty}
-                    </span>
+                    <select
+                      value={p.difficulty}
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => updateDifficulty(p.id, e.target.value)}
+                      className={`rounded px-1.5 py-0.5 text-[10px] font-medium outline-none cursor-pointer ${difficultySelectClass(p.difficulty)}`}
+                    >
+                      <option value="EASY">Fácil</option>
+                      <option value="MEDIUM">Medio</option>
+                      <option value="HARD">Difícil</option>
+                      <option value="EXPERT">Experto</option>
+                    </select>
                   </label>
                 ))
               )}

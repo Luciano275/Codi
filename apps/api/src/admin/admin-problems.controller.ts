@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -39,6 +39,18 @@ export class AdminProblemsController {
         difficulty: true,
         xpReward: true,
       },
+    });
+  }
+
+  @Patch(':id')
+  async updateDifficulty(
+    @Param('id') id: string,
+    @Body() body: { difficulty: string },
+  ) {
+    return this.prisma.problem.update({
+      where: { id },
+      data: { difficulty: body.difficulty as any },
+      select: { id: true, difficulty: true },
     });
   }
 }
