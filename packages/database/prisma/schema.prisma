@@ -73,12 +73,13 @@ model User {
   streak       Int      @default(0)
   lastActiveAt DateTime?
 
-  submissions      Submission[]
-  achievements     UserAchievement[]
-  weeklyRankings   WeeklyRanking[]
-  dailyMissions    DailyMission[]
-  examAttempts     ExamAttempt[]
-  notifications    Notification[]
+  submissions        Submission[]
+  achievements       UserAchievement[]
+  weeklyRankings     WeeklyRanking[]
+  dailyMissions      DailyMission[]
+  examAttempts       ExamAttempt[]
+  notifications      Notification[]
+  lessonCompletions  LessonCompletion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -129,11 +130,27 @@ model Lesson {
   content   Json?
   xpReward  Int        @default(50)
   problems  Problem[]
+  completions LessonCompletion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("codi_lesson")
+}
+
+// ─── Seguimiento de Lecciones ───────────────────────────
+
+model LessonCompletion {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId  String
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  completedAt DateTime @default(now())
+
+  @@unique([userId, lessonId])
+  @@map("codi_lesson_completion")
 }
 
 // ─── Problemas (solo referencia a CMS) ───────────────────
