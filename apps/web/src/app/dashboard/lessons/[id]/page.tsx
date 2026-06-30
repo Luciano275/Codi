@@ -11,6 +11,7 @@ import { auth } from '@/lib/auth';
 import { fetchLesson } from '@/lib/server-api';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import LessonSidebar from './sidebar';
+import LessonCompleteButton from './complete-button';
 
 const typeIcons: Record<string, React.ElementType> = {
   THEORY: FileText,
@@ -178,6 +179,11 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
               </div>
             </div>
           )}
+
+          {/* Complete button */}
+          <div className="mb-10">
+            <LessonCompleteButton lessonId={id} />
+          </div>
 
           {/* Navigation */}
           <div className="flex items-center justify-between border-t border-gray-100 pt-6">

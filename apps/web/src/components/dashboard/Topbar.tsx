@@ -20,6 +20,37 @@ interface TopbarProps {
 export default function Topbar({ user }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [displayXp, setDisplayXp] = useState(user.xp);
+  const xpAnimRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const from = displayXp;
+    const to = user.xp;
+    if (from === to || to <= 0) {
+      setDisplayXp(to);
+      return;
+    }
+
+    const duration = 1000;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayXp(Math.round(from + eased * (to - from)));
+
+      if (progress < 1) {
+        xpAnimRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    xpAnimRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (xpAnimRef.current) cancelAnimationFrame(xpAnimRef.current);
+    };
+  }, [user.xp]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -79,7 +110,7 @@ export default function Topbar({ user }: TopbarProps) {
         <div className="flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-1.5">
           <Zap className="h-4 w-4 text-amber-500" />
           <span className="font-candy-beans text-sm text-amber-700">
-            {user.xp.toLocaleString()} XP
+            {displayXp.toLocaleString()} XP
           </span>
         </div>
 
