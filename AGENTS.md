@@ -15,6 +15,7 @@ pnpm format                 # prettier --write **/*.{ts,tsx,md}
 ```
 apps/
   api/          @codi/api          — NestJS v11 (JWT auth, WebSockets, Socket.io)
+  bridge/       @codi/bridge       — Node.js polling loop (intranet -> CMS)
   cms-adapter/  @codi/cms-adapter  — NestJS v11 (proxies CMS webhooks to Prisma)
   web/          @codi/web          — Next.js v16 (standalone output, app router)
 packages/
@@ -104,8 +105,92 @@ pnpm db:studio                         # prisma studio
 ## Env
 
 - `.env` at repo root (gitignored). Copy `.env.example` to create it.
-- Variables used: `DATABASE_URL`, `CMS_API_URL`, `CMS_ADMIN_TOKEN`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `REDIS_URL`, `FRONTEND_URL`, `CMS_ADAPTER_PORT`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`.
+- Variables used: `DATABASE_URL`, `CMS_API_URL`, `CMS_ADMIN_TOKEN`, `CMS_CONTEST_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `REDIS_URL`, `FRONTEND_URL`, `CMS_ADAPTER_PORT`, `BRIDGE_PORT`, `BRIDGE_POLL_INTERVAL`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`.
 - NestJS apps load env via `@nestjs/config` or direct `process.env` — not via dotenv in their own code.
+
+## Bridge Service (`apps/bridge/`)
+
+Servicio standalone Node.js que corre en la **intranet** junto al CMS. Lee `codi_submission_request` con `FOR UPDATE SKIP LOCKED` y envía el código al CMS vía HTTP multipart.
+
+```sh
+pnpm --filter @codi/bridge start    # iniciar bridge (producción)
+pnpm --filter @codi/bridge dev      # modo watch (desarrollo)
+```
+
+Variables de entorno relevantes:
+- `DATABASE_URL` — misma conexión a PostgreSQL que Codi
+- `CMS_API_URL` — URL del CMS en intranet (ej: `http://localhost:8888`)
+- `CMS_CONTEST_NAME` — nombre del concurso en CMS (default: `contest`)
+- `CMS_ADMIN_TOKEN` — token admin del CMS
+- `BRIDGE_POLL_INTERVAL` — ms entre polls (default: `500`)
+
+El bridge es tolerante a fallos de BD: reintenta conexión cada 2s hasta que PostgreSQL esté disponible.
+
+---
+
+## Migración a Supabase (preservando datos)
+
+Cuando llegue el momento de migrar de PostgreSQL local a Supabase, seguir estos pasos **sin perder datos**:
+
+### 1. Backup completo de la BD local
+
+```sh
+pg_dump -h localhost -U cmsuser -d cmsdb --no-owner --no-acl > /tmp/cmsdb_backup.sql
+```
+
+Esto exporta **todas** las tablas: `public.*` (CMS) + `codi_*` (Codi) + Prisma migrations.
+
+### 2. Verificar integridad del backup
+
+```sh
+wc -l /tmp/cmsdb_backup.sql
+# Debería mostrar muchas líneas (10k+)
+head -50 /tmp/cmsdb_backup.sql  # revisar que sea SQL válido
+```
+
+### 3. Restaurar en Supabase
+
+```sh
+psql "$SUPABASE_DATABASE_URL" < /tmp/cmsdb_backup.sql
+```
+
+### 4. Actualizar conexiones
+
+| Componente | Dónde cambiar |
+|-----------|--------------|
+| Codi API + Web | Editar `.env` → `DATABASE_URL=postgresql://...` (cadena de Supabase) |
+| CMS (intranet) | Editar `/etc/cms.conf` → `database: postgresql://...` (misma cadena de Supabase) |
+| Bridge (intranet) | Editar `.env` del bridge → `DATABASE_URL=...` (misma cadena de Supabase) |
+
+### 5. Verificar datos preservados
+
+```sh
+# Conectarse a Supabase y contar registros
+psql "$SUPABASE_DATABASE_URL" -c "SELECT count(*) FROM codi_user;"
+psql "$SUPABASE_DATABASE_URL" -c "SELECT count(*) FROM codi_submission;"
+psql "$SUPABASE_DATABASE_URL" -c "SELECT count(*) FROM codi_submission_request;"
+psql "$SUPABASE_DATABASE_URL" -c "SELECT count(*) FROM public.users;"     # CMS
+psql "$SUPABASE_DATABASE_URL" -c "SELECT count(*) FROM public.tasks;"     # CMS
+```
+
+Comparar contra la BD local original para confirmar que no se perdió nada.
+
+### 6. Crear tablas `codi_*` faltantes (solo si no se restauraron)
+
+Si el backup no incluyó las tablas `codi_*` (ej: porque se crearon con Prisma después), ejecutar:
+
+```sh
+pnpm db:push      # crea tablas codi_* que falten sin borrar datos existentes
+```
+
+`prisma db push` es **seguro**: respeta el `@@map` y no dropea tablas con datos.
+
+### ⚠️ Precauciones críticas
+
+- **NO** ejecutar `prisma migrate dev` en Supabase — detecta tablas `public.*` (CMS) como "no gestionadas" y puede intentar resetear la BD.
+- **NO** ejecutar `pnpm db:setup` en Supabase — hace `prisma migrate dev` internamente.
+- Usar siempre `pnpm db:push` o `pnpm db:migrate` (migrate deploy) para cambios de schema.
+- El firewall de la intranet **debe permitir outbound TCP/5432** hacia la IP de Supabase.
 
 ## Limitations
 
