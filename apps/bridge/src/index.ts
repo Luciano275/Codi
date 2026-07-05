@@ -69,7 +69,7 @@ async function submitToCms(
     form.append('username', username);
     form.append('language', language);
 
-    const url = `${CMS_API_URL}/${CMS_CONTEST_NAME}/api/task/${cmsTaskName}/admin_submit`;
+    const url = `${CMS_API_URL}/${CMS_CONTEST_NAME}/api/admin-submit/${cmsTaskName}`;
     const res = await fetch(url, {
       method: 'POST',
       body: form as any,
