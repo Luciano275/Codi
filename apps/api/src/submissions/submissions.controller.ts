@@ -27,6 +27,12 @@ export class SubmissionsController {
     return this.submissions.submit(user.id, dto.problemId, dto.code, dto.language);
   }
 
+  @Post('evaluate')
+  @UseGuards(JwtAuthGuard)
+  async evaluate(@CurrentUser() user: User, @Body() dto: SubmitDto) {
+    return this.submissions.submit(user.id, dto.problemId, dto.code, dto.language);
+  }
+
   @Get()
   @UseGuards(JwtAuthGuard)
   async list(@CurrentUser() user: User) {

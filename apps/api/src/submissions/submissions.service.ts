@@ -1,11 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
-import { firstValueFrom } from 'rxjs';
 import { PrismaService } from '@codi/database';
 import { config } from '@codi/config';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as os from 'os';
 
 @Injectable()
 export class SubmissionsService {
@@ -13,13 +8,11 @@ export class SubmissionsService {
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly httpService: HttpService,
   ) {}
 
   async submit(userId: string, problemId: string, code: string, language: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      include: { submissions: false },
     });
     if (!user) throw new NotFoundException('User not found');
 
@@ -38,77 +31,55 @@ export class SubmissionsService {
       },
     });
 
-    this.submitToCms(user, problem, submission, code, language).catch((err) => {
+    this.submitToCms(submission.id).catch((err) => {
       this.logger.error(`CMS submission failed: ${err.message}`);
     });
 
     return submission;
   }
 
-  private async submitToCms(
-    user: { username: string; cmsUserId: number },
-    problem: { cmsTaskName: string },
-    submission: { id: string },
-    code: string,
-    language: string,
-  ) {
-    const tmpFile = path.join(os.tmpdir(), `codi_${submission.id}.${language}`);
+  private async submitToCms(submissionId: string) {
     try {
-      fs.writeFileSync(tmpFile, code, 'utf-8');
-
-      const FormData = (await import('form-data')).default;
-      const form = new FormData();
-      const filename = `source.${language}`;
-      form.append(filename, fs.createReadStream(tmpFile), filename);
-      form.append('admin_token', config.cms.adminToken);
-      form.append('username', user.username);
-      form.append('language', language);
-
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${config.cms.apiUrl}/api/admin-submit/${problem.cmsTaskName}`,
-          form,
-          { headers: { ...form.getHeaders() }, timeout: 30000 },
-        ),
-      );
-
-      const cmsSubmissionId = response.data.submission_id;
-
       await this.prisma.submission.update({
-        where: { id: submission.id },
-        data: { cmsSubmissionId, status: 'EVALUATING' },
+        where: { id: submissionId },
+        data: { status: 'EVALUATING' },
       });
 
-      this.logger.log(`Submitted to CMS: id=${cmsSubmissionId}`);
+      await this.prisma.submissionRequest.create({
+        data: { submissionId, status: 'pending' },
+      });
 
-      this.pollForResult(submission.id, cmsSubmissionId);
+      this.logger.log(`SubmissionRequest created for submission ${submissionId}`);
+
+      this.pollForResult(submissionId).catch((err) => {
+        this.logger.error(`Polling failed for ${submissionId}: ${err.message}`);
+      });
     } catch (err: any) {
       this.logger.error(`Submit to CMS failed: ${err.message}`);
       await this.prisma.submission.update({
-        where: { id: submission.id },
+        where: { id: submissionId },
         data: { status: 'COMPILATION_ERROR' },
       }).catch(() => {});
-    } finally {
-      try { fs.unlinkSync(tmpFile); } catch {}
     }
   }
 
-  private async pollForResult(
-    submissionId: string,
-    cmsSubmissionId: number,
-  ) {
-    for (let i = 0; i < 30; i++) {
-      await new Promise((r) => setTimeout(r, 2000));
+  private async pollForResult(submissionId: string) {
+    for (let i = 0; i < 60; i++) {
+      await new Promise((r) => setTimeout(r, 1000));
       try {
-        const result = await firstValueFrom(
-          this.httpService.post(
-            `http://localhost:${config.cmsAdapterPort}/cms-adapter/poll-submission`,
-            { cmsSubmissionId },
-          ),
-        );
-        if (result.data.done) {
+        const submission = await this.prisma.submission.findUnique({
+          where: { id: submissionId },
+          select: { status: true, score: true, cmsResults: true },
+        });
+        if (!submission) return;
+
+        if (
+          submission.status !== 'PENDING' &&
+          submission.status !== 'COMPILING' &&
+          submission.status !== 'EVALUATING'
+        ) {
           this.logger.log(
-            `Submission ${submissionId} evaluated: ${result.data.status}`,
+            `Submission ${submissionId} evaluated: ${submission.status}`,
           );
           return;
         }
