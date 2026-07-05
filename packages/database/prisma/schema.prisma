@@ -167,6 +167,9 @@ model Problem {
   lesson      Lesson?    @relation(fields: [lessonId], references: [id])
   order       Int        @default(0)
 
+  content       Json?
+  attachmentUrl String?
+
   submissions  Submission[]
   examProblems ExamProblem[]
 

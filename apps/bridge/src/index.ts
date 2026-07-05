@@ -128,14 +128,14 @@ async function main() {
       const result = await client.query(
         `SELECT
            sr.id AS request_id,
-           sr.submission_id,
+           sr."submissionId",
            sr.status AS request_status,
            s.code,
            s.language,
            u.username,
            p."cmsTaskName"
          FROM codi_submission_request sr
-         JOIN codi_submission s ON s.id = sr.submission_id
+         JOIN codi_submission s ON s.id = sr."submissionId"
          JOIN codi_user u ON u.id = s."userId"
          JOIN codi_problem p ON p.id = s."problemId"
          WHERE sr.status = 'pending'
@@ -148,11 +148,11 @@ async function main() {
       }
 
       for (const row of result.rows) {
-        console.log(`[Bridge] Submitting request ${row.request_id} (submission ${row.submission_id})`);
+        console.log(`[Bridge] Submitting request ${row.request_id} (submission ${row.submissionId})`);
 
         const submissionResult = await submitToCms(
           row.request_id,
-          row.submission_id,
+          row.submissionId,
           row.code,
           row.language,
           row.username,
@@ -162,7 +162,7 @@ async function main() {
         if (submissionResult.ok) {
           await client.query(
             `UPDATE codi_submission_request
-             SET status = 'submitted', cms_submission_id = $1, processed_at = NOW()
+             SET status = 'submitted', "cmsSubmissionId" = $1, "processedAt" = NOW()
              WHERE id = $2`,
             [submissionResult.cmsSubmissionId, row.request_id],
           );
@@ -172,7 +172,7 @@ async function main() {
         } else {
           await client.query(
             `UPDATE codi_submission_request
-             SET status = 'failed', error_message = $1, processed_at = NOW()
+             SET status = 'failed', "errorMessage" = $1, "processedAt" = NOW()
              WHERE id = $2`,
             [submissionResult.error, row.request_id],
           );
