@@ -8,6 +8,8 @@ import { SubmissionsModule } from './submissions/submissions.module';
 import { CoursesModule } from './courses/courses.module';
 import { RankingModule } from './ranking/ranking.module';
 import { AdminModule } from './admin/admin.module';
+import { PlaygroundModule } from './playground/playground.module';
+import { ProblemsModule } from './problems/problems.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { AdminModule } from './admin/admin.module';
     CoursesModule,
     RankingModule,
     AdminModule,
+    PlaygroundModule,
+    ProblemsModule,
   ],
   controllers: [],
   providers: [],
