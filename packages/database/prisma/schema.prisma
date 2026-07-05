@@ -192,10 +192,25 @@ model Submission {
   cmsSubmissionId Int?   @unique
   cmsResults      Json?
 
+  request         SubmissionRequest?
+
   submittedAt DateTime  @default(now())
   evaluatedAt DateTime?
 
   @@map("codi_submission")
+}
+
+model SubmissionRequest {
+  id              String    @id @default(uuid())
+  submissionId    String    @unique
+  submission      Submission @relation(fields: [submissionId], references: [id])
+  status          String    @default("pending")
+  cmsSubmissionId Int?
+  errorMessage    String?
+  createdAt       DateTime  @default(now())
+  processedAt     DateTime?
+
+  @@map("codi_submission_request")
 }
 
 // ─── Gamificación ────────────────────────────────────────
