@@ -28,7 +28,7 @@ const { Pool } = pg;
 const DATABASE_URL = process.env.DATABASE_URL || 'postgresql://localhost:5432/cmsdb';
 const CMS_API_URL = process.env.CMS_API_URL || 'http://localhost:8888';
 const CMS_ADMIN_TOKEN = process.env.CMS_ADMIN_TOKEN || '';
-const CMS_CONTEST_NAME = process.env.CMS_CONTEST_NAME || 'contest';
+const CMS_CONTEST_NAME = process.env.CMS_CONTEST_NAME || 'simulacro';
 const POLL_INTERVAL_MS = parseInt(process.env.BRIDGE_POLL_INTERVAL || '500', 10);
 
 // ─── DB Pool ──────────────────────────────────────────────
