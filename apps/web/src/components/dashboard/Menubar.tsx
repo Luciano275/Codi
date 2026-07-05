@@ -12,6 +12,7 @@ import {
   Award,
   Settings,
   Shield,
+  FlaskConical,
   ChevronLeft,
   Menu,
 } from 'lucide-react';
@@ -28,6 +29,7 @@ export default function Menubar({ userRole }: MenubarProps) {
     { id: 'ruta', label: 'Ruta de aprendizaje', icon: Map, href: '/dashboard' },
     { id: 'ejercicios', label: 'Ejercicios', icon: Code2, href: '#' },
     { id: 'retos', label: 'Retos', icon: Trophy, href: '#' },
+    { id: 'laboratorio', label: 'Laboratorio', icon: FlaskConical, href: '/dashboard/lab' },
     { id: 'ranking', label: 'Ranking', icon: BarChart3, href: '#' },
     { id: 'eventos', label: 'Eventos', icon: Calendar, href: '#' },
     { id: 'certificados', label: 'Certificados', icon: Award, href: '#' },

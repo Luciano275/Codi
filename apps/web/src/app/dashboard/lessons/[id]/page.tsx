@@ -149,13 +149,14 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
               </h3>
               <div className="space-y-2">
                 {lesson.problems.map((problem) => (
-                  <div
+                  <a
                     key={problem.id}
-                    className="flex items-center gap-4 rounded-xl border border-gray-100 px-4 py-3 transition-colors hover:border-gray-200 hover:bg-gray-50"
+                    href={`/dashboard/lab?problemId=${problem.id}&lessonId=${id}`}
+                    className="flex items-center gap-4 rounded-xl border border-gray-100 px-4 py-3 transition-colors hover:border-lagos-200 hover:bg-lagos-50 group"
                   >
-                    <FileCode2 className="h-5 w-5 text-gray-400" />
+                    <FileCode2 className="h-5 w-5 text-gray-400 group-hover:text-lagos-500" />
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800">
+                      <p className="text-sm font-medium text-gray-800 group-hover:text-lagos-700">
                         {problem.title}
                       </p>
                       <p className="text-xs text-gray-400">#{problem.cmsTaskId}</p>
@@ -174,7 +175,8 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                     <span className="font-candy-beans text-xs text-amber-600">
                       +{problem.xpReward} XP
                     </span>
-                  </div>
+                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
+                  </a>
                 ))}
               </div>
             </div>

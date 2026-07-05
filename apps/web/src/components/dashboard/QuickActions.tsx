@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   Dumbbell,
   Code2,
@@ -22,12 +23,22 @@ export default function QuickActions() {
         <div className="flex items-center justify-between gap-1 px-3 py-1.5">
           {actions.map((action) => {
             const Icon = action.icon;
-            return (
-              <button
-                key={action.label}
-                className={`flex flex-1 items-center justify-center rounded-xl bg-linear-to-br ${action.color} py-2 text-white shadow-xs active:scale-95`}
-              >
+            const isLab = action.label === 'Laboratorio';
+            const ButtonContent = (
+              <div className={`flex flex-1 items-center justify-center rounded-xl bg-linear-to-br ${action.color} py-2 text-white shadow-xs active:scale-95`}>
                 <Icon className="h-5 w-5" />
+              </div>
+            );
+            if (isLab) {
+              return (
+                <Link key={action.label} href="/dashboard/lab" className="flex-1">
+                  {ButtonContent}
+                </Link>
+              );
+            }
+            return (
+              <button key={action.label} className="flex-1">
+                {ButtonContent}
               </button>
             );
           })}
@@ -39,11 +50,9 @@ export default function QuickActions() {
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3">
           {actions.map((action) => {
             const Icon = action.icon;
-            return (
-              <button
-                key={action.label}
-                className={`group flex flex-1 items-center gap-3 rounded-2xl bg-linear-to-br ${action.color} px-4 py-3 text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg active:scale-95`}
-              >
+            const isLab = action.label === 'Laboratorio';
+            const ButtonContent = (
+              <div className={`group flex flex-1 items-center gap-3 rounded-2xl bg-linear-to-br ${action.color} px-4 py-3 text-white shadow-md transition-all duration-300 hover:scale-[1.03] hover:shadow-lg active:scale-95`}>
                 <Icon className="h-6 w-6 shrink-0" />
                 <div className="text-left">
                   <p className="font-super-pandora text-sm leading-tight">
@@ -53,6 +62,18 @@ export default function QuickActions() {
                     {action.desc}
                   </p>
                 </div>
+              </div>
+            );
+            if (isLab) {
+              return (
+                <Link key={action.label} href="/dashboard/lab" className="flex-1">
+                  {ButtonContent}
+                </Link>
+              );
+            }
+            return (
+              <button key={action.label} className="flex-1">
+                {ButtonContent}
               </button>
             );
           })}
