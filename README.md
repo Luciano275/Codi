@@ -90,7 +90,6 @@ Sincronización con un sistema externo de gestión de competencias mediante webh
 |-------|------|--------|-------------|
 | `apps/web` | Next.js 16 + React 19 | 3000 | Frontend con editor y UI gamificada |
 | `apps/api` | NestJS 11 | 4000 | API REST + WebSockets |
-| `apps/cms-adapter` | NestJS 11 | 4001 | Webhooks del CMS externo |
 | `packages/database` | Prisma 7 | — | Capa de acceso a datos |
 | `packages/auth` | JWT | — | Autenticación |
 | `packages/types` | TypeScript | — | Tipos compartidos |

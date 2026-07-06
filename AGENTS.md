@@ -15,8 +15,6 @@ pnpm format                 # prettier --write **/*.{ts,tsx,md}
 ```
 apps/
   api/          @codi/api          — NestJS v11 (JWT auth, WebSockets, Socket.io)
-  bridge/       @codi/bridge       — Node.js polling loop (intranet -> CMS)
-  cms-adapter/  @codi/cms-adapter  — NestJS v11 (proxies CMS webhooks to Prisma)
   web/          @codi/web          — Next.js v16 (standalone output, app router)
 packages/
   auth/         @codi/auth         — re-exports prisma + types from @codi/database
@@ -105,28 +103,8 @@ pnpm db:studio                         # prisma studio
 ## Env
 
 - `.env` at repo root (gitignored). Copy `.env.example` to create it.
-- Variables used: `DATABASE_URL`, `CMS_API_URL`, `CMS_ADMIN_TOKEN`, `CMS_CONTEST_NAME`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `REDIS_URL`, `FRONTEND_URL`, `CMS_ADAPTER_PORT`, `BRIDGE_PORT`, `BRIDGE_POLL_INTERVAL`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`.
+- Variables used: `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRES_IN`, `REDIS_URL`, `FRONTEND_URL`, `S3_BUCKET`, `S3_REGION`, `S3_ENDPOINT`.
 - NestJS apps load env via `@nestjs/config` or direct `process.env` — not via dotenv in their own code.
-
-## Bridge Service (`apps/bridge/`)
-
-Servicio standalone Node.js que corre en la **intranet** junto al CMS. Lee `codi_submission_request` con `FOR UPDATE SKIP LOCKED` y envía el código al CMS vía HTTP multipart.
-
-```sh
-pnpm --filter @codi/bridge start    # iniciar bridge (producción)
-pnpm --filter @codi/bridge dev      # modo watch (desarrollo)
-```
-
-Variables de entorno relevantes:
-- `DATABASE_URL` — misma conexión a PostgreSQL que Codi
-- `CMS_API_URL` — URL del CMS en intranet (ej: `http://localhost:8888`)
-- `CMS_CONTEST_NAME` — nombre del concurso en CMS (default: `contest`)
-- `CMS_ADMIN_TOKEN` — token admin del CMS
-- `BRIDGE_POLL_INTERVAL` — ms entre polls (default: `500`)
-
-El bridge es tolerante a fallos de BD: reintenta conexión cada 2s hasta que PostgreSQL esté disponible.
-
----
 
 ## Migración a Supabase (preservando datos)
 
