@@ -14,7 +14,7 @@ export class LessonsController {
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
-  async findOne(@Param('id') id: string) {
+  async findOne(@CurrentUser() user: User, @Param('id') id: string) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id },
       include: {
@@ -34,7 +34,16 @@ export class LessonsController {
     });
 
     if (!lesson) throw new NotFoundException('Lesson not found');
-    return lesson;
+
+    const problemIds = lesson.problems.map((p) => p.id);
+    const solved = await this.prisma.submission.findMany({
+      where: { userId: user.id, problemId: { in: problemIds }, status: 'ACCEPTED' },
+      select: { problemId: true },
+      distinct: ['problemId'],
+    });
+    const solvedProblemIds = solved.map((s) => s.problemId);
+
+    return { ...lesson, solvedProblemIds };
   }
 
   @Post(':id/complete')

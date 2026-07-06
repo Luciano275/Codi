@@ -68,23 +68,15 @@ export class CoursesService {
       0,
     );
 
-    const [acceptedSubmissions, completedLessons] = await Promise.all([
-      this.prisma.submission.findMany({
-        where: { userId, status: 'ACCEPTED' },
-        select: { problemId: true },
-      }),
-      this.prisma.lessonCompletion.findMany({
-        where: { userId },
-        select: { lessonId: true },
-      }),
-    ]);
+    const completedLessons = await this.prisma.lessonCompletion.findMany({
+      where: { userId },
+      select: { lessonId: true },
+    });
 
-    const acceptedProblemIds = new Set(acceptedSubmissions.map((s) => s.problemId));
     const completedLessonIds = new Set(completedLessons.map((c) => c.lessonId));
 
-    const isLessonCompleted = (lesson: { id: string; problems: { id: string }[] }) =>
-      completedLessonIds.has(lesson.id) ||
-      lesson.problems.some((p) => acceptedProblemIds.has(p.id));
+    const isLessonCompleted = (lesson: { id: string }) =>
+      completedLessonIds.has(lesson.id);
 
     const courseProgress = courses.map((course) => {
       const totalCourseLessons = course.modules.reduce(

@@ -6,6 +6,7 @@ import {
   ChevronRight,
   ExternalLink,
   Zap,
+  CheckCircle2,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { fetchLesson } from '@/lib/server-api';
@@ -148,13 +149,23 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                 Ejercicios ({lesson.problems.length})
               </h3>
               <div className="space-y-2">
-                {lesson.problems.map((problem) => (
+                {lesson.problems.map((problem) => {
+                  const solved = lesson.solvedProblemIds?.includes(problem.id);
+                  return (
                   <a
                     key={problem.id}
                     href={`/dashboard/lab?problemId=${problem.id}&lessonId=${id}`}
-                    className="flex items-center gap-4 rounded-xl border border-gray-100 px-4 py-3 transition-colors hover:border-lagos-200 hover:bg-lagos-50 group"
+                    className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors group ${
+                      solved
+                        ? 'border-pradera-200 bg-pradera-50 hover:bg-pradera-100'
+                        : 'border-gray-100 hover:border-lagos-200 hover:bg-lagos-50'
+                    }`}
                   >
-                    <FileCode2 className="h-5 w-5 text-gray-400 group-hover:text-lagos-500" />
+                    {solved ? (
+                      <CheckCircle2 className="h-5 w-5 text-pradera-500" />
+                    ) : (
+                      <FileCode2 className="h-5 w-5 text-gray-400 group-hover:text-lagos-500" />
+                    )}
                     <div className="flex-1">
                       <p className="text-sm font-medium text-gray-800 group-hover:text-lagos-700">
                         {problem.title}
@@ -177,7 +188,8 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                     </span>
                     <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
                   </a>
-                ))}
+                );
+              })}
               </div>
             </div>
           )}

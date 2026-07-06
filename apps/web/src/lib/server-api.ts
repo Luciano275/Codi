@@ -48,6 +48,7 @@ export interface Lesson {
   xpReward: number;
   content: Record<string, unknown>;
   problems: Problem[];
+  solvedProblemIds: string[];
   module: {
     id: string;
     title: string;
