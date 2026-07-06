@@ -84,7 +84,7 @@ class PlaygroundSession {
 
   writeStdin(data: string) {
     if (this.child?.stdin?.writable) {
-      this.child.stdin.write(data);
+      this.child.stdin.write(data + '\n');
     }
   }
 
