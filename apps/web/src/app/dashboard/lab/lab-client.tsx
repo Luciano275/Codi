@@ -26,7 +26,7 @@ const DEFAULT_CODE = `# Laboratorio de Python
 
 print("¡Hola, Codi!")`;
 
-const LANGUAGES = [
+const ALL_LANGUAGES = [
   { id: 'python', label: 'Python 3', extension: 'py' },
   { id: 'cpp', label: 'C++', extension: 'cpp' },
 ];
@@ -41,6 +41,12 @@ interface ConsoleTab {
   status?: string;
 }
 
+interface LangInfo {
+  id: string;
+  label: string;
+  extension: string;
+}
+
 interface ExerciseInfo {
   id: string;
   title: string;
@@ -50,6 +56,7 @@ interface ExerciseInfo {
   cmsTaskName?: string;
   attachmentUrl?: string;
   content?: Record<string, unknown>;
+  availableLanguages?: LangInfo[];
 }
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -162,12 +169,14 @@ export default function LabClient({ user }: { user: { id: string; username: stri
       apiGet<ExerciseInfo>(`/api/problems/${problemId}`)
         .then((data) => {
           setExercise(data);
-          // Only set template if no saved code for this exercise
+          const langs = data.availableLanguages ?? ALL_LANGUAGES;
+          if (!langs.some((l) => l.id === language)) {
+            setLanguage(langs[0]?.id ?? 'python');
+          }
           const saved = localStorage.getItem(STORAGE_KEY);
           if (!saved) {
             setCode(`# ${data.title}\n# Resolvé el ejercicio aquí\n\n`);
           }
-          // Load previous submissions for this problem
           apiGet<any[]>(`/api/submissions`).then((subs) => {
             setSubmissions(subs.filter((s: any) => s.problemId === problemId));
           }).catch(() => {});
@@ -537,6 +546,28 @@ export default function LabClient({ user }: { user: { id: string; username: stri
               )}
               <FlaskConical className="h-4 w-4 text-valle-500" />
               <span className="font-super-pandora text-sm text-gray-700">Laboratorio</span>
+              <span className="mx-1.5 text-gray-300">|</span>
+              {(exercise.availableLanguages ?? ALL_LANGUAGES).length === 1 ? (
+                <span className="rounded-md bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-500">
+                  Solo: {(exercise.availableLanguages ?? ALL_LANGUAGES)[0].label}
+                </span>
+              ) : (
+                <div className="flex items-center gap-1">
+                  {(exercise.availableLanguages ?? ALL_LANGUAGES).map((lang) => (
+                    <button
+                      key={lang.id}
+                      onClick={() => setLanguage(lang.id)}
+                      className={`rounded-md px-2 py-0.5 text-[10px] font-medium transition-colors ${
+                        language === lang.id
+                          ? 'bg-valle-100 text-valle-700'
+                          : 'text-gray-400 hover:text-gray-600'
+                      }`}
+                    >
+                      {lang.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -717,7 +748,7 @@ export default function LabClient({ user }: { user: { id: string; username: stri
               Lenguaje
             </p>
             <div className="space-y-1">
-              {LANGUAGES.map((lang) => (
+              {ALL_LANGUAGES.map((lang) => (
                 <button
                   key={lang.id}
                   onClick={() => setLanguage(lang.id)}
