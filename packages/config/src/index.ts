@@ -16,4 +16,7 @@ export const config = {
     region: process.env.S3_REGION || 'us-east-1',
     endpoint: process.env.S3_ENDPOINT || '',
   },
+  eval: {
+    pythonBin: process.env.EVAL_PYTHON_BIN || `${process.env.HOME}/.codi_venv/bin/python3`,
+  },
 };

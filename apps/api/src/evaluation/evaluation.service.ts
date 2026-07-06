@@ -3,6 +3,7 @@ import { spawn } from 'child_process';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { config } from '@codi/config';
 
 export interface EvalResult {
   ok: boolean;
@@ -15,7 +16,7 @@ export interface EvalResult {
 @Injectable()
 export class EvaluationService {
   private readonly logger = new Logger(EvaluationService.name);
-  private readonly pythonBin = '/tmp/codi_venv/bin/python3';
+  private readonly pythonBin = config.eval.pythonBin;
   private readonly driverPath = path.join(__dirname, '../../src/evaluation/driver.py');
 
   evaluate(
