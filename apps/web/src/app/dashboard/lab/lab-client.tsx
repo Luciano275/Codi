@@ -379,7 +379,7 @@ export default function LabClient({ user }: { user: { id: string; username: stri
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       if (consoleInput && sessionId) {
-        sendStdin(consoleInput + '\n');
+        sendStdin(consoleInput);
         consoleOutputRef.current += consoleInput + '\n';
         setConsoleInput('');
         // Find the last Run tab to update
