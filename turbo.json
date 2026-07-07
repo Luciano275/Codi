@@ -1,6 +1,7 @@
 {
   "$schema": "https://turborepo.dev/schema.json",
   "ui": "tui",
+  "globalDependencies": [".env"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
@@ -8,11 +9,13 @@
     },
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["*"]
     },
     "start": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "env": ["*"]
     },
     "lint": {
       "dependsOn": ["^build"]
