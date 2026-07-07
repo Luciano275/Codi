@@ -56,7 +56,7 @@ export default function LoginForm() {
         body: JSON.stringify({ token: res.token }),
       });
 
-      router.push('/dashboard');
+      window.location.href = '/dashboard';
     } catch (err) {
       setError(
         err instanceof Error
