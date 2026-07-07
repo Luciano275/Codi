@@ -1,4 +1,4 @@
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 class ApiError extends Error {
   status: number;
@@ -16,6 +16,10 @@ async function request<T>(
   body?: unknown,
   token?: string,
 ): Promise<T> {
+  if (!API_URL) {
+    throw new Error("No se encontró una URL de API")
+  }
+
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
   if (token) headers['Authorization'] = `Bearer ${token}`;
 
