@@ -1,12 +1,7 @@
 import type { NextRequest } from 'next/server';
-import { jwtVerify } from 'jose';
 import { adminRoutesPrefix, authRoutes, DASHBOARD_PREFIX } from '@/lib/routes';
 
-const secret = new TextEncoder().encode(
-  process.env.JWT_SECRET || 'dev-secret-change-in-production',
-);
-
-export default async function proxy(req: NextRequest) {
+export default function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   const isOnAuthRoute = authRoutes.includes(pathname);
@@ -14,18 +9,7 @@ export default async function proxy(req: NextRequest) {
   const isOnAdminRoute = pathname.startsWith(adminRoutesPrefix);
 
   const session = req.cookies.get('session')?.value;
-
-  let isLoggedIn = false;
-
-  let payload: { sub: string; role: string } | null = null;
-
-  if (session) {
-    try {
-      const result = await jwtVerify(session, secret);
-      payload = result.payload as unknown as { sub: string; role: string };
-      isLoggedIn = true;
-    } catch {}
-  }
+  const isLoggedIn = !!session;
 
   if (isOnAuthRoute) {
     if (isLoggedIn) {
@@ -40,7 +24,7 @@ export default async function proxy(req: NextRequest) {
   }
 
   if (isOnAdminRoute) {
-    if (!isLoggedIn || payload?.role !== 'ADMIN') {
+    if (!isLoggedIn) {
       return Response.redirect(new URL(DASHBOARD_PREFIX, req.nextUrl));
     }
   }
@@ -49,5 +33,5 @@ export default async function proxy(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!.*\\..*|_next).*)', '/', '/(api|trpc)(.*)'],
+  matcher: ['/((?!.*\\..*|_next|api).*)', '/'],
 };
