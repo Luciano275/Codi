@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 
 @Injectable()
@@ -118,6 +118,32 @@ export class CoursesService {
       where: { userId_lessonId: { userId, lessonId } },
     });
     if (existing) throw new ConflictException('Lesson already completed');
+
+    // Validate all exercises have score >= 60
+    const problems = await this.prisma.problem.findMany({
+      where: { lessonId },
+      select: { id: true },
+    });
+    if (problems.length > 0) {
+      const problemIds = problems.map((p) => p.id);
+      const bestScores = await this.prisma.submission.groupBy({
+        by: ['problemId'],
+        where: {
+          userId,
+          problemId: { in: problemIds },
+          status: 'ACCEPTED',
+          score: { gte: 60 },
+        },
+        _max: { score: true },
+      });
+      const qualifiedProblemIds = new Set(bestScores.map((s) => s.problemId));
+      const missing = problemIds.filter((id) => !qualifiedProblemIds.has(id));
+      if (missing.length > 0) {
+        throw new ForbiddenException(
+          `Debés resolver todos los ejercicios con al menos 60 puntos antes de completar la lección. Faltan ${missing.length} ejercicio(s).`,
+        );
+      }
+    }
 
     const [completion] = await this.prisma.$transaction([
       this.prisma.lessonCompletion.create({

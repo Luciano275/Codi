@@ -28,7 +28,7 @@ export class LessonsController {
           },
         },
         problems: {
-          select: { id: true, cmsTaskId: true, title: true, difficulty: true, xpReward: true },
+          select: { id: true, cmsTaskId: true, title: true, difficulty: true, xpReward: true, gemsReward: true },
         },
       },
     });
