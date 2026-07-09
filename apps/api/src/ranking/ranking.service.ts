@@ -16,6 +16,7 @@ export class RankingService {
         displayName: true,
         avatarUrl: true,
         xp: true,
+        gems: true,
         level: true,
       },
     });

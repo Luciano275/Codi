@@ -1,4 +1,4 @@
-import { Trophy, Zap } from 'lucide-react';
+import { Trophy, Zap, Gem } from 'lucide-react';
 import type { RankingUser } from '@/lib/server-api';
 
 interface WeeklyRankingProps {
@@ -63,6 +63,14 @@ export default function WeeklyRanking({ users }: WeeklyRankingProps) {
                 <Zap className="h-3 w-3 text-amber-400" />
                 <span className="font-candy-beans text-xs text-gray-600">
                   {student.xp.toLocaleString()}
+                </span>
+              </div>
+
+              {/* Gems */}
+              <div className="flex shrink-0 items-center gap-1">
+                <Gem className="h-3 w-3 text-cyan-400" />
+                <span className="font-candy-beans text-xs text-gray-500">
+                  {student.gems}
                 </span>
               </div>
             </li>

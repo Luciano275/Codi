@@ -63,6 +63,7 @@ export interface Problem {
   title: string;
   difficulty: string;
   xpReward: number;
+  gemsReward: number;
 }
 
 export interface ProgressData {
@@ -84,6 +85,7 @@ export interface RankingUser {
   displayName: string;
   avatarUrl: string | null;
   xp: number;
+  gems: number;
   level: number;
 }
 
