@@ -70,9 +70,10 @@ export class SubmissionsService {
         if (isAccepted) {
           const problem = await this.prisma.problem.findUnique({
             where: { id: submission.problemId },
-            select: { xpReward: true },
+            select: { xpReward: true, gemsReward: true },
           });
-          const alreadyAwarded = problem && await this.prisma.submission.findFirst({
+
+          const previousAccepted = problem && await this.prisma.submission.findFirst({
             where: {
               userId: submission.userId,
               problemId: submission.problemId,
@@ -80,17 +81,40 @@ export class SubmissionsService {
               id: { not: submissionId },
             },
           });
-          if (problem && !alreadyAwarded) {
-            await this.prisma.$transaction([
-              this.prisma.submission.update({ where: { id: submissionId }, data: updateData }),
-              this.prisma.user.update({
-                where: { id: submission.userId },
-                data: { xp: { increment: problem.xpReward } },
-              }),
-            ]);
-            this.logger.log(`Submission ${submissionId}: ACCEPTED — awarded ${problem.xpReward} XP`);
+
+          const gemsAlreadyAwarded = problem && await this.prisma.submission.findFirst({
+            where: {
+              userId: submission.userId,
+              problemId: submission.problemId,
+              status: 'ACCEPTED',
+              gemsAwarded: true,
+            },
+          });
+
+          await this.prisma.submission.update({
+            where: { id: submissionId },
+            data: {
+              ...updateData,
+              gemsAwarded: !gemsAlreadyAwarded && problem != null && problem.gemsReward > 0,
+            },
+          });
+
+          if (problem && !previousAccepted) {
+            await this.prisma.user.update({
+              where: { id: submission.userId },
+              data: {
+                xp: { increment: problem.xpReward },
+                gems: { increment: problem.gemsReward },
+              },
+            });
+            this.logger.log(`Submission ${submissionId}: ACCEPTED — awarded ${problem.xpReward} XP, ${problem.gemsReward} gems`);
+          } else if (problem && !gemsAlreadyAwarded && problem.gemsReward > 0) {
+            await this.prisma.user.update({
+              where: { id: submission.userId },
+              data: { gems: { increment: problem.gemsReward } },
+            });
+            this.logger.log(`Submission ${submissionId}: ACCEPTED — awarded ${problem.gemsReward} gems (retroactive)`);
           } else {
-            await this.prisma.submission.update({ where: { id: submissionId }, data: updateData });
             this.logger.log(`Submission ${submissionId}: ${result.status} (${result.score} pts)`);
           }
         } else {
