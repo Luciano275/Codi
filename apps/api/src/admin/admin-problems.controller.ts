@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Body, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Patch, Param, Body, Query, UseGuards, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -12,7 +12,6 @@ export class AdminProblemsController {
 
   @Get()
   async findAll(@Query('search') search?: string) {
-    // Auto-sync all CMS tasks into codi_problem so they appear in the picker
     await this.prisma.$executeRawUnsafe(
       `INSERT INTO codi_problem (id, "cmsTaskId", "cmsTaskName", title, "createdAt", "updatedAt")
        SELECT gen_random_uuid()::text, id, name, title, NOW(), NOW() FROM public.tasks
@@ -38,19 +37,24 @@ export class AdminProblemsController {
         title: true,
         difficulty: true,
         xpReward: true,
+        gemsReward: true,
       },
     });
   }
 
   @Patch(':id')
-  async updateDifficulty(
+  async updateProblem(
     @Param('id') id: string,
-    @Body() body: { difficulty: string },
+    @Body() body: { difficulty?: string; gemsReward?: number },
   ) {
+    const data: Record<string, unknown> = {};
+    if (body.difficulty !== undefined) data.difficulty = body.difficulty;
+    if (body.gemsReward !== undefined) data.gemsReward = body.gemsReward;
+
     return this.prisma.problem.update({
       where: { id },
-      data: { difficulty: body.difficulty as any },
-      select: { id: true, difficulty: true },
+      data,
+      select: { id: true, difficulty: true, gemsReward: true },
     });
   }
 }
