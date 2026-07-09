@@ -21,12 +21,40 @@ interface TopbarProps {
 export default function Topbar({ user }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const [clientUser, setClientUser] = useState(user);
   const [displayXp, setDisplayXp] = useState(user.xp);
   const xpAnimRef = useRef<number | null>(null);
+  const gemsAnimRef = useRef<number | null>(null);
+  const [displayGems, setDisplayGems] = useState(user.gems);
 
+  // Refresh gems on mount
+  useEffect(() => {
+    fetch('/api/proxy/api/auth/me')
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.user) setClientUser(data.user);
+      })
+      .catch(() => {});
+  }, []);
+
+  // Listen for user-updated events (e.g. after gems are awarded)
+  useEffect(() => {
+    function handleUserUpdate() {
+      fetch('/api/proxy/api/auth/me')
+        .then((r) => r.json())
+        .then((data) => {
+          if (data?.user) setClientUser(data.user);
+        })
+        .catch(() => {});
+    }
+    window.addEventListener('user-updated', handleUserUpdate);
+    return () => window.removeEventListener('user-updated', handleUserUpdate);
+  }, []);
+
+  // Animate XP changes
   useEffect(() => {
     const from = displayXp;
-    const to = user.xp;
+    const to = clientUser.xp;
     if (from === to || to <= 0) {
       setDisplayXp(to);
       return;
@@ -51,7 +79,37 @@ export default function Topbar({ user }: TopbarProps) {
     return () => {
       if (xpAnimRef.current) cancelAnimationFrame(xpAnimRef.current);
     };
-  }, [user.xp]);
+  }, [clientUser.xp]);
+
+  // Animate gems changes
+  useEffect(() => {
+    const from = displayGems;
+    const to = clientUser.gems;
+    if (from === to || to <= 0) {
+      setDisplayGems(to);
+      return;
+    }
+
+    const duration = 1000;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setDisplayGems(Math.round(from + eased * (to - from)));
+
+      if (progress < 1) {
+        gemsAnimRef.current = requestAnimationFrame(tick);
+      }
+    }
+
+    gemsAnimRef.current = requestAnimationFrame(tick);
+
+    return () => {
+      if (gemsAnimRef.current) cancelAnimationFrame(gemsAnimRef.current);
+    };
+  }, [clientUser.gems]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -119,7 +177,7 @@ export default function Topbar({ user }: TopbarProps) {
         <div className="flex items-center gap-1.5 rounded-xl bg-cyan-50 px-3 py-1.5">
           <Gem className="h-4 w-4 text-cyan-500" />
           <span className="font-candy-beans text-sm text-cyan-700">
-            {user.gems}
+            {displayGems}
           </span>
         </div>
 
@@ -127,7 +185,7 @@ export default function Topbar({ user }: TopbarProps) {
         <div className="flex items-center gap-1.5 rounded-xl bg-bosque-50 px-3 py-1.5">
           <Trophy className="h-4 w-4 text-bosque-500" />
           <span className="font-candy-beans text-sm text-bosque-700">
-            Nivel {user.level}
+            Nivel {clientUser.level}
           </span>
         </div>
 
@@ -138,10 +196,10 @@ export default function Topbar({ user }: TopbarProps) {
             className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-100"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 text-sm font-bold text-white">
-              {user.displayName.charAt(0).toUpperCase()}
+              {clientUser.displayName.charAt(0).toUpperCase()}
             </div>
             <span className="hidden text-sm font-semibold text-gray-800 lg:block">
-              {user.displayName}
+              {clientUser.displayName}
             </span>
             <ChevronDown
               className={`h-4 w-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`}
@@ -151,8 +209,8 @@ export default function Topbar({ user }: TopbarProps) {
           {dropdownOpen && (
             <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
               <div className="border-b border-gray-100 px-4 py-3">
-                <p className="text-sm font-semibold text-gray-900">{user.displayName}</p>
-                <p className="text-xs text-gray-500">@{user.username}</p>
+                <p className="text-sm font-semibold text-gray-900">{clientUser.displayName}</p>
+                <p className="text-xs text-gray-500">@{clientUser.username}</p>
               </div>
               <div className="p-1">
                 <Link
