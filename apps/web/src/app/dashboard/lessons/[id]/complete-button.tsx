@@ -20,6 +20,7 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
   const [submitting, setSubmitting] = useState(false);
   const [xpAwarded, setXpAwarded] = useState<number | null>(null);
   const [displayXp, setDisplayXp] = useState(0);
+  const [error, setError] = useState('');
   const animFrameRef = useRef<number | null>(null);
 
   const fetchStatus = useCallback(async () => {
@@ -50,14 +51,16 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
     if (submitting) return;
 
     setSubmitting(true);
+    setError('');
     try {
       const data = await completeLesson(lessonId);
       setCompleted(true);
       setCompletedAt(new Date().toISOString());
       setXpAwarded(data.xpAwarded);
+      window.dispatchEvent(new CustomEvent('user-updated'));
       router.refresh();
-    } catch {
-      // ignore
+    } catch (err: any) {
+      setError(err?.message || 'Error al completar la lección');
     } finally {
       setSubmitting(false);
     }
@@ -141,6 +144,11 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
       <p className="mb-3 font-simply-olive text-sm text-gray-500">
         ¿Terminaste la lección?
       </p>
+      {error && (
+        <p className="mb-3 text-xs font-medium text-volcan-600 bg-volcan-50 rounded-lg px-3 py-2">
+          {error}
+        </p>
+      )}
       <button
         onClick={handleComplete}
         disabled={submitting}

@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Zap,
   CheckCircle2,
+  Gem,
 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { fetchLesson } from '@/lib/server-api';
@@ -185,6 +186,10 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                     </span>
                     <span className="font-candy-beans text-xs text-amber-600">
                       +{problem.xpReward} XP
+                    </span>
+                    <span className="flex items-center text-xs text-cyan-500 gap-2">
+                      <Gem className="h-4 w-4 text-cyan-500" />
+                      +{problem.gemsReward}
                     </span>
                     <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
                   </a>
