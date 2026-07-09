@@ -18,6 +18,7 @@ import {
   Edit3,
   ExternalLink,
   ChevronRight,
+  Gem,
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import Link from 'next/link';
@@ -63,6 +64,7 @@ interface Problem {
   title: string;
   difficulty: Difficulty;
   xpReward: number;
+  gemsReward: number;
 }
 
 interface Lesson {
@@ -144,9 +146,10 @@ function LessonForm({
     return colors[d] ?? 'bg-gray-100 text-gray-600';
   };
 
-  const toggleProblem = (id: string) => {
+  const toggleProblem = async (id: string) => {
+    const adding = !selectedProblemIds.includes(id);
     setSelectedProblemIds((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+      adding ? [...prev, id] : prev.filter((x) => x !== id),
     );
   };
 
@@ -158,6 +161,20 @@ function LessonForm({
       });
       setProblems((prev) =>
         prev.map((p) => (p.id === problemId ? { ...p, difficulty: difficulty as Difficulty } : p)),
+      );
+    } catch {
+      // silently fail
+    }
+  };
+
+  const updateGemsReward = async (problemId: string, gemsReward: number) => {
+    try {
+      await apiFetch(`/api/admin/problems/${problemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ gemsReward }),
+      });
+      setProblems((prev) =>
+        prev.map((p) => (p.id === problemId ? { ...p, gemsReward } : p)),
       );
     } catch {
       // silently fail
@@ -385,16 +402,29 @@ function LessonForm({
           <div className="mb-3 flex flex-wrap gap-2">
             {selectedProblemIds.map((pid) => {
               const p = problems.find((x) => x.id === pid);
+              if (!p) return null;
               return (
                 <span
                   key={pid}
-                  className="inline-flex items-center gap-1 rounded-lg bg-pradera-50 px-2.5 py-1 text-xs font-medium text-pradera-700"
+                  className="inline-flex items-center gap-4 rounded-lg bg-pradera-50 px-2.5 py-2 text-sm font-medium text-pradera-700"
                 >
-                  #{p?.cmsTaskId} {p?.title}
+                  <span>#{p.cmsTaskId} <b>{p.title}</b></span>
+                  <div className='flex items-center gap-1'>
+                    <Gem className="h-4 w-4 text-cyan-500" />
+                    <input
+                      type="number"
+                      min={0}
+                      value={p.gemsReward}
+                      onChange={(e) => updateGemsReward(p.id, parseInt(e.target.value) || 0)}
+                      className="w-12 rounded border border-pradera-200 bg-white px-1 py-0.5 text-pradera-700 outline-none focus:border-pradera-400"
+                      title="Gemas que da este ejercicio"
+                      aria-label="Gemas"
+                    />
+                  </div>
                   <button
                     type="button"
                     onClick={() => toggleProblem(pid)}
-                    className="ml-0.5 text-pradera-400 hover:text-pradera-600"
+                    className="text-pradera-400 hover:text-pradera-600"
                   >
                     <X className="h-3 w-3" />
                   </button>
@@ -452,6 +482,19 @@ function LessonForm({
                       <option value="HARD">Difícil</option>
                       <option value="EXPERT">Experto</option>
                     </select>
+
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        min={0}
+                        value={p.gemsReward}
+                        onClick={(e) => e.stopPropagation()}
+                        onChange={(e) => updateGemsReward(p.id, parseInt(e.target.value) || 0)}
+                        className="w-16 rounded border border-gray-200 px-1.5 py-0.5 text-[10px] text-gray-700 outline-none focus:border-lagos-400"
+                        aria-label="Gemas de recompensa"
+                      />
+                      <Gem className="h-4 w-4 text-cyan-500" />
+                    </div>
                   </label>
                 ))
               )}
