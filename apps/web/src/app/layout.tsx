@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Fredoka, Quicksand, Patrick_Hand } from 'next/font/google';
 import { config } from '@codi/config';
 import './globals.css';
+import 'katex/dist/katex.min.css';
 import SkipLink from '@/components/skip-link';
 import ProgressBarProvider from '@/components/progress-bar';
 
