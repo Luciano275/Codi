@@ -177,7 +177,7 @@ export default function LabClient({ user }: { user: { id: string; username: stri
           />
         </div>
       </div>
-      <GemRewardPopup reward={gemReward} />
+      { !(submissions.some((s) => s.score === 100)) && <GemRewardPopup reward={gemReward} /> }
     </>
   );
 }
