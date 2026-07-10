@@ -32,7 +32,7 @@ class PlaygroundSession {
     } else {
       try {
         const outFile = path.join(this.tmpDir, 'a.out');
-        execSync(`g++ -std=c++17 -O2 -o "${outFile}" "${this.srcFile}"`, { timeout: 10000 });
+        execSync(`g++ -std=c++17 -O2 -o "${outFile}" "${this.srcFile}" -lm`, { timeout: 10000 });
         this.spawn(outFile, []);
       } catch (err: any) {
         this.events$.next({ type: 'stderr', data: err.stderr?.toString() || err.message });
