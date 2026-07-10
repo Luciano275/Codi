@@ -3,30 +3,7 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Save, X, FolderOpen } from 'lucide-react';
 import Link from 'next/link';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('codi_token');
-}
-
-async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const token = getToken();
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options?.headers,
-    },
-  });
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({ message: res.statusText }));
-    throw new Error(err.message || `Error ${res.status}`);
-  }
-  return res.json();
-}
+import { adminFetch } from '@/lib/admin-api';
 
 interface AdminCourse {
   id: string;
@@ -67,7 +44,7 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
 
   async function reload() {
     try {
-      setCourses(await apiFetch<AdminCourse[]>('/api/admin/courses'));
+      setCourses(await adminFetch<AdminCourse[]>('/api/admin/courses'));
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al recargar');
     }
@@ -97,12 +74,12 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
     setError('');
     try {
       if (editing) {
-        await apiFetch(`/api/admin/courses/${editing}`, {
+        await adminFetch(`/api/admin/courses/${editing}`, {
           method: 'PATCH',
           body: JSON.stringify(form),
         });
       } else {
-        await apiFetch('/api/admin/courses', {
+        await adminFetch('/api/admin/courses', {
           method: 'POST',
           body: JSON.stringify(form),
         });
@@ -119,7 +96,7 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este curso? Se eliminarán todos sus módulos y lecciones.')) return;
     try {
-      await apiFetch(`/api/admin/courses/${id}`, { method: 'DELETE' });
+      await adminFetch(`/api/admin/courses/${id}`, { method: 'DELETE' });
       await reload();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al eliminar');
@@ -140,21 +117,15 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-          {error}
-        </div>
+        <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</div>
       )}
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
           <div className="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-super-pandora text-lg text-gray-900">
-                {editing ? 'Editar curso' : 'Nuevo curso'}
-              </h2>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
-                <X className="h-5 w-5" />
-              </button>
+              <h2 className="font-super-pandora text-lg text-gray-900">{editing ? 'Editar curso' : 'Nuevo curso'}</h2>
+              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600"><X className="h-5 w-5" /></button>
             </div>
 
             <div className="space-y-4">
@@ -208,17 +179,11 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
               <p className="truncate font-medium text-gray-900">{c.title}</p>
               <p className="text-xs text-gray-400">Nivel {c.level} &middot; {c._count.modules} módulos &middot; Orden {c.order}</p>
             </div>
-            <button onClick={() => openEdit(c)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600">
-              <Pencil className="h-4 w-4" />
-            </button>
-            <button onClick={() => handleDelete(c.id)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500">
-              <Trash2 className="h-4 w-4" />
-            </button>
+            <button onClick={() => openEdit(c)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"><Pencil className="h-4 w-4" /></button>
+            <button onClick={() => handleDelete(c.id)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
           </Link>
         ))}
-        {courses.length === 0 && (
-          <p className="py-10 text-center text-sm text-gray-400">No hay cursos todavía.</p>
-        )}
+        {courses.length === 0 && <p className="py-10 text-center text-sm text-gray-400">No hay cursos todavía.</p>}
       </div>
     </div>
   );
