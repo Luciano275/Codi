@@ -1,16 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Loader2, Zap, Award, RotateCcw } from 'lucide-react';
 import { completeLesson, uncompleteLesson } from './actions';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
-function getToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('codi_token');
-}
+import { adminFetch } from '@/lib/admin-api';
+import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 
 export default function LessonCompleteButton({ lessonId }: { lessonId: string }) {
   const router = useRouter();
@@ -19,23 +14,14 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [xpAwarded, setXpAwarded] = useState<number | null>(null);
-  const [displayXp, setDisplayXp] = useState(0);
+  const displayXp = useAnimatedValue(xpAwarded ?? 0, 1500);
   const [error, setError] = useState('');
-  const animFrameRef = useRef<number | null>(null);
 
   const fetchStatus = useCallback(async () => {
-    const token = getToken();
-    if (!token) return;
-
     try {
-      const res = await fetch(`${API_URL}/api/lessons/${lessonId}/status`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setCompleted(data.completed);
-        setCompletedAt(data.completedAt);
-      }
+      const data = await adminFetch<{ completed: boolean; completedAt: string }>(`/api/lessons/${lessonId}/status`);
+      setCompleted(data.completed);
+      setCompletedAt(data.completedAt);
     } catch {
       // ignore
     } finally {
@@ -43,13 +29,10 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
     }
   }, [lessonId]);
 
-  useEffect(() => {
-    fetchStatus();
-  }, [fetchStatus]);
+  useEffect(() => { fetchStatus(); }, [fetchStatus]);
 
   const handleComplete = async () => {
     if (submitting) return;
-
     setSubmitting(true);
     setError('');
     try {
@@ -66,31 +49,6 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
     }
   };
 
-  useEffect(() => {
-    const target = xpAwarded ?? 0;
-    if (target <= 0) return;
-
-    const duration = 1500;
-    const start = performance.now();
-
-    function tick(now: number) {
-      const elapsed = now - start;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayXp(Math.round(eased * target));
-
-      if (progress < 1) {
-        animFrameRef.current = requestAnimationFrame(tick);
-      }
-    }
-
-    animFrameRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
-    };
-  }, [xpAwarded]);
-
   if (loading) {
     return (
       <div className="flex items-center justify-center py-6">
@@ -105,13 +63,10 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-pradera-200">
           <Check className="h-6 w-6 text-pradera-700" />
         </div>
-        <p className="font-super-pandora text-lg text-pradera-800">
-          ¡Lección completada!
-        </p>
+        <p className="font-super-pandora text-lg text-pradera-800">¡Lección completada!</p>
         {xpAwarded && (
           <p className="mt-1 flex items-center justify-center gap-1.5 font-candy-beans text-lg text-amber-600">
-            <Zap className="h-5 w-5" />
-            +{displayXp} XP
+            <Zap className="h-5 w-5" />+{displayXp} XP
           </p>
         )}
         {completedAt && (
@@ -131,8 +86,7 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
             }}
             className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-gray-300 px-3 py-1.5 text-xs text-gray-500 transition-colors hover:border-red-300 hover:text-red-500"
           >
-            <RotateCcw className="h-3 w-3" />
-            Descompletar lección (dev)
+            <RotateCcw className="h-3 w-3" />Descompletar lección (dev)
           </button>
         )}
       </div>
@@ -141,24 +95,14 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
 
   return (
     <div className="rounded-2xl border-2 border-dashed border-gray-200 bg-gray-50 p-6 text-center">
-      <p className="mb-3 font-simply-olive text-sm text-gray-500">
-        ¿Terminaste la lección?
-      </p>
-      {error && (
-        <p className="mb-3 text-xs font-medium text-volcan-600 bg-volcan-50 rounded-lg px-3 py-2">
-          {error}
-        </p>
-      )}
+      <p className="mb-3 font-simply-olive text-sm text-gray-500">¿Terminaste la lección?</p>
+      {error && <p className="mb-3 text-xs font-medium text-volcan-600 bg-volcan-50 rounded-lg px-3 py-2">{error}</p>}
       <button
         onClick={handleComplete}
         disabled={submitting}
         className="inline-flex items-center gap-2 rounded-xl bg-pradera-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pradera-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {submitting ? (
-          <Loader2 className="h-4 w-4 animate-spin" />
-        ) : (
-          <Award className="h-4 w-4" />
-        )}
+        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
         {submitting ? 'Completando...' : 'Marcar como completada'}
       </button>
     </div>
