@@ -5,6 +5,7 @@ import './globals.css';
 import 'katex/dist/katex.min.css';
 import SkipLink from '@/components/skip-link';
 import ProgressBarProvider from '@/components/progress-bar';
+import { Providers } from './providers';
 
 const superPandora = Fredoka({
   subsets: ['latin'],
@@ -83,6 +84,7 @@ export default function RootLayout({
         className="min-h-screen font-sans antialiased"
       >
         <SkipLink />
+        <Providers>
         <ProgressBarProvider>
           <main id="main-content">
           {children}
@@ -92,6 +94,7 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         </ProgressBarProvider>
+        </Providers>
       </body>
     </html>
   );
