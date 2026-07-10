@@ -1,55 +1,36 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Check, Loader2, Zap, Award, RotateCcw } from 'lucide-react';
-import { completeLesson, uncompleteLesson } from './actions';
-import { adminFetch } from '@/lib/admin-api';
+import { useLessonStatus, useCompleteLesson, useUncompleteLesson } from '@/hooks/queries/useLessonStatus';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 
 export default function LessonCompleteButton({ lessonId }: { lessonId: string }) {
   const router = useRouter();
-  const [completed, setCompleted] = useState(false);
-  const [completedAt, setCompletedAt] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [submitting, setSubmitting] = useState(false);
+  const { data, isLoading } = useLessonStatus(lessonId);
+  const completeMutation = useCompleteLesson(lessonId);
+  const uncompleteMutation = useUncompleteLesson(lessonId);
   const [xpAwarded, setXpAwarded] = useState<number | null>(null);
   const displayXp = useAnimatedValue(xpAwarded ?? 0, 1500);
   const [error, setError] = useState('');
 
-  const fetchStatus = useCallback(async () => {
-    try {
-      const data = await adminFetch<{ completed: boolean; completedAt: string }>(`/api/lessons/${lessonId}/status`);
-      setCompleted(data.completed);
-      setCompletedAt(data.completedAt);
-    } catch {
-      // ignore
-    } finally {
-      setLoading(false);
-    }
-  }, [lessonId]);
-
-  useEffect(() => { fetchStatus(); }, [fetchStatus]);
+  const completed = data?.completed ?? false;
+  const completedAt = data?.completedAt ?? null;
 
   const handleComplete = async () => {
-    if (submitting) return;
-    setSubmitting(true);
+    if (completeMutation.isPending) return;
     setError('');
     try {
-      const data = await completeLesson(lessonId);
-      setCompleted(true);
-      setCompletedAt(new Date().toISOString());
-      setXpAwarded(data.xpAwarded);
-      window.dispatchEvent(new CustomEvent('user-updated'));
+      const result = await completeMutation.mutateAsync();
+      setXpAwarded(result.xpAwarded);
       router.refresh();
     } catch (err: any) {
       setError(err?.message || 'Error al completar la lección');
-    } finally {
-      setSubmitting(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center py-6">
         <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
@@ -78,9 +59,7 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
           <button
             onClick={async () => {
               try {
-                await uncompleteLesson(lessonId);
-                setCompleted(false);
-                setCompletedAt(null);
+                await uncompleteMutation.mutateAsync();
                 setXpAwarded(null);
               } catch {}
             }}
@@ -99,11 +78,11 @@ export default function LessonCompleteButton({ lessonId }: { lessonId: string })
       {error && <p className="mb-3 text-xs font-medium text-volcan-600 bg-volcan-50 rounded-lg px-3 py-2">{error}</p>}
       <button
         onClick={handleComplete}
-        disabled={submitting}
+        disabled={completeMutation.isPending}
         className="inline-flex items-center gap-2 rounded-xl bg-pradera-500 px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pradera-600 disabled:cursor-not-allowed disabled:opacity-50"
       >
-        {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
-        {submitting ? 'Completando...' : 'Marcar como completada'}
+        {completeMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Award className="h-4 w-4" />}
+        {completeMutation.isPending ? 'Completando...' : 'Marcar como completada'}
       </button>
     </div>
   );

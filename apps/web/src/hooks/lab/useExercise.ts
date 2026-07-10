@@ -1,6 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { queryKeys } from '@/lib/query-keys';
 import { apiGet } from '@/lib/lab-api';
 import type { ExerciseInfo } from './types';
 
@@ -15,57 +17,52 @@ export function useExercise(
   setLanguage: (lang: string) => void,
   setCodeFromTemplate: (template: string) => void,
 ) {
-  const [exercise, setExercise] = useState<ExerciseInfo | null>(null);
-  const [loadingExercise, setLoadingExercise] = useState(false);
-  const [submissions, setSubmissions] = useState<any[]>([]);
+  const appliedRef = useRef(false);
+
+  const exerciseQuery = useQuery({
+    queryKey: queryKeys.problems.detail(problemId ?? ''),
+    queryFn: () => apiGet<ExerciseInfo>(`/api/problems/${problemId}`),
+    enabled: !!problemId,
+  });
+
+  const exercise = exerciseQuery.data ?? null;
 
   useEffect(() => {
-    if (problemId) {
-      setLoadingExercise(true);
-      apiGet<ExerciseInfo>(`/api/problems/${problemId}`)
-        .then((data) => {
-          setExercise(data);
-          const langs = data.availableLanguages ?? ALL_LANGUAGES;
-          const effectiveLang = langs.some((l) => l.id === language) ? language : (langs[0]?.id ?? 'python');
-          if (effectiveLang !== language) setLanguage(effectiveLang);
-          apiGet<{ template: string | null }>(`/api/problems/${problemId}/template?language=${effectiveLang}`)
-            .then((tmpl) => {
-              if (tmpl.template) setCodeFromTemplate(tmpl.template);
-            })
-            .catch(() => {});
-          apiGet<any[]>(`/api/submissions`).then((subs) => {
-            setSubmissions(subs.filter((s: any) => s.problemId === problemId));
-          }).catch(() => {});
-        })
-        .catch(() => {
-          setExercise({
-            id: problemId,
-            title: `Ejercicio #${problemId}`,
-            difficulty: 'EASY',
-            xpReward: 50,
-            gemsReward: 0,
-            cmsTaskId: 0,
-          });
-        })
-        .finally(() => setLoadingExercise(false));
-    } else {
-      setExercise(null);
-      setSubmissions([]);
+    if (!exercise || !problemId) return;
+    const langs = exercise.availableLanguages ?? ALL_LANGUAGES;
+    const effectiveLang = langs.some((l) => l.id === language) ? language : (langs[0]?.id ?? 'python');
+    if (effectiveLang !== language) {
+      setLanguage(effectiveLang);
     }
-  }, [problemId]);
+  }, [exercise, problemId, language, setLanguage]);
+
+  const templateQuery = useQuery({
+    queryKey: queryKeys.problems.template(problemId ?? '', language),
+    queryFn: () =>
+      apiGet<{ template: string | null }>(
+        `/api/problems/${problemId}/template?language=${language}`,
+      ),
+    enabled: !!problemId,
+  });
 
   useEffect(() => {
-    if (!problemId) return;
-    const interval = setInterval(() => {
-      apiGet<any[]>(`/api/submissions`).then((subs) => {
-        setSubmissions((prev) => {
-          const updated = subs.filter((s: any) => s.problemId === problemId);
-          return updated.length ? updated : prev;
-        });
-      }).catch(() => {});
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [problemId]);
+    if (!templateQuery.data?.template || appliedRef.current) return;
+    appliedRef.current = true;
+    setCodeFromTemplate(templateQuery.data.template);
+  }, [templateQuery.data, setCodeFromTemplate]);
 
-  return { exercise, loadingExercise, submissions };
+  const submissionsQuery = useQuery({
+    queryKey: queryKeys.submissions.all,
+    queryFn: () => apiGet<any[]>('/api/submissions'),
+    enabled: !!problemId,
+    refetchInterval: 5000,
+    select: (subs) =>
+      subs.filter((s) => s.problemId === problemId),
+  });
+
+  return {
+    exercise,
+    loadingExercise: exerciseQuery.isPending,
+    submissions: submissionsQuery.data ?? [],
+  };
 }

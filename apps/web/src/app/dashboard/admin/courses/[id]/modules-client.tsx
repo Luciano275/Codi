@@ -3,7 +3,11 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Save, X, BookOpen, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import { adminFetch } from '@/lib/admin-api';
+import {
+  useCreateModule,
+  useUpdateModule,
+  useDeleteModule,
+} from '@/hooks/queries/useAdminModules';
 
 interface CourseWithModules {
   id: string;
@@ -31,15 +35,10 @@ export default function ModulesClient({ course: initial }: { course: CourseWithM
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<ModuleFormData>(emptyForm);
-  const [saving, setSaving] = useState(false);
 
-  async function reload() {
-    try {
-      setCourse(await adminFetch<CourseWithModules>(`/api/admin/courses/${course.id}`));
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al recargar');
-    }
-  }
+  const createMutation = useCreateModule();
+  const updateMutation = useUpdateModule();
+  const deleteMutation = useDeleteModule();
 
   function openCreate() {
     setForm(emptyForm);
@@ -54,35 +53,23 @@ export default function ModulesClient({ course: initial }: { course: CourseWithM
   }
 
   async function handleSave() {
-    setSaving(true);
     setError('');
     try {
-      const body = { ...form, courseId: course.id };
       if (editing) {
-        await adminFetch(`/api/admin/modules/${editing}`, {
-          method: 'PATCH',
-          body: JSON.stringify(form),
-        });
+        await updateMutation.mutateAsync({ id: editing, ...form, courseId: course.id });
       } else {
-        await adminFetch('/api/admin/modules', {
-          method: 'POST',
-          body: JSON.stringify(body),
-        });
+        await createMutation.mutateAsync({ ...form, courseId: course.id });
       }
       setShowForm(false);
-      await reload();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al guardar');
-    } finally {
-      setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este módulo? Se eliminarán todas sus lecciones.')) return;
     try {
-      await adminFetch(`/api/admin/modules/${id}`, { method: 'DELETE' });
-      await reload();
+      await deleteMutation.mutateAsync({ id, courseId: course.id });
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al eliminar');
     }
@@ -127,8 +114,8 @@ export default function ModulesClient({ course: initial }: { course: CourseWithM
             </div>
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setShowForm(false)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50">Cancelar</button>
-              <button onClick={handleSave} disabled={saving || !form.title} className="flex items-center gap-2 rounded-xl bg-lagos-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-lagos-600 disabled:opacity-50">
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              <button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending || !form.title} className="flex items-center gap-2 rounded-xl bg-lagos-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-lagos-600 disabled:opacity-50">
+                {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Save className="h-4 w-4" />
                 {editing ? 'Guardar' : 'Crear'}
               </button>

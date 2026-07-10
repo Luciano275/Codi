@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useState } from 'react';
 import {
   Plus, Pencil, Trash2, Loader2, FileText, BookOpen, AlertCircle,
   ChevronDown, ChevronUp, ExternalLink, ChevronRight, X,
@@ -10,36 +10,13 @@ import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { adminFetch } from '@/lib/admin-api';
 import { LessonForm } from '@/components/admin/LessonForm';
-
-type LessonType = 'THEORY' | 'PRACTICE' | 'CHALLENGE' | 'EXAM';
-type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
-
-interface Course {
-  id: string;
-  title: string;
-  modules: { id: string; title: string }[];
-}
-
-interface Problem {
-  id: string;
-  cmsTaskId: number;
-  cmsTaskName: string;
-  title: string;
-  difficulty: Difficulty;
-  xpReward: number;
-  gemsReward: number;
-}
-
-interface Lesson {
-  id: string;
-  title: string;
-  type: LessonType;
-  order: number;
-  xpReward: number;
-  content: Record<string, unknown>;
-  module: { id: string; title: string; course: { id: string; title: string } };
-  problems: Problem[];
-}
+import {
+  useAdminLessons,
+  useAdminCourses,
+  useAdminProblems,
+  useDeleteLesson,
+} from '@/hooks/queries/useAdminLessons';
+import type { AdminLesson, AdminProblem, LessonType, Difficulty } from '@/hooks/queries/useAdminLessons';
 
 const LESSON_TYPES: { value: LessonType; label: string }[] = [
   { value: 'THEORY', label: 'Teoría' },
@@ -60,54 +37,25 @@ export default function AdminLessonsPage() {
   const filterModuleId = searchParams.get('moduleId') || '';
   const filterCourseId = searchParams.get('courseId') || '';
 
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [allProblems, setAllProblems] = useState<Problem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [editingLesson, setEditingLesson] = useState<Lesson | null>(null);
+  const [editingLesson, setEditingLesson] = useState<AdminLesson | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [initialFormCourseId, setInitialFormCourseId] = useState('');
   const [initialFormModuleId, setInitialFormModuleId] = useState('');
 
-  const loadData = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const [lessonsData, coursesData, problemsData] = await Promise.all([
-        adminFetch<Lesson[]>('/api/admin/lessons'),
-        adminFetch<Course[]>('/api/courses'),
-        adminFetch<Problem[]>('/api/admin/problems'),
-      ]);
-      setLessons(lessonsData);
-      setCourses(coursesData);
-      setAllProblems(problemsData);
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al cargar datos');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const lessonsQuery = useAdminLessons();
+  const coursesQuery = useAdminCourses();
+  const problemsQuery = useAdminProblems();
+  const deleteLessonMutation = useDeleteLesson();
 
-  useEffect(() => { loadData(); }, [loadData]);
-
-  const updateProblem = useCallback(async (problemId: string, updates: Partial<Problem>) => {
-    try {
-      await adminFetch(`/api/admin/problems/${problemId}`, {
-        method: 'PATCH',
-        body: JSON.stringify(updates),
-      });
-      setAllProblems((prev) =>
-        prev.map((p) => (p.id === problemId ? { ...p, ...updates } : p)),
-      );
-    } catch {}
-  }, []);
+  const lessons = lessonsQuery.data ?? [];
+  const courses = coursesQuery.data ?? [];
+  const allProblems = problemsQuery.data ?? [];
 
   const handleCreate = async (data: any) => {
     await adminFetch('/api/admin/lessons', { method: 'POST', body: JSON.stringify(data) });
     setShowForm(false);
-    await loadData();
+    lessonsQuery.refetch();
   };
 
   const handleUpdate = async (data: any) => {
@@ -115,18 +63,26 @@ export default function AdminLessonsPage() {
     await adminFetch(`/api/admin/lessons/${editingLesson.id}`, { method: 'PATCH', body: JSON.stringify(data) });
     setEditingLesson(null);
     setShowForm(false);
-    await loadData();
+    lessonsQuery.refetch();
   };
 
   const handleDelete = async (id: string) => {
     if (!confirm('¿Eliminar esta lección? Esta acción no se puede deshacer.')) return;
-    await adminFetch(`/api/admin/lessons/${id}`, { method: 'DELETE' });
-    await loadData();
+    await deleteLessonMutation.mutateAsync(id);
+  };
+
+  const updateProblem = async (problemId: string, updates: Partial<AdminProblem>) => {
+    try {
+      await adminFetch(`/api/admin/problems/${problemId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(updates),
+      });
+    } catch {}
   };
 
   const typeLabel = (t: LessonType) => LESSON_TYPES.find((x) => x.value === t)?.label ?? t;
 
-  if (loading) {
+  if (lessonsQuery.isPending && problemsQuery.isPending) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="h-8 w-8 animate-spin text-lagos-500" />
@@ -139,7 +95,7 @@ export default function AdminLessonsPage() {
     : lessons;
 
   const filterCourse = courses.find((c) => c.id === filterCourseId);
-  const filterModule = filterCourse?.modules.find((m) => m.id === filterModuleId);
+  const filterModule = filterCourse?.modules?.find((m) => m.id === filterModuleId);
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -165,9 +121,9 @@ export default function AdminLessonsPage() {
         </button>
       </div>
 
-      {error && (
+      {lessonsQuery.isError && (
         <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" />{error}
+          <AlertCircle className="h-4 w-4 shrink-0" />{lessonsQuery.error.message}
         </div>
       )}
 

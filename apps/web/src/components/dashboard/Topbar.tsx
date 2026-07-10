@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Zap, Gem, Trophy, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
+import { useCurrentUser, useInvalidateCurrentUser } from '@/hooks/queries/useCurrentUser';
 
 interface TopbarProps {
   user: UserProfile;
@@ -14,28 +15,21 @@ interface TopbarProps {
 export default function Topbar({ user }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [clientUser, setClientUser] = useState(user);
+  const { data: fetchedUser } = useCurrentUser();
+  const invalidateCurrentUser = useInvalidateCurrentUser();
+
+  const clientUser = fetchedUser ?? user;
 
   const displayXp = useAnimatedValue(clientUser.xp);
   const displayGems = useAnimatedValue(clientUser.gems);
 
   useEffect(() => {
-    fetch('/api/proxy/api/auth/me')
-      .then((r) => r.json())
-      .then((data) => { if (data?.user) setClientUser(data.user); })
-      .catch(() => {});
-  }, []);
-
-  useEffect(() => {
     function handleUserUpdate() {
-      fetch('/api/proxy/api/auth/me')
-        .then((r) => r.json())
-        .then((data) => { if (data?.user) setClientUser(data.user); })
-        .catch(() => {});
+      invalidateCurrentUser();
     }
     window.addEventListener('user-updated', handleUserUpdate);
     return () => window.removeEventListener('user-updated', handleUserUpdate);
-  }, []);
+  }, [invalidateCurrentUser]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

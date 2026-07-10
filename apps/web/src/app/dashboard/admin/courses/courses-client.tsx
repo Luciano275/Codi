@@ -3,18 +3,13 @@
 import { useState } from 'react';
 import { Plus, Pencil, Trash2, Loader2, Save, X, FolderOpen } from 'lucide-react';
 import Link from 'next/link';
-import { adminFetch } from '@/lib/admin-api';
-
-interface AdminCourse {
-  id: string;
-  title: string;
-  slug: string;
-  level: number;
-  region: string;
-  xpReward: number;
-  order: number;
-  _count: { modules: number };
-}
+import {
+  useAdminCoursesList,
+  useCreateCourse,
+  useUpdateCourse,
+  useDeleteCourse,
+} from '@/hooks/queries/useAdminCourses';
+import type { AdminCourse } from '@/hooks/queries/useAdminCourses';
 
 interface CourseFormData {
   title: string;
@@ -35,20 +30,17 @@ const emptyForm: CourseFormData = {
 };
 
 export default function CoursesClient({ courses: initial }: { courses: AdminCourse[] }) {
-  const [courses, setCourses] = useState(initial);
+  const { data: coursesData } = useAdminCoursesList();
+  const createMutation = useCreateCourse();
+  const updateMutation = useUpdateCourse();
+  const deleteMutation = useDeleteCourse();
+
+  const courses = coursesData ?? initial;
+
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState<CourseFormData>(emptyForm);
-  const [saving, setSaving] = useState(false);
-
-  async function reload() {
-    try {
-      setCourses(await adminFetch<AdminCourse[]>('/api/admin/courses'));
-    } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Error al recargar');
-    }
-  }
 
   function openCreate() {
     setForm(emptyForm);
@@ -70,34 +62,23 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
   }
 
   async function handleSave() {
-    setSaving(true);
     setError('');
     try {
       if (editing) {
-        await adminFetch(`/api/admin/courses/${editing}`, {
-          method: 'PATCH',
-          body: JSON.stringify(form),
-        });
+        await updateMutation.mutateAsync({ id: editing, ...form });
       } else {
-        await adminFetch('/api/admin/courses', {
-          method: 'POST',
-          body: JSON.stringify(form),
-        });
+        await createMutation.mutateAsync(form);
       }
       setShowForm(false);
-      await reload();
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al guardar');
-    } finally {
-      setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
     if (!confirm('¿Eliminar este curso? Se eliminarán todos sus módulos y lecciones.')) return;
     try {
-      await adminFetch(`/api/admin/courses/${id}`, { method: 'DELETE' });
-      await reload();
+      await deleteMutation.mutateAsync(id);
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : 'Error al eliminar');
     }
@@ -159,8 +140,8 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
 
             <div className="mt-6 flex justify-end gap-3">
               <button onClick={() => setShowForm(false)} className="rounded-xl border border-gray-200 px-5 py-2.5 text-sm text-gray-600 transition-colors hover:bg-gray-50">Cancelar</button>
-              <button onClick={handleSave} disabled={saving || !form.title || !form.slug} className="flex items-center gap-2 rounded-xl bg-lagos-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-lagos-600 disabled:opacity-50">
-                {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+              <button onClick={handleSave} disabled={createMutation.isPending || updateMutation.isPending || !form.title || !form.slug} className="flex items-center gap-2 rounded-xl bg-lagos-500 px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-lagos-600 disabled:opacity-50">
+                {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="h-4 w-4 animate-spin" />}
                 <Save className="h-4 w-4" />
                 {editing ? 'Guardar cambios' : 'Crear curso'}
               </button>
@@ -177,7 +158,7 @@ export default function CoursesClient({ courses: initial }: { courses: AdminCour
             </div>
             <div className="flex-1 min-w-0">
               <p className="truncate font-medium text-gray-900">{c.title}</p>
-              <p className="text-xs text-gray-400">Nivel {c.level} &middot; {c._count.modules} módulos &middot; Orden {c.order}</p>
+              <p className="text-xs text-gray-400">Nivel {c.level} &middot; {c._count?.modules ?? 0} módulos &middot; Orden {c.order}</p>
             </div>
             <button onClick={() => openEdit(c)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"><Pencil className="h-4 w-4" /></button>
             <button onClick={() => handleDelete(c.id)} className="rounded-xl p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"><Trash2 className="h-4 w-4" /></button>
