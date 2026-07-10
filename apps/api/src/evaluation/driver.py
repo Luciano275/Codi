@@ -18,6 +18,40 @@ BASE_DIR = '/tmp/codi_eval'
 LANGUAGE_PY = 'Python 3 / CPython'
 LANGUAGE_CPP = 'C++20 / g++'
 
+# Whitespace chars for white-diff (Unicode White_Space in ASCII range)
+_WHITE_CHARS = [b' ', b'\t', b'\n', b'\x0b', b'\x0c', b'\r']
+_MAX_FSIZE_KB = 1024 * 1024  # 1 GiB
+
+
+def _white_diff_canonicalize(s: bytes) -> bytes:
+    for c in _WHITE_CHARS[1:]:
+        s = s.replace(c, _WHITE_CHARS[0])
+    return _WHITE_CHARS[0].join(x for x in s.split(_WHITE_CHARS[0]) if x)
+
+
+def _white_diff(output: bytes, expected: bytes) -> bool:
+    while True:
+        idx_out = output.find(b'\n')
+        lout = output[:idx_out + 1] if idx_out >= 0 else output
+        output = output[idx_out + 1:] if idx_out >= 0 else b''
+
+        idx_exp = expected.find(b'\n')
+        lexp = expected[:idx_exp + 1] if idx_exp >= 0 else expected
+        expected = expected[idx_exp + 1:] if idx_exp >= 0 else b''
+
+        both_done = len(lout) == 0 and len(lexp) == 0
+        one_done = len(lout) == 0 or len(lexp) == 0
+
+        if both_done:
+            return True
+        if one_done:
+            all_white = b''.join(_WHITE_CHARS)
+            if lout.strip(all_white) or lexp.strip(all_white):
+                return False
+        else:
+            if _white_diff_canonicalize(lout) != _white_diff_canonicalize(lexp):
+                return False
+
 
 def get_task_config(cms_task_id: int, language: str):
     dsn = os.environ.get('DATABASE_URL', 'postgresql://cmsuser@localhost/cmsdb')
@@ -35,7 +69,6 @@ def get_task_config(cms_task_id: int, language: str):
         time_limit, memory_limit_bytes, dataset_id = row
         memory_limit_kb = memory_limit_bytes // 1024 if memory_limit_bytes else 262144
 
-        # Fetch managers (graders) for this dataset
         grader_filename = 'grader.py' if 'Python' in language else 'grader.cpp'
         cur.execute("""
             SELECT m.digest
@@ -45,11 +78,12 @@ def get_task_config(cms_task_id: int, language: str):
         grader_row = cur.fetchone()
         grader_content = None
         if grader_row:
-            cur.execute("SELECT encode(lo_get(f.loid), 'escape') FROM public.fsobjects f WHERE f.digest = %s",
+            cur.execute("SELECT lo_get(f.loid) FROM public.fsobjects f WHERE f.digest = %s",
                         (grader_row[0],))
             r = cur.fetchone()
             if r and r[0]:
-                grader_content = r[0]
+                blob = bytes(r[0])
+                grader_content = blob.decode('utf-8')
 
         cur.execute("""
             SELECT t.codename, t.input, t.output
@@ -115,8 +149,9 @@ def prepare_submission(language: str, source_path: str, work_dir: Path, grader_c
             grader_file.write_text(grader_content)
             exe = work_dir / 'a.out'
             proc = subprocess.run(
-                ['/usr/bin/g++', '-std=gnu++20', '-O2', '-pipe', '-static',
-                 '-s', '-o', str(exe), str(grader_file), str(src_file)],
+                ['/usr/bin/g++', '-DEVAL', '-std=gnu++20', '-O2', '-pipe', '-static',
+                 '-s', '-o', str(exe), str(grader_file), str(src_file),
+                 '-lm'],
                 capture_output=True, text=True, timeout=30,
             )
             if proc.returncode != 0:
@@ -125,7 +160,6 @@ def prepare_submission(language: str, source_path: str, work_dir: Path, grader_c
 
         raise RuntimeError(f'Unsupported language with grader: {language}')
 
-    # No grader — run submission as a standalone program
     ext = '.py' if 'Python' in language else '.cpp' if 'C++' in language else '.c' if language == 'C11 / gcc' else '.java'
     src_file = work_dir / f'source{ext}'
     shutil.copy2(source_path, src_file)
@@ -144,8 +178,8 @@ def prepare_submission(language: str, source_path: str, work_dir: Path, grader_c
     if 'C++' in language:
         exe = work_dir / 'a.out'
         proc = subprocess.run(
-            ['/usr/bin/g++', '-std=gnu++20', '-O2', '-pipe', '-static',
-             '-s', '-o', str(exe), str(src_file)],
+            ['/usr/bin/g++', '-DEVAL', '-std=gnu++20', '-O2', '-pipe', '-static',
+             '-s', '-o', str(exe), str(src_file), '-lm'],
             capture_output=True, text=True, timeout=30,
         )
         if proc.returncode != 0:
@@ -161,6 +195,32 @@ def eval_command(language: str, executable: Path, grader_content: str | None):
     if 'Python' in language:
         return ['/usr/bin/python3', executable.name]
     return ['./a.out']
+
+
+def parse_meta(path: Path) -> dict:
+    meta = {}
+    if path.exists():
+        with open(path) as f:
+            for line in f:
+                if ':' in line:
+                    k, v = line.strip().split(':', 1)
+                    meta[k.strip()] = v.strip()
+    return meta
+
+
+def get_exit_status(meta: dict) -> str:
+    status_list = meta.get('status', '')
+    if 'XX' in status_list:
+        return 'SANDBOX_ERROR'
+    elif 'TO' in status_list:
+        if 'message' in meta and 'wall' in meta['message']:
+            return 'TIMEOUT_WALL'
+        return 'TIMEOUT'
+    elif 'SG' in status_list:
+        return 'SIGNAL'
+    elif 'RE' in status_list:
+        return 'NONZERO_RETURN'
+    return 'OK'
 
 
 def main():
@@ -179,12 +239,11 @@ def main():
     try:
         src_file, executable = prepare_submission(args.language, args.source_file, work_dir, grader_content)
 
-        # Init isolate box
-        subprocess.run([ISOLATE_BIN, f'--box-id={BOX_ID}', '--init'],
+        subprocess.run([ISOLATE_BIN, f'--box-id={BOX_ID}', '--init', '--cg'],
                        capture_output=True, timeout=10)
+
         box_root = Path(f'/var/local/lib/isolate/{BOX_ID}/box')
 
-        # Copy all needed files into the box
         for f in work_dir.iterdir():
             if f.name.endswith(('.py', '.pyc', '.cpp', '.out')):
                 shutil.copy2(f, box_root / f.name)
@@ -196,32 +255,102 @@ def main():
         results = []
 
         for tc in task_config['testcases']:
+            input_file = f'input_{tc["codename"]}.txt'
+            output_file = f'output_{tc["codename"]}.txt'
+            stderr_file = f'stderr_{tc["codename"]}.txt'
+
+            (box_root / input_file).write_bytes(tc['input'])
+
+            meta_file = work_dir / f'meta_{tc["codename"]}.txt'
+
             proc = subprocess.run(
                 [ISOLATE_BIN, f'--box-id={BOX_ID}', '--run',
+                 '--cg',
                  f'--time={task_config["time_limit"]}',
-                 f'--mem={task_config["memory_limit_kb"]}',
+                 f'--wall-time={2 * task_config["time_limit"] + 1}',
+                 f'--cg-mem={task_config["memory_limit_kb"]}',
+                 f'--fsize={_MAX_FSIZE_KB}',
+                 f'--meta={meta_file}',
+                 f'--stdin={input_file}',
+                 f'--stdout={output_file}',
+                 f'--stderr={stderr_file}',
                  '--processes=5'] + eval_cmd,
-                input=tc['input'],
                 capture_output=True,
-                timeout=int(task_config['time_limit']) + 30,
+                timeout=int(task_config['time_limit'] * 3) + 30,
             )
 
-            user_output = proc.stdout
+            meta = parse_meta(meta_file)
+            exit_status = get_exit_status(meta)
 
-            expected = tc['output'].strip()
-            actual = user_output.strip()
-            passed = (actual == expected)
+            if exit_status == 'TIMEOUT' or exit_status == 'TIMEOUT_WALL':
+                results.append({
+                    'codename': tc['codename'],
+                    'outcome': 'time-limit',
+                    'passed': False,
+                    'reason': 'Límite de tiempo excedido',
+                })
+            elif exit_status == 'SIGNAL':
+                sig = meta.get('exitsig', '0')
+                oom_killed = meta.get('cg-oom-killed', '0')
+                if oom_killed == '1':
+                    results.append({
+                        'codename': tc['codename'],
+                        'outcome': 'memory-limit',
+                        'passed': False,
+                        'reason': 'Límite de memoria excedido',
+                    })
+                else:
+                    results.append({
+                        'codename': tc['codename'],
+                        'outcome': 'runtime-error',
+                        'passed': False,
+                        'reason': f'Error de ejecución (señal {sig})',
+                    })
+            elif exit_status == 'NONZERO_RETURN':
+                results.append({
+                    'codename': tc['codename'],
+                    'outcome': 'runtime-error',
+                    'passed': False,
+                    'reason': 'Error de ejecución (código de retorno no cero)',
+                })
+            elif exit_status == 'SANDBOX_ERROR':
+                results.append({
+                    'codename': tc['codename'],
+                    'outcome': 'runtime-error',
+                    'passed': False,
+                    'reason': 'Error interno del sandbox',
+                })
+            else:
+                out_path = box_root / output_file
+                user_output = out_path.read_bytes() if out_path.exists() else b''
+                expected = tc['output']
+                passed = _white_diff(user_output, expected)
+                if passed:
+                    correct_count += 1
+                results.append({
+                    'codename': tc['codename'],
+                    'outcome': 'correct' if passed else 'wrong',
+                    'passed': passed,
+                })
+            for fname in [input_file, output_file, stderr_file]:
+                (box_root / fname).unlink(missing_ok=True)
 
-            if passed:
-                correct_count += 1
-            results.append({
-                'codename': tc['codename'],
-                'outcome': 'correct' if passed else 'wrong',
-                'passed': passed,
-            })
+        time_exceeded = any(r.get('outcome') == 'time-limit' for r in results)
+        mem_exceeded = any(r.get('outcome') == 'memory-limit' for r in results)
+        runtime_errors = any(r.get('outcome') == 'runtime-error' for r in results)
+
+        if time_exceeded:
+            status = 'TIME_LIMIT_EXCEEDED'
+        elif mem_exceeded:
+            status = 'MEMORY_LIMIT_EXCEEDED'
+        elif runtime_errors:
+            status = 'RUNTIME_ERROR'
+        elif correct_count == total:
+            status = 'ACCEPTED'
+        else:
+            status = 'WRONG_ANSWER'
 
         score = (correct_count / total * 100) if total > 0 else 0
-        status = 'ACCEPTED' if correct_count == total else 'WRONG_ANSWER'
         print(json.dumps({'ok': True, 'status': status, 'score': score, 'results': results}))
 
     except RuntimeError as e:
@@ -231,7 +360,7 @@ def main():
     except Exception as e:
         print(json.dumps({'ok': False, 'error': str(e), 'status': 'RUNTIME_ERROR', 'score': 0}))
     finally:
-        subprocess.run([ISOLATE_BIN, f'--box-id={BOX_ID}', '--cleanup'],
+        subprocess.run([ISOLATE_BIN, f'--box-id={BOX_ID}', '--cleanup', '--cg'],
                        capture_output=True, timeout=10)
         shutil.rmtree(work_dir, ignore_errors=True)
 
