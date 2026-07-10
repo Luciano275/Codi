@@ -3,10 +3,10 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Zap, Gem, Trophy, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
-import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import { useCurrentUser, useInvalidateCurrentUser } from '@/hooks/queries/useCurrentUser';
+import StatChip from '@/components/ui/StatChip';
 
 interface TopbarProps {
   user: UserProfile;
@@ -19,9 +19,6 @@ export default function Topbar({ user }: TopbarProps) {
   const invalidateCurrentUser = useInvalidateCurrentUser();
 
   const clientUser = fetchedUser ?? user;
-
-  const displayXp = useAnimatedValue(clientUser.xp);
-  const displayGems = useAnimatedValue(clientUser.gems);
 
   useEffect(() => {
     function handleUserUpdate() {
@@ -42,7 +39,7 @@ export default function Topbar({ user }: TopbarProps) {
   }, []);
 
   return (
-    <header className="flex h-20 items-center justify-between border-b border-gray-200/60 bg-white/80 px-6 shadow-xs backdrop-blur-md">
+    <header className="relative z-50 flex h-20 items-center justify-between border-b border-gray-200/60 bg-white/90 px-4 shadow-xs backdrop-blur-md md:px-6">
       <div className="flex items-center gap-3">
         <Image src="/school_logo.png" alt="EET 3117" width={52} height={52} priority className="h-13 w-auto object-contain" />
         <div className="hidden md:block">
@@ -52,46 +49,62 @@ export default function Topbar({ user }: TopbarProps) {
       </div>
 
       <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-3 md:flex">
-        <Image src="/logo.png" alt="Codi" width={60} height={60} priority className="w-full max-w-15 h-auto object-contain" />
+        <div className="relative">
+          <Image src="/logo.png" alt="Codi" width={60} height={60} priority className="w-full max-w-15 h-auto object-contain drop-shadow-xs" />
+        </div>
         <div>
-          <h2 className="font-super-pandora text-lg leading-tight text-gray-900">Programación Competitiva</h2>
+          <h2 className="font-super-pandora text-lg leading-tight text-gray-900 drop-shadow-xs">
+            Programación Competitiva
+          </h2>
           <p className="font-simply-olive text-xs text-gray-500">con Python</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <div className="flex items-center gap-1.5 rounded-xl bg-amber-50 px-3 py-1.5">
-          <Zap className="h-4 w-4 text-amber-500" />
-          <span className="font-candy-beans text-sm text-amber-700">{displayXp.toLocaleString()} XP</span>
-        </div>
+      <div className="flex items-center gap-2 md:gap-3">
+        <StatChip
+          icon={<span className="text-xs">⚡</span>}
+          value={clientUser.xp}
+          suffix=" XP"
+          gradient="amber"
+          label="Experiencia"
+        />
 
-        <div className="flex items-center gap-1.5 rounded-xl bg-cyan-50 px-3 py-1.5">
-          <Gem className="h-4 w-4 text-cyan-500" />
-          <span className="font-candy-beans text-sm text-cyan-700">{displayGems}</span>
-        </div>
+        <StatChip
+          icon={<span className="text-xs">💎</span>}
+          value={clientUser.gems}
+          gradient="cyan"
+          label="Gemas"
+        />
 
-        <div className="flex items-center gap-1.5 rounded-xl bg-bosque-50 px-3 py-1.5">
-          <Trophy className="h-4 w-4 text-bosque-500" />
-          <span className="font-candy-beans text-sm text-bosque-700">Nivel {clientUser.level}</span>
-        </div>
+        <StatChip
+          icon={<span className="text-xs">🏆</span>}
+          value={clientUser.level}
+          suffix=""
+          gradient="purple"
+          label="Nivel"
+        />
 
-        <div className="relative" ref={dropdownRef}>
+        <div className="relative z-50" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors hover:bg-gray-100"
+            className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 text-sm font-bold text-white">
-              {clientUser.displayName.charAt(0).toUpperCase()}
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 p-0.5 shadow-xs">
+              <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
+                <span className="text-sm font-bold text-lagos-600">
+                  {clientUser.displayName.charAt(0).toUpperCase()}
+                </span>
+              </div>
             </div>
             <span className="hidden text-sm font-semibold text-gray-800 lg:block">{clientUser.displayName}</span>
-            <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`hidden h-4 w-4 text-gray-400 transition-transform duration-200 lg:block ${dropdownOpen ? 'rotate-180' : ''}`} />
           </button>
 
           {dropdownOpen && (
-            <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg">
-              <div className="border-b border-gray-100 px-4 py-3">
+            <div className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg animate-scale-in" style={{ zIndex: 99999 }}>
+              <div className="border-b border-gray-100 bg-linear-to-r from-gray-50 to-white px-4 py-3">
                 <p className="text-sm font-semibold text-gray-900">{clientUser.displayName}</p>
-                <p className="text-xs text-gray-500">@{clientUser.username}</p>
+                <p className="font-simply-olive text-xs text-gray-500">@{clientUser.username}</p>
               </div>
               <div className="p-1">
                 <Link href="/dashboard/profile" onClick={() => setDropdownOpen(false)} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50">

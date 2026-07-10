@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Check, Lock, Play } from 'lucide-react';
 
 interface StageData {
   id: number;
@@ -11,53 +10,92 @@ interface StageData {
   courseId?: string;
 }
 
-const statusColors = {
-  completed: { bg: '#58CC02', stroke: '#58CC02', glow: 'rgba(88, 204, 2, 0.3)' },
-  available: { bg: '#00A3FF', stroke: '#00A3FF', glow: 'rgba(0, 163, 255, 0.3)' },
-  locked: { bg: '#CBD5E1', stroke: '#94A3B8', glow: 'rgba(148, 163, 184, 0.2)' },
+const nodeStyles = {
+  completed: {
+    bg: 'from-pradera-400 to-pradera-600',
+    border: 'border-pradera-300/50',
+    glow: 'rgba(88, 204, 2, 0.35)',
+    icon: '✓',
+    shadow: 'shadow-pradera-500/25',
+  },
+  available: {
+    bg: 'from-lagos-400 to-lagos-600',
+    border: 'border-lagos-300/50',
+    glow: 'rgba(0, 163, 255, 0.35)',
+    icon: '▶',
+    shadow: 'shadow-lagos-500/25',
+  },
+  locked: {
+    bg: 'from-slate-300 to-slate-400',
+    border: 'border-slate-300/50',
+    glow: 'rgba(148, 163, 184, 0.15)',
+    icon: '🔒',
+    shadow: 'shadow-slate-400/10',
+  },
 } as const;
 
-function NodeInner({
-  stage,
-  colors,
-  Icon,
-}: {
-  stage: StageData;
-  colors: { bg: string; stroke: string; glow: string };
-  Icon: React.ElementType;
-}) {
+function NodeInner({ stage }: { stage: StageData }) {
+  const style = nodeStyles[stage.status];
+
   return (
-    <motion.div
-      className="group relative flex -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center"
-      animate={
-        stage.status === 'available'
-          ? { boxShadow: [`0 0 0 0 ${colors.glow}`, `0 0 0 10px ${colors.glow}`, `0 0 0 0 ${colors.glow}`] }
-          : {}
-      }
-      transition={stage.status === 'available' ? { duration: 2.5, repeat: Infinity, ease: 'easeInOut' } : {}}
-    >
-      <div
-        className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white shadow-md transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg md:h-12 md:w-12"
-        style={{ backgroundColor: colors.bg }}
+    <div className="group relative flex flex-col items-center">
+      <motion.div
+        className={`relative flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${style.bg} ${style.border} border-2 shadow-lg ${style.shadow} transition-all duration-300 md:h-14 md:w-14 md:rounded-2xl`}
+        animate={
+          stage.status === 'available'
+            ? {
+                boxShadow: [
+                  `0 0 0 0 ${style.glow}`,
+                  `0 0 0 12px ${style.glow}`,
+                  `0 0 0 0 ${style.glow}`,
+                ],
+              }
+            : {}
+        }
+        transition={
+          stage.status === 'available'
+            ? { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
+            : {}
+        }
+        whileHover={{ scale: 1.12 }}
+        whileTap={{ scale: 0.92 }}
       >
-        <Icon className={`h-4 w-4 md:h-5 md:w-5 ${stage.status === 'locked' ? 'text-slate-500' : 'text-white'}`} />
-      </div>
+        {stage.status === 'locked' ? (
+          <span className="text-sm md:text-base drop-shadow-xs">🔒</span>
+        ) : (
+          <span className="font-super-pandora text-lg font-bold text-white drop-shadow-xs md:text-xl">
+            {style.icon}
+          </span>
+        )}
 
-      <div
-        className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[10px] font-semibold text-white opacity-0 shadow-xs transition-all duration-200 group-hover:opacity-100 md:text-xs"
-        style={{ backgroundColor: colors.bg }}
-      >
-        <span className="hidden md:inline">{stage.name}</span>
-        <span className="md:hidden">{stage.id}. {stage.name.split(' ').slice(0, 2).join(' ')}</span>
-      </div>
+        <div className="absolute -inset-1 rounded-xl bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:-inset-1.5 md:rounded-2xl" />
+      </motion.div>
 
-      <div
-        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white text-[10px] font-bold shadow-xs"
-        style={{ color: colors.bg }}
-      >
-        {stage.id}
+      <div className="mt-1.5 flex items-center gap-1">
+        <span
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-xs md:h-6 md:w-6 md:text-xs ${
+            stage.status === 'completed'
+              ? 'bg-pradera-500'
+              : stage.status === 'available'
+              ? 'bg-lagos-500'
+              : 'bg-slate-400'
+          }`}
+        >
+          {stage.id}
+        </span>
+        <span
+          className={`hidden whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold leading-tight text-white shadow-xs opacity-0 transition-all duration-200 group-hover:opacity-100 md:inline md:text-xs ${
+            stage.status === 'completed'
+              ? 'bg-pradera-500'
+              : stage.status === 'available'
+              ? 'bg-lagos-500'
+              : 'bg-slate-400'
+          }`}
+        >
+          {stage.name.length > 20 ? stage.name.slice(0, 18) + '…' : stage.name}
+        </span>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -70,37 +108,51 @@ export function Node({
   position: { x: number; y: number };
   index: number;
 }) {
-  const colors = statusColors[stage.status];
-  const Icon = stage.status === 'completed' ? Check : stage.status === 'available' ? Play : Lock;
   const isClickable = stage.status !== 'locked' && !!stage.courseId;
+
+  const floatDelay = (index % 5) * 0.6;
 
   return (
     <motion.div
       className="absolute"
       style={{ left: `${position.x}%`, top: `${position.y}%` }}
-      initial={{ opacity: 0, scale: 0.5, y: 10 }}
+      initial={{ opacity: 0, scale: 0.3, y: 20 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay: 0.1 + index * 0.06, duration: 0.4, ease: 'easeOut' }}
+      transition={{ delay: 0.08 + index * 0.05, duration: 0.5, ease: 'easeOut' }}
     >
-      {isClickable ? (
-        <Link href={`/dashboard/courses/${stage.courseId}`} className="block">
-          <NodeInner stage={stage} colors={colors} Icon={Icon} />
-        </Link>
-      ) : (
-        <NodeInner stage={stage} colors={colors} Icon={Icon} />
-      )}
+      <motion.div
+        animate={{ y: [0, -3, 0] }}
+        transition={{
+          duration: 3 + (index % 3),
+          repeat: Infinity,
+          ease: 'easeInOut',
+          delay: floatDelay,
+        }}
+      >
+        {isClickable ? (
+          <Link href={`/dashboard/courses/${stage.courseId}`} className="block">
+            <NodeInner stage={stage} />
+          </Link>
+        ) : (
+          <NodeInner stage={stage} />
+        )}
+      </motion.div>
     </motion.div>
   );
 }
 
 export function MapLegend() {
   return (
-    <div className="absolute bottom-3 left-3 flex items-center gap-4 rounded-xl bg-white/80 px-3 py-1.5 shadow-xs backdrop-blur-sm">
-      {(['completed', 'available', 'locked'] as const).map((status) => (
-        <div key={status} className="flex items-center gap-1.5">
-          <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: statusColors[status].bg }} />
-          <span className="font-simply-olive text-[10px] capitalize text-gray-500">
-            {status === 'completed' ? 'Completado' : status === 'available' ? 'Disponible' : 'Bloqueado'}
+    <div className="absolute bottom-3 left-3 flex items-center gap-3 rounded-xl bg-white/90 px-3 py-2 shadow-xs backdrop-blur-sm">
+      {([
+        { status: 'completed' as const, label: 'Completado', color: 'bg-pradera-500' },
+        { status: 'available' as const, label: 'Disponible', color: 'bg-lagos-500' },
+        { status: 'locked' as const, label: 'Bloqueado', color: 'bg-slate-400' },
+      ]).map((item) => (
+        <div key={item.status} className="flex items-center gap-1.5">
+          <div className={`h-3 w-3 rounded-full ${item.color} shadow-xs`} />
+          <span className="font-simply-olive text-[11px] font-medium text-gray-500">
+            {item.label}
           </span>
         </div>
       ))}

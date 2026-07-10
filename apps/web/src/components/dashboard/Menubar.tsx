@@ -3,37 +3,34 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import {
-  Map,
-  Code2,
-  Trophy,
-  BarChart3,
-  Calendar,
-  Award,
-  Settings,
-  Shield,
-  FlaskConical,
-  ChevronLeft,
-  Menu,
-} from 'lucide-react';
+import { ChevronLeft, Menu } from 'lucide-react';
+import SidebarIcon from '@/components/ui/SidebarIcon';
+import type { IconName } from '@/components/ui/SidebarIcon';
 
 interface MenubarProps {
   userRole?: string;
+}
+
+interface NavItem {
+  id: string;
+  label: string;
+  icon: IconName;
+  href: string;
 }
 
 export default function Menubar({ userRole }: MenubarProps) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(true);
 
-  const navItems = [
-    { id: 'ruta', label: 'Ruta de aprendizaje', icon: Map, href: '/dashboard' },
-    { id: 'ejercicios', label: 'Ejercicios', icon: Code2, href: '#' },
-    { id: 'retos', label: 'Retos', icon: Trophy, href: '#' },
-    { id: 'laboratorio', label: 'Laboratorio', icon: FlaskConical, href: '/dashboard/lab' },
-    { id: 'ranking', label: 'Ranking', icon: BarChart3, href: '#' },
-    { id: 'eventos', label: 'Eventos', icon: Calendar, href: '#' },
-    { id: 'certificados', label: 'Certificados', icon: Award, href: '#' },
-    { id: 'ajustes', label: 'Ajustes', icon: Settings, href: '/dashboard/settings' },
+  const navItems: NavItem[] = [
+    { id: 'ruta', label: 'Ruta de aprendizaje', icon: 'map', href: '/dashboard' },
+    { id: 'ejercicios', label: 'Ejercicios', icon: 'code', href: '#' },
+    { id: 'retos', label: 'Retos', icon: 'trophy', href: '#' },
+    { id: 'laboratorio', label: 'Laboratorio', icon: 'flask', href: '/dashboard/lab' },
+    { id: 'ranking', label: 'Ranking', icon: 'chart', href: '#' },
+    { id: 'eventos', label: 'Eventos', icon: 'calendar', href: '#' },
+    { id: 'certificados', label: 'Certificados', icon: 'badge', href: '#' },
+    { id: 'ajustes', label: 'Ajustes', icon: 'gear', href: '/dashboard/settings' },
   ];
 
   const isActive = (href: string) => {
@@ -41,9 +38,10 @@ export default function Menubar({ userRole }: MenubarProps) {
     return pathname.startsWith(href);
   };
 
+  const isAdminActive = pathname.startsWith('/dashboard/admin');
+
   return (
     <>
-      {/* Mobile toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
         className="fixed left-3 top-24 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
@@ -52,7 +50,6 @@ export default function Menubar({ userRole }: MenubarProps) {
         <Menu className="h-5 w-5 text-gray-600" />
       </button>
 
-      {/* Overlay on mobile */}
       {!collapsed && (
         <div
           className="fixed inset-0 z-30 bg-black/20 lg:hidden"
@@ -63,10 +60,10 @@ export default function Menubar({ userRole }: MenubarProps) {
       <nav
         className={`${
           collapsed ? '-translate-x-full' : 'translate-x-0'
-        } fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-60 flex-col border-r border-gray-200 bg-gray-50/90 p-3 backdrop-blur-sm transition-transform duration-300 lg:static lg:translate-x-0`}
+        } fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-64 flex-col border-r border-gray-200 bg-gray-50/95 p-3 backdrop-blur-sm transition-transform duration-300 lg:static lg:translate-x-0`}
       >
         <div className="mb-2 flex items-center justify-between px-2 pb-2">
-          <span className="font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <span className="font-simply-olive text-xs font-bold uppercase tracking-widest text-gray-400">
             Menú
           </span>
           <button
@@ -79,25 +76,22 @@ export default function Menubar({ userRole }: MenubarProps) {
 
         <ul className="flex-1 space-y-1">
           {navItems.map((item) => {
-            const Icon = item.icon;
             const active = isActive(item.href);
             return (
               <li key={item.id}>
                 <Link
                   href={item.href}
                   onClick={() => setCollapsed(true)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
                     active
-                      ? 'bg-white text-pradera-600 shadow-xs'
-                      : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
+                      ? 'bg-white text-gray-900 shadow-xs'
+                      : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'
                   }`}
                 >
-                  <Icon
-                    className={`h-5 w-5 ${active ? 'text-pradera-500' : 'text-gray-400'}`}
-                  />
+                  <SidebarIcon name={item.icon} active={active} />
                   <span>{item.label}</span>
                   {active && (
-                    <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400" />
+                    <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />
                   )}
                 </Link>
               </li>
@@ -105,27 +99,24 @@ export default function Menubar({ userRole }: MenubarProps) {
           })}
         </ul>
 
-        {/* Admin section — only for admins */}
         {userRole === 'ADMIN' && (
           <div className="border-t border-gray-200 pt-2">
-            <p className="mb-1 px-3 font-simply-olive text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase tracking-widest text-gray-400">
               Administración
             </p>
             <Link
               href="/dashboard/admin/courses"
               onClick={() => setCollapsed(true)}
-              className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
-                pathname.startsWith('/dashboard/admin')
-                  ? 'bg-white text-bosque-600 shadow-xs'
-                  : 'text-gray-600 hover:bg-white/70 hover:text-gray-900'
+              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                isAdminActive
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'
               }`}
             >
-              <Shield
-                className={`h-5 w-5 ${pathname.startsWith('/dashboard/admin') ? 'text-bosque-500' : 'text-gray-400'}`}
-              />
+              <SidebarIcon name="shield" active={isAdminActive} />
               <span>Cursos</span>
-              {pathname.startsWith('/dashboard/admin') && (
-                <div className="ml-auto h-2 w-2 rounded-full bg-bosque-400" />
+              {isAdminActive && (
+                <div className="ml-auto h-2 w-2 rounded-full bg-bosque-400 shadow-xs" />
               )}
             </Link>
           </div>
