@@ -44,7 +44,7 @@ export default function Menubar({ userRole }: MenubarProps) {
     <>
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="fixed left-3 top-24 z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
+        className="fixed left-3 top-[4.5rem] z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
         aria-label="Toggle menu"
       >
         <Menu className="h-5 w-5 text-gray-600" />
@@ -60,7 +60,7 @@ export default function Menubar({ userRole }: MenubarProps) {
       <nav
         className={`${
           collapsed ? '-translate-x-full' : 'translate-x-0'
-        } fixed left-0 top-20 z-40 flex h-[calc(100vh-5rem)] w-64 flex-col border-r border-gray-200 bg-gray-50/95 p-3 backdrop-blur-sm transition-transform duration-300 lg:static lg:translate-x-0`}
+        } fixed left-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-64 flex-col border-r border-gray-200 bg-gray-50/95 p-3 backdrop-blur-sm transition-transform duration-300 md:top-20 md:h-[calc(100vh-5rem)] lg:static lg:translate-x-0`}
       >
         <div className="mb-2 flex items-center justify-between px-2 pb-2">
           <span className="font-simply-olive text-xs font-bold uppercase tracking-widest text-gray-400">

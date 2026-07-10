@@ -82,7 +82,7 @@ export default function LearningPath({ stages }: LearningPathProps) {
       className="relative flex w-full items-center justify-center"
       style={{ overflow: 'visible' }}
     >
-      <div className="relative hidden aspect-[16/9] w-full md:block" style={{ overflow: 'visible' }}>
+      <div className="relative hidden aspect-video w-full md:block" style={{ overflow: 'visible' }}>
         <MapSection
           positions={dPositions}
           stages={stages}

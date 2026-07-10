@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { HelpCircle } from 'lucide-react';
 import LearningPath from '@/components/dashboard/LearningPath';
 import ProgressCard from '@/components/ui/ProgressCard';
 import ObjectiveCard from '@/components/ui/ObjectiveCard';
@@ -85,20 +86,20 @@ async function DashboardContent() {
     : 0;
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row">
+    <div className="flex flex-col gap-4 md:gap-6 lg:flex-row">
       <section className="min-w-0 flex-[1_1_0%]">
         <div className="rounded-2xl border border-gray-100 bg-white shadow-xs">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-50 px-5 pb-3 pt-4">
+          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-50 px-4 pb-3 pt-3.5 md:px-5 md:pb-4 md:pt-4">
             <div>
-              <h2 className="font-super-pandora text-xl text-gray-900 drop-shadow-xs md:text-2xl">
+              <h2 className="font-super-pandora text-lg text-gray-900 drop-shadow-xs md:text-xl xl:text-2xl">
                 Ruta de aprendizaje
               </h2>
-              <p className="font-simply-olive mt-0.5 text-sm text-gray-500">
+              <p className="font-simply-olive mt-0.5 text-xs text-gray-500 md:text-sm">
                 Aprendé, practicá y resolvé problemas como en la OIA.
               </p>
             </div>
-            <button className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-sm font-medium text-gray-600 shadow-xs transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 hover:shadow-sm">
-              <span className="text-base">❓</span>
+            <button className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 shadow-xs transition-all duration-200 hover:border-gray-300 hover:bg-gray-50 hover:text-gray-800 hover:shadow-sm md:px-4 md:py-2 md:text-sm">
+              <HelpCircle className="h-3.5 w-3.5 md:h-4 md:w-4" />
               ¿Cómo funciona?
             </button>
           </div>
@@ -109,8 +110,8 @@ async function DashboardContent() {
         </div>
       </section>
 
-      <aside className="w-full shrink-0 lg:w-72 xl:w-80">
-        <div className="space-y-4">
+      <aside className="w-full shrink-0 lg:w-64 xl:w-72 2xl:w-80">
+        <div className="space-y-3 md:space-y-4">
           <ProgressCard
             percentage={progressPct}
             completed={completedLessons}

@@ -19,11 +19,11 @@ export default async function DashboardLayout({
   return (
     <div className="h-screen overflow-hidden bg-gray-50">
       <Topbar user={user} />
-      <div className="flex h-[calc(100vh-5rem)]">
+      <div className="flex h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)]">
         <Menubar userRole={user.role} />
-        <main className="flex flex-1 flex-col overflow-y-auto">
+        <main className="flex min-w-0 flex-1 flex-col overflow-y-auto">
           <PageTransition>
-            <div className="min-h-0 p-6">
+            <div className="mx-auto min-h-0 w-full max-w-[1600px] p-3 md:p-5 lg:p-6">
               {children}
             </div>
           </PageTransition>

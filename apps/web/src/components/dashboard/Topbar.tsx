@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Zap, Gem, Trophy, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { useCurrentUser, useInvalidateCurrentUser } from '@/hooks/queries/useCurrentUser';
 import StatChip from '@/components/ui/StatChip';
@@ -39,30 +39,28 @@ export default function Topbar({ user }: TopbarProps) {
   }, []);
 
   return (
-    <header className="relative z-50 flex h-20 items-center justify-between border-b border-gray-200/60 bg-white/90 px-4 shadow-xs backdrop-blur-md md:px-6">
-      <div className="flex items-center gap-3">
-        <Image src="/school_logo.png" alt="EET 3117" width={52} height={52} priority className="h-13 w-auto object-contain" />
+    <header className="relative z-50 flex h-16 items-center justify-between border-b border-gray-200/60 bg-white/90 px-3 shadow-xs backdrop-blur-md md:h-20 md:px-6">
+      <div className="flex items-center gap-2 md:gap-3">
+        <Image src="/school_logo.png" alt="EET 3117" width={44} height={44} priority className="h-10 w-auto object-contain md:h-13" />
         <div className="hidden md:block">
-          <h1 className="font-super-pandora text-sm leading-tight text-gray-900">Escuela de Educación<br />Técnica Nº 3117</h1>
-          <p className="font-simply-olive text-[11px] text-gray-500">Maestro Daniel Óscar Reyes</p>
+          <h1 className="font-super-pandora text-xs leading-tight text-gray-900 md:text-sm">Escuela de Educación<br />Técnica Nº 3117</h1>
+          <p className="font-simply-olive text-[10px] text-gray-500 md:text-[11px]">Maestro Daniel Óscar Reyes</p>
         </div>
       </div>
 
-      <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-3 md:flex">
-        <div className="relative">
-          <Image src="/logo.png" alt="Codi" width={60} height={60} priority className="w-full max-w-15 h-auto object-contain drop-shadow-xs" />
-        </div>
+      <div className="absolute left-1/2 hidden -translate-x-1/2 w-full max-w-[300px] items-center gap-3 md:flex">
+        <Image src="/logo.png" alt="Codi" width={48} height={48} priority className="w-full max-w-12 object-contain drop-shadow-xs md:max-w-15" />
         <div>
-          <h2 className="font-super-pandora text-lg leading-tight text-gray-900 drop-shadow-xs">
+          <h2 className="font-super-pandora text-base leading-tight text-gray-900 drop-shadow-xs md:text-lg">
             Programación Competitiva
           </h2>
-          <p className="font-simply-olive text-xs text-gray-500">con Python</p>
+          <p className="font-simply-olive text-[10px] text-gray-500 md:text-xs">con Python</p>
         </div>
       </div>
 
-      <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex items-center gap-1.5 md:gap-3">
         <StatChip
-          icon={<span className="text-xs">⚡</span>}
+          icon={<Zap className="h-3.5 w-3.5 md:h-4 md:w-4" />}
           value={clientUser.xp}
           suffix=" XP"
           gradient="amber"
@@ -70,14 +68,14 @@ export default function Topbar({ user }: TopbarProps) {
         />
 
         <StatChip
-          icon={<span className="text-xs">💎</span>}
+          icon={<Gem className="h-3.5 w-3.5 md:h-4 md:w-4" />}
           value={clientUser.gems}
           gradient="cyan"
           label="Gemas"
         />
 
         <StatChip
-          icon={<span className="text-xs">🏆</span>}
+          icon={<Trophy className="h-3.5 w-3.5 md:h-4 md:w-4" />}
           value={clientUser.level}
           suffix=""
           gradient="purple"
@@ -89,9 +87,9 @@ export default function Topbar({ user }: TopbarProps) {
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-100"
           >
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 p-0.5 shadow-xs">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 p-0.5 shadow-xs md:h-9 md:w-9">
               <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
-                <span className="text-sm font-bold text-lagos-600">
+                <span className="text-xs font-bold text-lagos-600 md:text-sm">
                   {clientUser.displayName.charAt(0).toUpperCase()}
                 </span>
               </div>

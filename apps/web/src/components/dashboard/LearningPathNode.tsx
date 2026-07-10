@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
+import { Check, Play, Lock } from 'lucide-react';
 
 interface StageData {
   id: number;
@@ -15,24 +16,31 @@ const nodeStyles = {
     bg: 'from-pradera-400 to-pradera-600',
     border: 'border-pradera-300/50',
     glow: 'rgba(88, 204, 2, 0.35)',
-    icon: '✓',
+    iconColor: 'text-white',
     shadow: 'shadow-pradera-500/25',
   },
   available: {
     bg: 'from-lagos-400 to-lagos-600',
     border: 'border-lagos-300/50',
     glow: 'rgba(0, 163, 255, 0.35)',
-    icon: '▶',
+    iconColor: 'text-white',
     shadow: 'shadow-lagos-500/25',
   },
   locked: {
     bg: 'from-slate-300 to-slate-400',
     border: 'border-slate-300/50',
     glow: 'rgba(148, 163, 184, 0.15)',
-    icon: '🔒',
+    iconColor: 'text-white/70',
     shadow: 'shadow-slate-400/10',
   },
 } as const;
+
+function NodeIcon({ status }: { status: StageData['status'] }) {
+  const size = 'h-5 w-5 md:h-6 md:w-6';
+  if (status === 'completed') return <Check className={`${size} drop-shadow-xs`} />;
+  if (status === 'available') return <Play className={`${size} drop-shadow-xs ml-0.5`} />;
+  return <Lock className={`${size} drop-shadow-xs`} />;
+}
 
 function NodeInner({ stage }: { stage: StageData }) {
   const style = nodeStyles[stage.status];
@@ -40,7 +48,7 @@ function NodeInner({ stage }: { stage: StageData }) {
   return (
     <div className="group relative flex flex-col items-center">
       <motion.div
-        className={`relative flex h-11 w-11 items-center justify-center rounded-xl bg-linear-to-br ${style.bg} ${style.border} border-2 shadow-lg ${style.shadow} transition-all duration-300 md:h-14 md:w-14 md:rounded-2xl`}
+        className={`relative flex h-10 w-10 items-center justify-center rounded-xl bg-linear-to-br ${style.bg} ${style.border} border-2 shadow-lg ${style.shadow} ${style.iconColor} transition-all duration-300 md:h-14 md:w-14 md:rounded-2xl`}
         animate={
           stage.status === 'available'
             ? {
@@ -60,20 +68,13 @@ function NodeInner({ stage }: { stage: StageData }) {
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.92 }}
       >
-        {stage.status === 'locked' ? (
-          <span className="text-sm md:text-base drop-shadow-xs">🔒</span>
-        ) : (
-          <span className="font-super-pandora text-lg font-bold text-white drop-shadow-xs md:text-xl">
-            {style.icon}
-          </span>
-        )}
-
+        <NodeIcon status={stage.status} />
         <div className="absolute -inset-1 rounded-xl bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:-inset-1.5 md:rounded-2xl" />
       </motion.div>
 
-      <div className="mt-1.5 flex items-center gap-1">
+      <div className="mt-1 flex items-center gap-1 md:mt-1.5">
         <span
-          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-xs md:h-6 md:w-6 md:text-xs ${
+          className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white shadow-xs md:h-6 md:w-6 md:text-[11px] ${
             stage.status === 'completed'
               ? 'bg-pradera-500'
               : stage.status === 'available'
@@ -84,7 +85,7 @@ function NodeInner({ stage }: { stage: StageData }) {
           {stage.id}
         </span>
         <span
-          className={`hidden whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-semibold leading-tight text-white shadow-xs opacity-0 transition-all duration-200 group-hover:opacity-100 md:inline md:text-xs ${
+          className={`hidden whitespace-nowrap rounded-full px-2 py-0.5 text-[9px] font-semibold leading-tight text-white shadow-xs opacity-0 transition-all duration-200 group-hover:opacity-100 md:inline md:text-[11px] ${
             stage.status === 'completed'
               ? 'bg-pradera-500'
               : stage.status === 'available'
