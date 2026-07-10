@@ -170,6 +170,115 @@ pnpm db:push      # crea tablas codi_* que falten sin borrar datos existentes
 - Usar siempre `pnpm db:push` o `pnpm db:migrate` (migrate deploy) para cambios de schema.
 - El firewall de la intranet **debe permitir outbound TCP/5432** hacia la IP de Supabase.
 
+## Clean Code — principios obligatorios
+
+Toda refactorización debe seguir los principios descritos en *Clean Code* (Robert C. Martin). No se trata únicamente de que el código funcione, sino de que sea fácil de leer, comprender, probar y mantener.
+
+### Responsabilidad única (Single Responsibility)
+
+Cada archivo, componente, hook, función o clase debe tener una única responsabilidad claramente definida.
+
+Si un componente renderiza la UI, obtiene datos, transforma información y maneja eventos complejos, debe dividirse en múltiples unidades.
+
+### Componentes pequeños
+
+Prioriza componentes pequeños y enfocados.
+
+| Límite | Evaluación |
+|--------|-----------|
+| < 100 líneas | Ideal |
+| 100–150 líneas | Aceptable |
+| 150–200 líneas | Debe justificarse |
+| > 300 líneas | Mala arquitectura — debe dividirse |
+
+### Funciones pequeñas
+
+Las funciones deben realizar una única tarea.
+
+| Límite | Evaluación |
+|--------|-----------|
+| < 20 líneas | Ideal |
+| 20–40 líneas | Máximo recomendado |
+| > 40 líneas | Debe dividirse |
+
+Si una función necesita comentarios para entender qué hace, probablemente deba dividirse.
+
+### Nombres claros
+
+Todos los nombres deben describir exactamente su propósito. Evita nombres ambiguos como `data`, `info`, `temp`, `helper`, `utils`, `manager`, `service`, `handleData`, `process`.
+
+Prefiere nombres que expresen intención: `calculateFinalScore()`, `createGoogleOAuthUrl()`, `fetchCurrentUser()`.
+
+### Código autoexplicativo
+
+Reduce al mínimo el uso de comentarios. Cuando un comentario parece necesario para explicar el código, primero intenta mejorar los nombres o extraer funciones. Los comentarios deben reservarse para explicar decisiones de negocio o motivos técnicos complejos.
+
+### Evitar duplicación (DRY)
+
+Identifica cualquier lógica repetida y extráela a hooks personalizados, utilidades (`utils/`), servicios (`services/`), funciones compartidas (`shared/lib/`) o componentes reutilizables. No dupliques lógica entre páginas o componentes.
+
+### Mantener baja complejidad
+
+Reduce la complejidad ciclomática. Evita múltiples `if` anidados, cadenas largas de `else if`, `switch` excesivos, operadores ternarios anidados y funciones que mezclan demasiados casos de uso. Siempre que sea posible, reemplaza lógica compleja por composición o polimorfismo.
+
+### Composición sobre componentes gigantes
+
+Prefiere construir interfaces mediante pequeños componentes especializados:
+
+```
+DashboardPage
+ ├── DashboardHeader
+ ├── DashboardToolbar
+ ├── DashboardFilters
+ ├── DashboardTable
+ ├── DashboardPagination
+ └── DashboardDialogs
+```
+
+### Hooks con una sola responsabilidad
+
+Cada hook debe resolver un único problema. Evita hooks que gestionen autenticación, peticiones, formularios y navegación al mismo tiempo.
+
+Ejemplos: `useCurrentUser()`, `useLoginForm()`, `useDashboardFilters()`, `useCourses()`.
+
+### Separación por capas
+
+La lógica de negocio nunca debe vivir dentro de los componentes. Los componentes deben centrarse únicamente en renderizar la interfaz y delegar la lógica a hooks, servicios o funciones compartidas.
+
+### Imports organizados
+
+Agrupa los imports de forma consistente:
+
+1. Librerías externas
+2. Módulos internos
+3. Componentes
+4. Hooks
+5. Utilidades
+6. Tipos
+7. Estilos
+
+Elimina imports sin uso.
+
+### Evitar renderizados innecesarios
+
+Analiza cuidadosamente el árbol de componentes. Aplica `React.memo`, `useMemo` y `useCallback` únicamente cuando aporte beneficios reales. No memorices componentes o valores de forma indiscriminada. Justifica cada optimización indicando el problema que resuelve.
+
+### Código preparado para pruebas
+
+La arquitectura debe facilitar la escritura de pruebas unitarias e integración. Evita acoplar lógica de negocio con la interfaz de usuario.
+
+### Consistencia
+
+Todo el proyecto debe seguir un único estilo arquitectónico. Evita mezclar distintos patrones para resolver el mismo problema.
+
+### Refactorización sin cambiar comportamiento
+
+Todas las mejoras deben preservar exactamente el comportamiento funcional existente. La prioridad es mejorar la calidad interna del código sin introducir regresiones.
+
+### Mentalidad de mantenibilidad
+
+Asume que este proyecto crecerá durante varios años y será mantenido por distintos desarrolladores. Cada decisión debe favorecer la legibilidad, simplicidad, modularidad y facilidad de evolución del sistema antes que soluciones ingeniosas o excesivamente complejas.
+
 ## Limitations
 
 - **No test suite** exists (no test runner, no test files anywhere).
