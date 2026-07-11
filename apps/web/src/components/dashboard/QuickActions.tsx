@@ -38,7 +38,7 @@ export default function QuickActions() {
       </section>
 
       <section className="hidden border-t border-gray-200 bg-white/95 px-4 py-4 backdrop-blur-sm md:block">
-        <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3">
+        <div className="mx-auto grid w-full max-w-6xl grid-cols-3 gap-2 md:gap-3 lg:grid-cols-5">
           {actions.map(({ label, desc, icon, gradient }) => (
             <BottomActionCard
               key={label}
