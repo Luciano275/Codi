@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { spawn, execSync, ChildProcess } from 'child_process';
+import { spawn, execFileSync, ChildProcess } from 'child_process';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -8,6 +8,22 @@ import { Observable, ReplaySubject } from 'rxjs';
 
 const ISOLATE_BIN = '/usr/local/bin/isolate';
 const MAX_BOX_ID = 99;
+
+const COMPILE_LIMITS = {
+  processes: 5,
+  time: 30,
+  wallTime: 60,
+  cgMem: 524288,
+  fsize: 102400,
+} as const;
+
+const EXECUTION_LIMITS = {
+  processes: 5,
+  time: 30,
+  wallTime: 61,
+  cgMem: 262144,
+  fsize: 1024,
+} as const;
 
 interface PlaygroundEvent {
   type: 'stdout' | 'stderr' | 'exit' | 'timeout';
@@ -38,10 +54,9 @@ class PlaygroundSession {
 
   private initIsolate() {
     try {
-      execSync(
-        `${ISOLATE_BIN} --box-id=${this.boxId} --init --cg`,
-        { timeout: 10000, stdio: 'pipe' },
-      );
+      execFileSync(ISOLATE_BIN, [
+        `--box-id=${this.boxId}`, '--init', '--cg',
+      ], { timeout: 10000, stdio: 'pipe' });
     } catch (err: any) {
       this.events$.next({ type: 'stderr', data: `Sandbox init error: ${err.stderr?.toString() || err.message}` });
       this.events$.next({ type: 'exit', data: '1' });
@@ -64,12 +79,18 @@ class PlaygroundSession {
 
   private compileCpp() {
     try {
-      execSync(
-        `${ISOLATE_BIN} --box-id=${this.boxId} --run --cg -- /usr/bin/g++ -std=c++17 -O2 -o a.out source.cpp -lm`,
-        { timeout: 15000, stdio: 'pipe' },
-      );
+      execFileSync(ISOLATE_BIN, [
+        `--box-id=${this.boxId}`, '--run', '--cg',
+        `--processes=${COMPILE_LIMITS.processes}`,
+        `--time=${COMPILE_LIMITS.time}`,
+        `--wall-time=${COMPILE_LIMITS.wallTime}`,
+        `--cg-mem=${COMPILE_LIMITS.cgMem}`,
+        `--fsize=${COMPILE_LIMITS.fsize}`,
+        '--', '/usr/bin/g++', '-B/usr/bin', '-std=c++17', '-O2', '-o', 'a.out', 'source.cpp', '-lm',
+      ], { timeout: COMPILE_LIMITS.time * 1000 + 15000, stdio: 'pipe' });
     } catch (err: any) {
-      const msg = err.stderr?.toString() || err.message || 'Compilation failed';
+      const stderr = err.stderr?.toString() || '';
+      const msg = stderr || err.message || 'Compilation failed';
       this.events$.next({ type: 'stderr', data: msg });
       this.events$.next({ type: 'exit', data: '1' });
       this.events$.complete();
@@ -92,13 +113,13 @@ class PlaygroundSession {
     try {
       this.child = spawn(ISOLATE_BIN, [
         `--box-id=${this.boxId}`, '--run', '--cg',
-        '--time=30',
-        '--wall-time=61',
-        '--cg-mem=262144',
-        '--fsize=1024',
-        '--processes=5',
+        `--processes=${EXECUTION_LIMITS.processes}`,
+        `--time=${EXECUTION_LIMITS.time}`,
+        `--wall-time=${EXECUTION_LIMITS.wallTime}`,
+        `--cg-mem=${EXECUTION_LIMITS.cgMem}`,
+        `--fsize=${EXECUTION_LIMITS.fsize}`,
         '--', ...cmd,
-      ], { stdio: ['pipe', 'pipe', 'pipe'], timeout: 120000 });
+      ], { stdio: ['pipe', 'pipe', 'pipe'], timeout: EXECUTION_LIMITS.wallTime * 1000 + 60000 });
     } catch (err: any) {
       this.events$.next({ type: 'stderr', data: `Failed to start process: ${err.message}` });
       this.events$.next({ type: 'exit', data: '-1' });
@@ -137,11 +158,11 @@ class PlaygroundSession {
       if (!this._ended) {
         this.child?.kill('SIGKILL');
         this._ended = true;
-        this.events$.next({ type: 'timeout', data: 'Execution timed out (30s limit)' });
+        this.events$.next({ type: 'timeout', data: `Execution timed out (${EXECUTION_LIMITS.time}s limit)` });
         this.events$.complete();
         this.cleanup();
       }
-    }, 30000);
+    }, EXECUTION_LIMITS.time * 1000);
   }
 
   writeStdin(data: string) {
@@ -174,10 +195,9 @@ class PlaygroundSession {
   private cleanup() {
     try { fs.rmSync(this.tmpDir, { recursive: true, force: true }); } catch { }
     try {
-      execSync(
-        `${ISOLATE_BIN} --box-id=${this.boxId} --cleanup --cg`,
-        { timeout: 10000, stdio: 'pipe' },
-      );
+      execFileSync(ISOLATE_BIN, [
+        `--box-id=${this.boxId}`, '--cleanup', '--cg',
+      ], { timeout: 10000, stdio: 'pipe' });
     } catch { }
   }
 }
