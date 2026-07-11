@@ -46,9 +46,9 @@ function MapSection({
         <Image
           src={isMobile ? verticalMap : horizontalMap}
           alt="Mapa de ruta de aprendizaje"
-          fill={!isMobile}
+          fill
           priority
-          className={isMobile ? 'h-auto w-full' : 'object-contain'}
+          className="object-contain"
           sizes="100vw"
         />
       </div>
@@ -94,17 +94,15 @@ export default function LearningPath({ stages }: LearningPathProps) {
         <MapLegend />
       </div>
 
-      <div className="relative w-full md:hidden" style={{ overflow: 'visible' }}>
-        <div className="relative" style={{ overflow: 'visible' }}>
-          <MapSection
-            positions={mPositions}
-            stages={stages}
-            activeStageIds={activeStageIds}
-            activeCount={activeStages.length}
-            totalCount={stages.length}
-            isMobile
-          />
-        </div>
+      <div className="relative w-full overflow-visible md:hidden" style={{ aspectRatio: '9/16' }}>
+        <MapSection
+          positions={mPositions}
+          stages={stages}
+          activeStageIds={activeStageIds}
+          activeCount={activeStages.length}
+          totalCount={stages.length}
+          isMobile
+        />
         <MapLegend />
       </div>
     </motion.div>
