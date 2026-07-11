@@ -1,5 +1,6 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as crypto from 'crypto';
 import {
   AuthService as CodiAuthService,
   verifyCmsPassword,
@@ -28,18 +29,22 @@ type CmsAdminRow = {
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
   private codiAuth: CodiAuthService;
 
   constructor(private jwtService: JwtService) {
     this.codiAuth = new CodiAuthService((payload) =>
-      this.jwtService.sign(payload),
+      this.jwtService.sign({ ...payload, jti: crypto.randomUUID() }),
     );
   }
 
   async login(username: string, password: string): Promise<LoginResult> {
     try {
-      return await this.codiAuth.login(username, password);
-    } catch {
+      const result = await this.codiAuth.login(username, password);
+      this.logger.log(`Login success: ${username}`);
+      return result;
+    } catch (err) {
+      this.logger.warn(`Login failed: ${username} — ${(err as Error).message}`);
       throw new UnauthorizedException('Los datos no son correctos');
     }
   }
