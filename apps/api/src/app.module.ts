@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { PrismaModule } from '@codi/database';
 import { ConfigModule } from '@nestjs/config';
 import { resolve } from 'path';
@@ -18,6 +20,10 @@ import { ProblemsModule } from './problems/problems.module';
       envFilePath: resolve(process.cwd(), '../../.env'),
       load: [() => config]
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 60,
+    }]),
     PrismaModule,
     AuthModule,
     SubmissionsModule,
@@ -28,6 +34,8 @@ import { ProblemsModule } from './problems/problems.module';
     ProblemsModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}
