@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsInt, IsEnum, IsArray, IsObject, Min } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsEnum, IsArray, IsObject, Min, MaxLength } from 'class-validator';
 import { LessonType } from '@codi/database';
 
 export class CreateLessonDto {
@@ -6,6 +6,7 @@ export class CreateLessonDto {
   moduleId!: string;
 
   @IsString()
+  @MaxLength(255)
   title!: string;
 
   @IsInt()

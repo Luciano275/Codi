@@ -6,14 +6,23 @@ import {
   Body,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle, SkipThrottle } from '@nestjs/throttler';
+import { IsString, MaxLength, IsIn } from 'class-validator';
 import { SubmissionsService } from './submissions.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import type { User } from '@codi/database';
 
 class SubmitDto {
+  @IsString()
   problemId!: string;
+
+  @IsString()
+  @MaxLength(50000)
   code!: string;
+
+  @IsString()
+  @IsIn(['python', 'cpp'])
   language!: string;
 }
 
@@ -23,25 +32,29 @@ export class SubmissionsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   async submit(@CurrentUser() user: User, @Body() dto: SubmitDto) {
     return this.submissions.submit(user.id, dto.problemId, dto.code, dto.language);
   }
 
   @Post('evaluate')
   @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   async evaluate(@CurrentUser() user: User, @Body() dto: SubmitDto) {
     return this.submissions.submit(user.id, dto.problemId, dto.code, dto.language);
   }
 
   @Get()
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
   async list(@CurrentUser() user: User) {
     return this.submissions.findByUser(user.id);
   }
 
   @Get(':id')
+  @SkipThrottle()
   @UseGuards(JwtAuthGuard)
-  async get(@Param('id') id: string) {
-    return this.submissions.findById(id);
+  async get(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.submissions.findById(id, user.id);
   }
 }

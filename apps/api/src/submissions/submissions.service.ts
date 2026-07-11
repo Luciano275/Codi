@@ -142,11 +142,15 @@ export class SubmissionsService {
     }
   }
 
-  async findById(id: string) {
-    return this.prisma.submission.findUnique({
-      where: { id },
+  async findById(id: string, userId?: string) {
+    const where: any = { id };
+    if (userId) where.userId = userId;
+    const submission = await this.prisma.submission.findUnique({
+      where,
       include: { problem: true },
     });
+    if (!submission) throw new NotFoundException('Submission not found');
+    return submission;
   }
 
   async findByUser(userId: string) {

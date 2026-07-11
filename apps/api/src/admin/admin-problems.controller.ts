@@ -12,11 +12,11 @@ export class AdminProblemsController {
 
   @Get()
   async findAll(@Query('search') search?: string) {
-    await this.prisma.$executeRawUnsafe(
-      `INSERT INTO codi_problem (id, "cmsTaskId", "cmsTaskName", title, "createdAt", "updatedAt")
-       SELECT gen_random_uuid()::text, id, name, title, NOW(), NOW() FROM public.tasks
-       ON CONFLICT ("cmsTaskId") DO NOTHING`,
-    );
+    await this.prisma.$executeRaw`
+      INSERT INTO codi_problem (id, "cmsTaskId", "cmsTaskName", title, "createdAt", "updatedAt")
+      SELECT gen_random_uuid()::text, id, name, title, NOW(), NOW() FROM public.tasks
+      ON CONFLICT ("cmsTaskId") DO NOTHING
+    `;
 
     const where = search
       ? {
@@ -47,6 +47,9 @@ export class AdminProblemsController {
     @Param('id') id: string,
     @Body() body: { difficulty?: string; gemsReward?: number },
   ) {
+    const existing = await this.prisma.problem.findUnique({ where: { id }, select: { id: true } });
+    if (!existing) throw new NotFoundException('Problem not found');
+
     const data: Record<string, unknown> = {};
     if (body.difficulty !== undefined) data.difficulty = body.difficulty;
     if (body.gemsReward !== undefined) data.gemsReward = body.gemsReward;

@@ -27,7 +27,7 @@ export class CoursesService {
   }
 
   async findOne(id: string) {
-    return this.prisma.course.findUnique({
+    const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
         modules: {
@@ -45,6 +45,8 @@ export class CoursesService {
         },
       },
     });
+    if (!course) throw new NotFoundException('Course not found');
+    return course;
   }
 
   async getProgress(userId: string) {

@@ -9,6 +9,8 @@ export class RankingController {
   @Get('global')
   @UseGuards(JwtAuthGuard)
   async global(@Query('limit') limit?: string) {
-    return this.ranking.getGlobal(limit ? parseInt(limit, 10) : 50);
+    const parsed = limit ? parseInt(limit, 10) : 50;
+    const safeLimit = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 200) : 50;
+    return this.ranking.getGlobal(safeLimit);
   }
 }

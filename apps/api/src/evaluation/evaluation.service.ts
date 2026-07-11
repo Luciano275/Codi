@@ -39,7 +39,11 @@ export class EvaluationService {
         ],
         {
           stdio: ['pipe', 'pipe', 'pipe'],
-          env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL || '' },
+          env: {
+            DATABASE_URL: process.env.DATABASE_URL || '',
+            PATH: process.env.PATH || '/usr/bin',
+            HOME: process.env.HOME || '/tmp',
+          },
           timeout: 120000,
         },
       );

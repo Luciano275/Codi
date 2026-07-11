@@ -1,9 +1,14 @@
-import { IsString, IsInt, Min } from 'class-validator';
+import { IsString, IsInt, Min, MaxLength } from 'class-validator';
 
 export class CreateModuleDto {
-  @IsString() courseId!: string;
+  @IsString()
+  courseId!: string;
 
-  @IsString() title!: string;
+  @IsString()
+  @MaxLength(255)
+  title!: string;
 
-  @IsInt() @Min(1) order!: number;
+  @IsInt()
+  @Min(1)
+  order!: number;
 }
