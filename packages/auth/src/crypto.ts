@@ -7,7 +7,7 @@ export function verifyCmsPassword(stored: string, input: string): boolean {
     return bcrypt.compareSync(input, payload);
   }
   if (method === 'plaintext') {
-    return payload === input;
+    throw new Error('Plaintext passwords are not allowed');
   }
   throw new Error(`Unknown authentication method: ${method}`);
 }
