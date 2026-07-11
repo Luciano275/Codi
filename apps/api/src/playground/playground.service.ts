@@ -103,6 +103,10 @@ class PlaygroundSession {
     return this._ended;
   }
 
+  get id() {
+    return this.boxId;
+  }
+
   start(language: string) {
     if (this._ended) return;
 
@@ -206,12 +210,25 @@ class PlaygroundSession {
 export class PlaygroundService {
   private readonly logger = new Logger(PlaygroundService.name);
   private sessions = new Map<string, PlaygroundSession>();
-  private nextBoxId = 1;
+  private usedBoxIds = new Set<number>();
+
+  private allocateBoxId(): number {
+    for (let id = 1; id <= MAX_BOX_ID; id++) {
+      if (!this.usedBoxIds.has(id)) {
+        this.usedBoxIds.add(id);
+        return id;
+      }
+    }
+    throw new Error('No available box IDs (all 99 in use)');
+  }
+
+  private releaseBoxId(boxId: number) {
+    this.usedBoxIds.delete(boxId);
+  }
 
   createSession(code: string, language: string): string {
     const sessionId = crypto.randomUUID();
-    const boxId = this.nextBoxId;
-    this.nextBoxId = (this.nextBoxId % MAX_BOX_ID) + 1;
+    const boxId = this.allocateBoxId();
     const session = new PlaygroundSession(code, language, boxId);
     this.sessions.set(sessionId, session);
     session.start(language);
@@ -225,6 +242,7 @@ export class PlaygroundService {
   stopSession(sessionId: string) {
     const session = this.sessions.get(sessionId);
     if (session) {
+      this.releaseBoxId(session.id);
       session.stop();
       this.sessions.delete(sessionId);
     }

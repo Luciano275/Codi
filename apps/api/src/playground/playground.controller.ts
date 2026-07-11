@@ -68,6 +68,7 @@ export class PlaygroundController {
     const request = res.req;
     request?.on('close', () => {
       sub.unsubscribe();
+      this.playground.stopSession(sessionId);
     });
   }
 
