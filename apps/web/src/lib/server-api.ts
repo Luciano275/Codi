@@ -2,6 +2,13 @@ import { cookies } from 'next/headers';
 
 const API_URL = process.env.API_URL || 'http://localhost:4000';
 
+export class UnauthorizedError extends Error {
+  constructor() {
+    super('Unauthorized');
+    this.name = 'UnauthorizedError';
+  }
+}
+
 export async function serverFetch<T>(path: string): Promise<T> {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
@@ -15,6 +22,7 @@ export async function serverFetch<T>(path: string): Promise<T> {
   });
 
   if (!res.ok) {
+    if (res.status === 401) throw new UnauthorizedError();
     const err = await res.json().catch(() => ({ message: res.statusText }));
     throw new Error(err.message || `API error: ${res.status}`);
   }

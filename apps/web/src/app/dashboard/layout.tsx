@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   const user = await auth();
 
   if (!user) {
-    redirect('/');
+    redirect('/api/auth/logout');
   }
 
   return (

@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { redirect } from 'next/navigation';
 import { HelpCircle } from 'lucide-react';
 import LearningPath from '@/components/dashboard/LearningPath';
 import ProgressCard from '@/components/ui/ProgressCard';
@@ -9,6 +10,7 @@ import {
   fetchCourses,
   fetchProgress,
   fetchGlobalRanking,
+  UnauthorizedError,
   type Course,
   type ProgressData,
   type RankingUser,
@@ -66,6 +68,7 @@ async function DashboardContent() {
       fetchGlobalRanking(5),
     ]);
   } catch (e) {
+    if (e instanceof UnauthorizedError) redirect('/api/auth/logout');
     console.error('Failed to fetch dashboard data:', e);
   }
 
