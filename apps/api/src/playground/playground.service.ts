@@ -25,12 +25,15 @@ const EXECUTION_LIMITS = {
   fsize: 1024,
 } as const;
 
+const MAX_SOURCE_SIZE = 100 * 1024;
+
 interface PlaygroundEvent {
   type: 'stdout' | 'stderr' | 'exit' | 'timeout';
   data: string;
 }
 
 class PlaygroundSession {
+  private readonly logger = new Logger('PlaygroundSession');
   private child: ChildProcess | null = null;
   private events$ = new ReplaySubject<PlaygroundEvent>(100);
   private _ended = false;
@@ -41,6 +44,9 @@ class PlaygroundSession {
 
   constructor(code: string, language: string, boxId: number) {
     this.boxId = boxId;
+    if (Buffer.byteLength(code, 'utf-8') > MAX_SOURCE_SIZE) {
+      throw new Error(`Source code exceeds ${MAX_SOURCE_SIZE} bytes`);
+    }
     this.tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'codi_'));
     const ext = language === 'python' ? 'py' : 'cpp';
     this.srcFile = path.join(this.tmpDir, `source.${ext}`);
@@ -78,6 +84,7 @@ class PlaygroundSession {
   }
 
   private compileCpp() {
+    const start = Date.now();
     try {
       execFileSync(ISOLATE_BIN, [
         `--box-id=${this.boxId}`, '--run', '--cg',
@@ -88,9 +95,16 @@ class PlaygroundSession {
         `--fsize=${COMPILE_LIMITS.fsize}`,
         '--', '/usr/bin/g++', '-B/usr/bin', '-std=c++17', '-O2', '-o', 'a.out', 'source.cpp', '-lm',
       ], { timeout: COMPILE_LIMITS.time * 1000 + 15000, stdio: 'pipe' });
+      this.logger.log(`C++ compiled in ${Date.now() - start}ms [box=${this.boxId}]`);
     } catch (err: any) {
       const stderr = err.stderr?.toString() || '';
+      const stdout = err.stdout?.toString() || '';
       const msg = stderr || err.message || 'Compilation failed';
+      this.logger.error(
+        `C++ compilation failed [box=${this.boxId} status=${err.status} signal=${err.signal} ` +
+        `elapsed=${Date.now() - start}ms]: ${msg}` +
+        (stdout ? `\nstdout: ${stdout}` : ''),
+      );
       this.events$.next({ type: 'stderr', data: msg });
       this.events$.next({ type: 'exit', data: '1' });
       this.events$.complete();
@@ -197,12 +211,18 @@ class PlaygroundSession {
   }
 
   private cleanup() {
-    try { fs.rmSync(this.tmpDir, { recursive: true, force: true }); } catch { }
+    try {
+      fs.rmSync(this.tmpDir, { recursive: true, force: true });
+    } catch (err: any) {
+      this.logger.debug(`tmp cleanup failed [box=${this.boxId}]: ${err.message}`);
+    }
     try {
       execFileSync(ISOLATE_BIN, [
         `--box-id=${this.boxId}`, '--cleanup', '--cg',
       ], { timeout: 10000, stdio: 'pipe' });
-    } catch { }
+    } catch (err: any) {
+      this.logger.debug(`isolate cleanup failed [box=${this.boxId}]: ${err.message}`);
+    }
   }
 }
 
