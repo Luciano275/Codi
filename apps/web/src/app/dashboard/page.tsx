@@ -86,10 +86,10 @@ async function DashboardContent() {
     : 0;
 
   return (
-    <div className="flex flex-col gap-4 md:gap-6 lg:flex-row">
+    <div className="flex flex-col gap-3 md:gap-4 xl:flex-row xl:gap-5">
       <section className="min-w-0 flex-[1_1_0%]">
         <div className="rounded-2xl border border-gray-100 bg-white shadow-xs">
-          <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-50 px-4 pb-3 pt-3.5 md:px-5 md:pb-4 md:pt-4">
+          <div className="flex flex-wrap items-start justify-between gap-2 border-b border-gray-50 px-3 pb-2.5 pt-3 md:px-5 md:pb-4 md:pt-4 lg:gap-3">
             <div>
               <h2 className="font-super-pandora text-lg text-gray-900 drop-shadow-xs md:text-xl xl:text-2xl">
                 Ruta de aprendizaje
@@ -110,21 +110,54 @@ async function DashboardContent() {
         </div>
       </section>
 
-      <aside className="w-full shrink-0 lg:w-64 xl:w-72 2xl:w-80">
-        <div className="space-y-3 md:space-y-4">
+      <aside className="w-full shrink-0 xl:w-64 2xl:w-80">
+        {/* Mobile (< lg): stacked below map */}
+        <div className="space-y-3 md:space-y-4 lg:hidden">
           <ProgressCard
             percentage={progressPct}
             completed={completedLessons}
             total={totalLessons}
             remaining={totalLessons - completedLessons}
           />
-
           <ObjectiveCard
             title={nextObjectiveText}
             progress={nextProgress}
             xpReward={nextXpReward}
           />
+          <WeeklyRanking users={ranking} />
+        </div>
 
+        {/* lg (1024–1439): 2-col grid below map */}
+        <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 xl:hidden">
+          <ProgressCard
+            percentage={progressPct}
+            completed={completedLessons}
+            total={totalLessons}
+            remaining={totalLessons - completedLessons}
+          />
+          <ObjectiveCard
+            title={nextObjectiveText}
+            progress={nextProgress}
+            xpReward={nextXpReward}
+          />
+          <div className="col-span-2">
+            <WeeklyRanking users={ranking} />
+          </div>
+        </div>
+
+        {/* xl+ (1440+): stacked beside map */}
+        <div className="hidden xl:flex xl:flex-col xl:space-y-4">
+          <ProgressCard
+            percentage={progressPct}
+            completed={completedLessons}
+            total={totalLessons}
+            remaining={totalLessons - completedLessons}
+          />
+          <ObjectiveCard
+            title={nextObjectiveText}
+            progress={nextProgress}
+            xpReward={nextXpReward}
+          />
           <WeeklyRanking users={ranking} />
         </div>
       </aside>
