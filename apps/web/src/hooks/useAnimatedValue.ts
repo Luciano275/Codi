@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 
-export function useAnimatedValue(target: number, duration = 1000): number {
-  const [display, setDisplay] = useState(target);
-  const prevTargetRef = useRef(target);
+export function useAnimatedValue(target: number, duration = 1000, initialValue = target): number {
+  const [display, setDisplay] = useState(initialValue);
+  const prevTargetRef = useRef(initialValue);
   const animRef = useRef<number | null>(null);
 
   useEffect(() => {
