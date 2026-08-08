@@ -26,17 +26,38 @@ const ALL_LANGUAGES = [
   { id: 'cpp', label: 'C++', extension: 'cpp' },
 ];
 
-export default function LabClient({ user }: { user: { id: string; username: string; displayName: string } }) {
+export default function LabClient({
+  user,
+}: {
+  user: { id: string; username: string; displayName: string };
+}) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const problemId = searchParams.get('problemId');
+  const lessonId = searchParams.get('lessonId');
   const STORAGE_KEY = problemId ? `codi_lab_code_${user.id}_${problemId}` : 'codi_lab_code';
 
-  const { code, setCode, language, setLanguage, setCodeFromTemplate } = useCodePersistence(STORAGE_KEY, DEFAULT_CODE);
-  const { exercise, submissions } = useExercise(problemId, language, setLanguage, setCodeFromTemplate);
+  const { code, setCode, language, setLanguage, setCodeFromTemplate } = useCodePersistence(
+    STORAGE_KEY,
+    DEFAULT_CODE,
+  );
+  const { exercise, submissions } = useExercise(
+    problemId,
+    language,
+    setLanguage,
+    setCodeFromTemplate,
+  );
 
-  const { consoleTabs, activeConsoleTab, setActiveConsoleTab, activeConsole, addConsoleTab, clearConsole } = useConsole();
-  const { sessionId, running, handleRun, sendStdin, stopSession, cleanup, consoleOutputRef } = useSession(addConsoleTab);
+  const {
+    consoleTabs,
+    activeConsoleTab,
+    setActiveConsoleTab,
+    activeConsole,
+    addConsoleTab,
+    clearConsole,
+  } = useConsole();
+  const { sessionId, running, handleRun, sendStdin, stopSession, cleanup, consoleOutputRef } =
+    useSession(addConsoleTab);
   const { evaluating, handleEvaluate } = useEvaluation(addConsoleTab);
 
   const { height: consoleHeight, startResize } = useResizable(280);
@@ -46,9 +67,13 @@ export default function LabClient({ user }: { user: { id: string; username: stri
   const [showStatement, setShowStatement] = useState(true);
   const [consoleInput, setConsoleInput] = useState('');
   const [fontSize, setFontSize] = useState(14);
-  const [caretAnimation, setCaretAnimation] = useState<'blink' | 'smooth' | 'phase' | 'expand' | 'solid'>('smooth');
+  const [caretAnimation, setCaretAnimation] = useState<
+    'blink' | 'smooth' | 'phase' | 'expand' | 'solid'
+  >('smooth');
   const [tabSize, setTabSize] = useState(4);
-  const [gemReward, setGemReward] = useState<{ amount: number; exerciseTitle: string } | null>(null);
+  const [gemReward, setGemReward] = useState<{ amount: number; exerciseTitle: string } | null>(
+    null,
+  );
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -63,41 +88,59 @@ export default function LabClient({ user }: { user: { id: string; username: stri
 
   useEffect(() => cleanup, [cleanup]);
 
-  useEffect(() => {
-    if (gemReward) {
-      const timer = setTimeout(() => setGemReward(null), 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [gemReward]);
+  const handleLanguageChange = useCallback(
+    (newLang: string) => {
+      setLanguage(newLang);
+      if (problemId) {
+        apiGet<{ template: string | null }>(
+          `/api/problems/${problemId}/template?language=${newLang}`,
+        )
+          .then((tmpl) => {
+            if (tmpl.template) setCodeFromTemplate(tmpl.template);
+          })
+          .catch(() => {});
+      }
+    },
+    [problemId, setLanguage, setCodeFromTemplate],
+  );
 
-  const handleLanguageChange = useCallback((newLang: string) => {
-    setLanguage(newLang);
-    if (problemId) {
-      apiGet<{ template: string | null }>(`/api/problems/${problemId}/template?language=${newLang}`)
-        .then((tmpl) => { if (tmpl.template) setCodeFromTemplate(tmpl.template); })
-        .catch(() => {});
-    }
-  }, [problemId, setLanguage, setCodeFromTemplate]);
-
-  const handleConsoleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      if (consoleInput && sessionId) {
-        sendStdin(consoleInput);
-        consoleOutputRef.current += consoleInput + '\n';
-        setConsoleInput('');
-        const runTab = consoleTabs.filter((t) => t.type === 'output').pop();
-        if (runTab) {
-          addConsoleTab({ id: runTab.id, label: 'Run', type: 'output', content: consoleOutputRef.current });
+  const handleConsoleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (consoleInput && sessionId) {
+          sendStdin(consoleInput);
+          consoleOutputRef.current += consoleInput + '\n';
+          setConsoleInput('');
+          const runTab = consoleTabs.filter((t) => t.type === 'output').pop();
+          if (runTab) {
+            addConsoleTab({
+              id: runTab.id,
+              label: 'Run',
+              type: 'output',
+              content: consoleOutputRef.current,
+            });
+          }
         }
       }
-    }
-  }, [consoleInput, sessionId, sendStdin, consoleTabs, addConsoleTab, consoleOutputRef]);
+    },
+    [consoleInput, sessionId, sendStdin, consoleTabs, addConsoleTab, consoleOutputRef],
+  );
 
   const evaluateAndReward = useCallback(
     () => handleEvaluate(exercise!, code, language, (reward) => setGemReward(reward)),
     [exercise, code, language, handleEvaluate],
   );
+
+  const returnToLesson = useCallback(() => {
+    if (!lessonId) {
+      router.back();
+      return;
+    }
+
+    router.replace(`/dashboard/lessons/${lessonId}`);
+    router.refresh();
+  }, [lessonId, router]);
 
   return (
     <>
@@ -123,25 +166,35 @@ export default function LabClient({ user }: { user: { id: string; username: stri
             tabSize={tabSize}
             onTabSizeChange={setTabSize}
             caretAnimation={caretAnimation}
-            onCaretAnimationChange={(anim) => setCaretAnimation(anim as 'blink' | 'smooth' | 'phase' | 'expand' | 'solid')}
+            onCaretAnimationChange={(anim) =>
+              setCaretAnimation(anim as 'blink' | 'smooth' | 'phase' | 'expand' | 'solid')
+            }
           />
         )}
 
         <div className="flex flex-1 flex-col overflow-hidden">
           <LabToolbar
             mode={exercise ? 'exercise' : 'playground'}
-            exerciseMode={exercise ? {
-              onBack: () => router.back(),
-              showStatement,
-              onShowStatement: () => setShowStatement(true),
-              availableLanguages: exercise.availableLanguages ?? ALL_LANGUAGES,
-              language,
-              onLanguageChange: handleLanguageChange,
-            } : undefined}
-            playgroundMode={!exercise ? {
-              showOptions,
-              onShowOptions: () => setShowOptions(true),
-            } : undefined}
+            exerciseMode={
+              exercise
+                ? {
+                    onBack: returnToLesson,
+                    showStatement,
+                    onShowStatement: () => setShowStatement(true),
+                    availableLanguages: exercise.availableLanguages ?? ALL_LANGUAGES,
+                    language,
+                    onLanguageChange: handleLanguageChange,
+                  }
+                : undefined
+            }
+            playgroundMode={
+              !exercise
+                ? {
+                    showOptions,
+                    onShowOptions: () => setShowOptions(true),
+                  }
+                : undefined
+            }
             running={running}
             evaluating={evaluating}
             onRun={() => handleRun(code, language)}
@@ -177,7 +230,7 @@ export default function LabClient({ user }: { user: { id: string; username: stri
           />
         </div>
       </div>
-      { !(submissions.some((s) => s.score === 100)) && <GemRewardPopup reward={gemReward} /> }
+      <GemRewardPopup reward={gemReward} onDismiss={() => setGemReward(null)} />
     </>
   );
 }
