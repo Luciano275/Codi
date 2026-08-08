@@ -1,6 +1,7 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { EvaluationService } from '../evaluation/evaluation.service';
+import { updateUserExperience } from '../progression/update-user-experience';
 
 @Injectable()
 export class SubmissionsService {
@@ -73,23 +74,27 @@ export class SubmissionsService {
             select: { xpReward: true, gemsReward: true },
           });
 
-          const previousAccepted = problem && await this.prisma.submission.findFirst({
-            where: {
-              userId: submission.userId,
-              problemId: submission.problemId,
-              status: 'ACCEPTED',
-              id: { not: submissionId },
-            },
-          });
+          const previousAccepted =
+            problem &&
+            (await this.prisma.submission.findFirst({
+              where: {
+                userId: submission.userId,
+                problemId: submission.problemId,
+                status: 'ACCEPTED',
+                id: { not: submissionId },
+              },
+            }));
 
-          const gemsAlreadyAwarded = problem && await this.prisma.submission.findFirst({
-            where: {
-              userId: submission.userId,
-              problemId: submission.problemId,
-              status: 'ACCEPTED',
-              gemsAwarded: true,
-            },
-          });
+          const gemsAlreadyAwarded =
+            problem &&
+            (await this.prisma.submission.findFirst({
+              where: {
+                userId: submission.userId,
+                problemId: submission.problemId,
+                status: 'ACCEPTED',
+                gemsAwarded: true,
+              },
+            }));
 
           await this.prisma.submission.update({
             where: { id: submissionId },
@@ -100,20 +105,24 @@ export class SubmissionsService {
           });
 
           if (problem && !previousAccepted) {
-            await this.prisma.user.update({
-              where: { id: submission.userId },
-              data: {
-                xp: { increment: problem.xpReward },
-                gems: { increment: problem.gemsReward },
-              },
+            await this.prisma.$transaction(async (transaction) => {
+              await updateUserExperience(transaction, submission.userId, problem.xpReward);
+              await transaction.user.update({
+                where: { id: submission.userId },
+                data: { gems: { increment: problem.gemsReward } },
+              });
             });
-            this.logger.log(`Submission ${submissionId}: ACCEPTED — awarded ${problem.xpReward} XP, ${problem.gemsReward} gems`);
+            this.logger.log(
+              `Submission ${submissionId}: ACCEPTED — awarded ${problem.xpReward} XP, ${problem.gemsReward} gems`,
+            );
           } else if (problem && !gemsAlreadyAwarded && problem.gemsReward > 0) {
             await this.prisma.user.update({
               where: { id: submission.userId },
               data: { gems: { increment: problem.gemsReward } },
             });
-            this.logger.log(`Submission ${submissionId}: ACCEPTED — awarded ${problem.gemsReward} gems (retroactive)`);
+            this.logger.log(
+              `Submission ${submissionId}: ACCEPTED — awarded ${problem.gemsReward} gems (retroactive)`,
+            );
           } else {
             this.logger.log(`Submission ${submissionId}: ${result.status} (${result.score} pts)`);
           }
@@ -135,10 +144,12 @@ export class SubmissionsService {
       }
     } catch (err: any) {
       this.logger.error(`Evaluation error for ${submissionId}: ${err.message}`);
-      await this.prisma.submission.update({
-        where: { id: submissionId },
-        data: { status: 'RUNTIME_ERROR', cmsResults: { error: err.message } },
-      }).catch(() => {});
+      await this.prisma.submission
+        .update({
+          where: { id: submissionId },
+          data: { status: 'RUNTIME_ERROR', cmsResults: { error: err.message } },
+        })
+        .catch(() => {});
     }
   }
 

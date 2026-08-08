@@ -1,5 +1,6 @@
 import { prisma } from '@codi/database';
 import type { User, CmsUserSource } from '@codi/database';
+import { getLevelFromXp } from '@codi/progression';
 import { verifyCmsPassword } from './crypto.js';
 import type { CmsUserRow, CmsAdminRow, LoginResult, UserProfile } from './types.js';
 
@@ -18,15 +19,13 @@ export function toProfile(user: User): UserProfile {
     role: user.role,
     xp: user.xp,
     gems: user.gems,
-    level: user.level,
+    level: getLevelFromXp(user.xp),
     streak: user.streak,
   };
 }
 
 export class AuthService {
-  constructor(
-    private readonly jwtSign: (payload: { sub: string; role: string }) => string,
-  ) {}
+  constructor(private readonly jwtSign: (payload: { sub: string; role: string }) => string) {}
 
   async login(username: string, password: string): Promise<LoginResult> {
     const user = await this.verifyAndSync(username, password);

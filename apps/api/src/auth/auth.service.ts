@@ -1,14 +1,11 @@
 import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
-import {
-  AuthService as CodiAuthService,
-  verifyCmsPassword,
-  toProfile,
-} from '@codi/auth';
+import { AuthService as CodiAuthService, verifyCmsPassword, toProfile } from '@codi/auth';
 import type { LoginResult, UserProfile } from '@codi/auth';
 import { prisma } from '@codi/database';
 import type { User, CmsUserSource } from '@codi/database';
+import { getLevelFromXp } from '@codi/progression';
 
 type CmsUserRow = {
   id: number;
@@ -105,6 +102,7 @@ export class AuthService {
     const yesterday = new Date(today.getTime() - 86400000);
 
     let streak = user.streak;
+    const level = getLevelFromXp(user.xp);
 
     if (!user.lastActiveAt || user.lastActiveAt < yesterday) {
       streak = 1;
@@ -112,10 +110,15 @@ export class AuthService {
       streak += 1;
     }
 
-    if (streak !== user.streak || !user.lastActiveAt || user.lastActiveAt < today) {
+    if (
+      level !== user.level ||
+      streak !== user.streak ||
+      !user.lastActiveAt ||
+      user.lastActiveAt < today
+    ) {
       const updated = await prisma.user.update({
         where: { id: user.id },
-        data: { streak, lastActiveAt: now },
+        data: { level, streak, lastActiveAt: now },
       });
       return toProfile(updated);
     }
@@ -123,7 +126,10 @@ export class AuthService {
     return toProfile(user);
   }
 
-  async updateProfile(userId: string, data: { displayName?: string; email?: string; avatarUrl?: string }): Promise<UserProfile> {
+  async updateProfile(
+    userId: string,
+    data: { displayName?: string; email?: string; avatarUrl?: string },
+  ): Promise<UserProfile> {
     const user = await prisma.user.update({ where: { id: userId }, data });
     return toProfile(user);
   }

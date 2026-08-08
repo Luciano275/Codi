@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@codi/database": "workspace:*",
+    "@codi/progression": "workspace:*",
     "bcryptjs": "^2.4.3"
   },
   "devDependencies": {

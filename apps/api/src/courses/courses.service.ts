@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException, ConflictException, ForbiddenException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ConflictException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { PrismaService } from '@codi/database';
+import { updateUserExperience } from '../progression/update-user-experience';
 
 @Injectable()
 export class CoursesService {
@@ -16,7 +22,13 @@ export class CoursesService {
               orderBy: { order: 'asc' },
               include: {
                 problems: {
-                  select: { id: true, cmsTaskId: true, title: true, difficulty: true, xpReward: true },
+                  select: {
+                    id: true,
+                    cmsTaskId: true,
+                    title: true,
+                    difficulty: true,
+                    xpReward: true,
+                  },
                 },
               },
             },
@@ -37,7 +49,13 @@ export class CoursesService {
               orderBy: { order: 'asc' },
               include: {
                 problems: {
-                  select: { id: true, cmsTaskId: true, title: true, difficulty: true, xpReward: true },
+                  select: {
+                    id: true,
+                    cmsTaskId: true,
+                    title: true,
+                    difficulty: true,
+                    xpReward: true,
+                  },
                 },
               },
             },
@@ -77,14 +95,10 @@ export class CoursesService {
 
     const completedLessonIds = new Set(completedLessons.map((c) => c.lessonId));
 
-    const isLessonCompleted = (lesson: { id: string }) =>
-      completedLessonIds.has(lesson.id);
+    const isLessonCompleted = (lesson: { id: string }) => completedLessonIds.has(lesson.id);
 
     const courseProgress = courses.map((course) => {
-      const totalCourseLessons = course.modules.reduce(
-        (s, m) => s + m.lessons.length,
-        0,
-      );
+      const totalCourseLessons = course.modules.reduce((s, m) => s + m.lessons.length, 0);
 
       const completed = course.modules.reduce(
         (s, m) => s + m.lessons.filter(isLessonCompleted).length,
@@ -147,15 +161,12 @@ export class CoursesService {
       }
     }
 
-    const [completion] = await this.prisma.$transaction([
-      this.prisma.lessonCompletion.create({
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.lessonCompletion.create({
         data: { userId, lessonId },
-      }),
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { xp: { increment: lesson.xpReward } },
-      }),
-    ]);
+      });
+      await updateUserExperience(transaction, userId, lesson.xpReward);
+    });
 
     return { completed: true, xpAwarded: lesson.xpReward };
   }
@@ -172,15 +183,12 @@ export class CoursesService {
     });
     if (!existing) throw new NotFoundException('Lesson not completed');
 
-    await this.prisma.$transaction([
-      this.prisma.lessonCompletion.delete({
+    await this.prisma.$transaction(async (transaction) => {
+      await transaction.lessonCompletion.delete({
         where: { userId_lessonId: { userId, lessonId } },
-      }),
-      this.prisma.user.update({
-        where: { id: userId },
-        data: { xp: { decrement: lesson.xpReward } },
-      }),
-    ]);
+      });
+      await updateUserExperience(transaction, userId, -lesson.xpReward);
+    });
 
     return { completed: false, xpRefunded: lesson.xpReward };
   }

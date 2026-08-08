@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
+import { getLevelFromXp } from '@codi/progression';
 
 @Injectable()
 export class RankingService {
@@ -24,6 +25,7 @@ export class RankingService {
     return users.map((user, index) => ({
       rank: index + 1,
       ...user,
+      level: getLevelFromXp(user.xp),
     }));
   }
 }
