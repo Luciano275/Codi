@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { apiPost, apiGet } from '@/lib/lab-api';
 import type { ConsoleTab } from './types';
 
@@ -59,6 +59,17 @@ function formatEvaluationContent(submission: EvaluationSubmission) {
 export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
   const [evaluating, setEvaluating] = useState(false);
   const gemRewardClaimedRef = useRef(false);
+  const pollIntervalsRef = useRef<Set<number>>(new Set());
+  const pollTimeoutsRef = useRef<Set<number>>(new Set());
+
+  const clearPolling = useCallback(() => {
+    pollIntervalsRef.current.forEach((interval) => window.clearInterval(interval));
+    pollTimeoutsRef.current.forEach((timeout) => window.clearTimeout(timeout));
+    pollIntervalsRef.current.clear();
+    pollTimeoutsRef.current.clear();
+  }, []);
+
+  useEffect(() => clearPolling, [clearPolling]);
 
   const handleEvaluate = useCallback(
     async (
@@ -68,6 +79,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
       onGemReward: (reward: { amount: number; exerciseTitle: string }) => void,
     ) => {
       if (!exercise) return;
+      clearPolling();
       setEvaluating(true);
       const tabId = `eval_${Date.now()}`;
       addConsoleTab({
@@ -91,11 +103,18 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
           status: 'EVALUATING',
         });
 
-        const pollInterval = setInterval(async () => {
+        const stopCurrentPolling = (pollInterval: number, pollTimeout: number) => {
+          window.clearInterval(pollInterval);
+          window.clearTimeout(pollTimeout);
+          pollIntervalsRef.current.delete(pollInterval);
+          pollTimeoutsRef.current.delete(pollTimeout);
+        };
+
+        const pollInterval = window.setInterval(async () => {
           try {
             const submission = await apiGet<EvaluationSubmission>(`/api/submissions/${result.id}`);
             if (!PENDING_STATUSES.has(submission.status)) {
-              clearInterval(pollInterval);
+              stopCurrentPolling(pollInterval, pollTimeout);
               try {
                 const { score, content } = formatEvaluationContent(submission);
                 addConsoleTab({
@@ -107,6 +126,10 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
                   status: submission.status,
                 });
 
+                if (submission.status === 'ACCEPTED') {
+                  window.dispatchEvent(new CustomEvent('user-updated'));
+                }
+
                 if (
                   submission.status === 'ACCEPTED' &&
                   exercise.gemsReward > 0 &&
@@ -114,7 +137,6 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
                 ) {
                   gemRewardClaimedRef.current = true;
                   onGemReward({ amount: exercise.gemsReward, exerciseTitle: exercise.title });
-                  window.dispatchEvent(new CustomEvent('user-updated'));
                 }
               } finally {
                 setEvaluating(false);
@@ -124,11 +146,13 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
             // continue polling
           }
         }, 1500);
+        pollIntervalsRef.current.add(pollInterval);
 
-        setTimeout(() => {
-          clearInterval(pollInterval);
+        const pollTimeout = window.setTimeout(() => {
+          stopCurrentPolling(pollInterval, pollTimeout);
           setEvaluating(false);
         }, 60000);
+        pollTimeoutsRef.current.add(pollTimeout);
       } catch (err: any) {
         addConsoleTab({
           id: tabId,
@@ -140,7 +164,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
         setEvaluating(false);
       }
     },
-    [addConsoleTab],
+    [addConsoleTab, clearPolling],
   );
 
   return { evaluating, handleEvaluate, gemRewardClaimedRef };

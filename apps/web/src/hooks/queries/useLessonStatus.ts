@@ -9,9 +9,7 @@ export function useLessonStatus(lessonId: string) {
   return useQuery({
     queryKey: queryKeys.lessons.status(lessonId),
     queryFn: () =>
-      adminFetch<{ completed: boolean; completedAt: string }>(
-        `/api/lessons/${lessonId}/status`,
-      ),
+      adminFetch<{ completed: boolean; completedAt: string }>(`/api/lessons/${lessonId}/status`),
   });
 }
 
@@ -35,6 +33,8 @@ export function useUncompleteLesson(lessonId: string) {
     mutationFn: () => uncompleteLesson(lessonId),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.status(lessonId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.user.me });
+      window.dispatchEvent(new CustomEvent('user-updated'));
     },
   });
 }
