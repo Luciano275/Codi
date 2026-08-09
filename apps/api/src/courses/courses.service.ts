@@ -6,13 +6,29 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { updateUserExperience } from '../progression/update-user-experience';
+import { RedisService } from '../redis/redis.service';
+import { RedisClientType } from 'redis';
+
+const COURSES_CACHE_TTL_SECONDS = 60 * 60;
 
 @Injectable()
 export class CoursesService {
-  constructor(private readonly prisma: PrismaService) {}
+  private redis: RedisClientType
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redisService: RedisService
+  ) {
+    this.redis = redisService.getClient();
+  }
 
   async findAll() {
-    return this.prisma.course.findMany({
+    const cached = await this.redis.get('courses:all');
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
+    const result =  this.prisma.course.findMany({
       orderBy: { order: 'asc' },
       include: {
         modules: {
@@ -36,9 +52,23 @@ export class CoursesService {
         },
       },
     });
+
+    await this.redis.set('courses:all', JSON.stringify(await result), {
+      expiration: {
+        type: 'EX',
+        value: COURSES_CACHE_TTL_SECONDS
+      }
+    });
+
+    return result;
   }
 
   async findOne(id: string) {
+    const cached = await this.redis.get(`courses:${id}`);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+
     const course = await this.prisma.course.findUnique({
       where: { id },
       include: {
@@ -64,6 +94,14 @@ export class CoursesService {
       },
     });
     if (!course) throw new NotFoundException('Course not found');
+
+    await this.redis.set(`courses:${id}`, JSON.stringify(course), {
+      expiration: {
+        type: 'EX',
+        value: COURSES_CACHE_TTL_SECONDS
+      }
+    });
+
     return course;
   }
 

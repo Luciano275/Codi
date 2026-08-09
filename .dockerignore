@@ -22,3 +22,6 @@ dist/
 
 # ─── Turbo ───
 .turbo/
+
+# Codebase Memory
+.codebase-memory/
