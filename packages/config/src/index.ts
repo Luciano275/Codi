@@ -2,7 +2,7 @@ const devFallback = process.env.NODE_ENV === 'production' ? '' : 'dev-secret-cha
 
 export const config = {
   get apiPort() { return parseInt(process.env.API_PORT || '4000', 10); },
-  get frontendUrl() { return process.env.FRONTEND_URL; },
+  get frontendUrl() { return process.env.FRONTEND_URL || 'http://localhost:3000'; },
   jwt: {
     get secret() { return process.env.JWT_SECRET || devFallback; },
     get expiresIn() { return process.env.JWT_EXPIRES_IN || '7d'; },
