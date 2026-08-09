@@ -21,6 +21,29 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
 
+  const required = {
+    'apiPort': 'API_PORT',
+    'redis.host': 'REDIS_HOST',
+    'redis.port': 'REDIS_PORT',
+    'redis.password': 'REDIS_PASSWORD',
+    'redis.user': 'REDIS_USER',
+    'aws.region': 'AWS_REGION',
+    'aws.bucket': 'AWS_BUCKET_NAME',
+    'aws.access_key': 'AWS_ACCESS_KEY',
+    'aws.secret_key': 'AWS_SECRET_KEY',
+    'database.url': 'DATABASE_URL',
+  };
+
+  const missing = Object.entries(required)
+    .filter(([key]) => !config.get(key))
+    .map(([, env]) => env);
+
+  if (missing.length > 0) {
+    throw new Error(
+      `Missing required environment variables: ${missing.join(', ')}`,
+    );
+  }
+
   app.disable('x-powered-by');
   app.use(json({ limit: '1mb' }));
 
