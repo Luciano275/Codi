@@ -36,3 +36,6 @@ packages/database/src/generated/
 # ─── Python ───
 *.pyc
 __pycache__/
+
+# Codebase Memory
+.codebase-memory/
