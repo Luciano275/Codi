@@ -26,6 +26,7 @@ export default function Menubar({ userRole }: MenubarProps) {
     { id: 'ruta', label: 'Ruta de aprendizaje', icon: 'map', href: '/dashboard' },
     { id: 'ejercicios', label: 'Ejercicios', icon: 'code', href: '#' },
     { id: 'retos', label: 'Retos', icon: 'trophy', href: '#' },
+    { id: 'tienda', label: 'Tienda de canjes', icon: 'store', href: '/dashboard/store' },
     { id: 'laboratorio', label: 'Laboratorio', icon: 'flask', href: '/dashboard/lab' },
     { id: 'ranking', label: 'Ranking', icon: 'chart', href: '#' },
     { id: 'eventos', label: 'Eventos', icon: 'calendar', href: '#' },

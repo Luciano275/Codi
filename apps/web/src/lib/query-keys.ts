@@ -27,4 +27,7 @@ export const queryKeys = {
       byCourseId: (courseId: string) => ['modules', 'admin', courseId] as const,
     },
   },
+  rewards: {
+    store: ['rewards', 'store'] as const,
+  },
 };

@@ -1,0 +1,503 @@
+'use client';
+
+import { useEffect, useMemo, useState, useTransition } from 'react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import {
+  BookOpenCheck,
+  CircleCheck,
+  Clock3,
+  Code2,
+  Gem,
+  Grid2X2,
+  HelpCircle,
+  LockKeyhole,
+  Sparkles,
+  Star,
+  Trophy,
+} from 'lucide-react';
+import type { AdminReward, RecentReward, RewardsStoreData, StoreReward } from '@codi/types';
+import { useAnimatedValue } from '@/hooks/useAnimatedValue';
+import { redeemReward } from './actions';
+import { RewardAdminPanel } from './reward-admin-panel';
+import { GemChest, RewardIllustration, StoreBag } from './store-illustrations';
+import { StoreDialog } from './store-dialog';
+
+const categories = [
+  ['ALL', 'Todas'],
+  ['EXAMS', 'Exámenes'],
+  ['PRACTICE', 'Práctica'],
+  ['ADVANTAGES', 'Ventajas'],
+  ['SPECIALS', 'Especiales'],
+] as const;
+
+type Category = (typeof categories)[number][0];
+
+function useRemainingTime(expiresAt: string | null | undefined) {
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    if (!expiresAt) return;
+    const timer = window.setInterval(() => setNow(Date.now()), 30_000);
+    return () => window.clearInterval(timer);
+  }, [expiresAt]);
+  if (!expiresAt) return null;
+  const milliseconds = new Date(expiresAt).getTime() - now;
+  if (milliseconds <= 0) return null;
+  const minutes = Math.ceil(milliseconds / 60_000);
+  return `${Math.floor(minutes / 60)}h ${minutes % 60}m restantes`;
+}
+
+function RewardCard({
+  reward,
+  onRedeem,
+}: {
+  reward: StoreReward;
+  onRedeem: (reward: StoreReward) => void;
+}) {
+  const remaining = useRemainingTime(reward.entitlement?.expiresAt);
+  const category = {
+    EXAMS: 'Exámenes',
+    PRACTICE: 'Práctica',
+    ADVANTAGES: 'Ventajas',
+    SPECIALS: 'Especiales',
+  }[reward.category];
+  const theme = {
+    exam: {
+      card: 'border-castillo-200 from-castillo-50 via-white to-desierto-50',
+      tag: 'bg-castillo-100 text-desierto-700',
+      price: 'border-castillo-200 bg-castillo-100 text-desierto-800',
+      action: 'from-desierto-500 to-castillo-500',
+    },
+    hint: {
+      card: 'border-bosque-200 from-bosque-50 via-white to-fuchsia-50',
+      tag: 'bg-bosque-100 text-bosque-700',
+      price: 'border-bosque-200 bg-bosque-100 text-bosque-800',
+      action: 'from-bosque-500 to-bosque-400',
+    },
+    'double-xp': {
+      card: 'border-lagos-200 from-lagos-50 via-white to-valle-50',
+      tag: 'bg-lagos-100 text-lagos-700',
+      price: 'border-lagos-200 bg-lagos-100 text-lagos-800',
+      action: 'from-lagos-500 to-valle-500',
+    },
+  }[reward.visual];
+  const acquired = reward.acquiredTrimesters?.length ?? 0;
+  const buttonLabel =
+    reward.status === 'ACTIVE'
+      ? 'Activo'
+      : reward.status === 'INSUFFICIENT_GEMS'
+        ? `Te faltan ${reward.missingGems} gemas`
+        : reward.status === 'ACQUIRED' && reward.type !== 'EXAM_BONUS_POINT'
+          ? 'Adquirida'
+          : 'Canjear';
+  const canOpen =
+    reward.status === 'AVAILABLE' ||
+    (reward.type === 'EXAM_BONUS_POINT' && reward.status === 'ACQUIRED' && acquired < 3);
+  const actionClass = canOpen
+    ? `bg-linear-to-r ${theme.action} text-white`
+    : 'border border-gray-700 bg-gray-900 text-white';
+
+  return (
+    <article
+      className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[1.8rem] border-2 bg-linear-to-b p-4 shadow-md transition-transform duration-200 hover:-translate-y-1 ${theme.card}`}
+    >
+      <span aria-hidden className="absolute right-4 top-3 font-candy-beans text-xl text-white">
+        ✦
+      </span>
+      <RewardIllustration visual={reward.visual} />
+      <div className="mt-4 flex items-center justify-between gap-3">
+        <span
+          className={`rounded-full px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase tracking-[.13em] ${theme.tag}`}
+        >
+          {category}
+        </span>
+        {reward.status === 'ACTIVE' && (
+          <span className="flex items-center gap-1 rounded-full bg-valle-50 px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase tracking-[.11em] text-valle-700">
+            <Sparkles className="h-3 w-3" /> Activo
+          </span>
+        )}
+      </div>
+      <h2 className="mt-3 font-super-pandora text-xl text-gray-900">{reward.name}</h2>
+      <p className="mt-1 font-simply-olive text-sm leading-6 text-gray-500">{reward.description}</p>
+      <div className="mt-auto pt-4">
+        {reward.type === 'DOUBLE_XP' && (
+          <p className="mb-3 flex items-center gap-1.5 font-simply-olive text-xs font-bold text-lagos-700">
+            <Clock3 className="h-3.5 w-3.5" />
+            {remaining ? `2× XP activo · ${remaining}` : 'Duración: 24 horas'}
+          </p>
+        )}
+        {reward.type === 'EXAM_BONUS_POINT' && acquired > 0 && (
+          <p className="mb-3 font-simply-olive text-xs font-bold text-desierto-700">
+            {acquired}/3 trimestres adquiridos
+          </p>
+        )}
+        {reward.type === 'SMART_HINT' && reward.status === 'ACQUIRED' && (
+          <p className="mb-3 font-simply-olive text-xs font-bold text-bosque-700">
+            Pista disponible · se consume al utilizarla
+          </p>
+        )}
+        <div
+          className={`flex flex-wrap items-center justify-between gap-2 rounded-2xl border px-3 py-2 ${theme.price}`}
+        >
+          <span className="flex items-center gap-1.5 font-candy-beans text-xl">
+            <Gem className="h-4 w-4 fill-valle-300 text-valle-500" />
+            {reward.cost}
+          </span>
+          <button
+            onClick={() => onRedeem(reward)}
+            disabled={!canOpen}
+            className={`min-h-9 rounded-xl px-3 py-2 text-center font-super-pandora text-[11px] leading-tight shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-100 ${actionClass}`}
+          >
+            {buttonLabel}
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function GemBalance({ gems }: { gems: number }) {
+  const displayedGems = useAnimatedValue(gems, 650);
+  return <p className="font-candy-beans text-4xl leading-none text-lagos-700">{displayedGems}</p>;
+}
+
+function CategoryIcon({ category }: { category: Category }) {
+  const Icon =
+    category === 'ALL'
+      ? Grid2X2
+      : category === 'EXAMS'
+        ? BookOpenCheck
+        : category === 'PRACTICE'
+          ? Code2
+          : category === 'ADVANTAGES'
+            ? Sparkles
+            : Star;
+  return <Icon className="h-4 w-4" />;
+}
+
+function RecentRewardItem({ item }: { item: RecentReward }) {
+  const remaining = useRemainingTime(item.expiresAt);
+  const detail =
+    item.type === 'EXAM_BONUS_POINT'
+      ? `${item.trimester}.º trimestre`
+      : item.status === 'ACTIVE'
+        ? `Activo · ${remaining ?? 'vence pronto'}`
+        : item.status === 'USED'
+          ? 'Utilizada'
+          : 'Disponible';
+  return (
+    <li className="flex items-center gap-3 rounded-2xl bg-gray-50 px-3 py-2.5">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-lagos-500 shadow-xs">
+        <Trophy className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <p className="truncate font-super-pandora text-sm text-gray-800">{item.name}</p>
+        <p className="font-simply-olive text-xs text-gray-500">
+          {detail} · {formatRelativeDate(item.redeemedAt)}
+        </p>
+      </div>
+    </li>
+  );
+}
+
+function formatRelativeDate(value: string) {
+  const elapsedMinutes = Math.max(0, Math.floor((Date.now() - new Date(value).getTime()) / 60_000));
+  if (elapsedMinutes < 2) return 'Canjeado recién';
+  if (elapsedMinutes < 60) return `Canjeado hace ${elapsedMinutes} min`;
+  const elapsedHours = Math.floor(elapsedMinutes / 60);
+  if (elapsedHours < 24) return `Canjeado hace ${elapsedHours} h`;
+  return `Canjeado hace ${Math.floor(elapsedHours / 24)} días`;
+}
+
+interface StoreClientProps {
+  initialStore: RewardsStoreData;
+  initialCatalog: AdminReward[];
+  canManageCatalog: boolean;
+}
+
+export default function StoreClient({
+  initialStore,
+  initialCatalog,
+  canManageCatalog,
+}: StoreClientProps) {
+  const [store, setStore] = useState(initialStore);
+  const [isRedeeming, startRedeemTransition] = useTransition();
+  const reducedMotion = useReducedMotion();
+  const [category, setCategory] = useState<Category>('ALL');
+  const [selectedReward, setSelectedReward] = useState<StoreReward | null>(null);
+  const [trimester, setTrimester] = useState<number | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [guideOpen, setGuideOpen] = useState(false);
+  const [celebratedReward, setCelebratedReward] = useState<string | null>(null);
+  const modalFadeTransition = reducedMotion
+    ? { duration: 0 }
+    : { duration: 0.16, ease: 'easeOut' as const };
+  const modalDialogTransition = reducedMotion
+    ? { duration: 0 }
+    : { type: 'spring' as const, stiffness: 400, damping: 32, mass: 0.75 };
+
+  useEffect(() => {
+    if (!celebratedReward) return;
+    const timeout = window.setTimeout(() => setCelebratedReward(null), 1900);
+    return () => window.clearTimeout(timeout);
+  }, [celebratedReward]);
+
+  const rewards = useMemo(
+    () =>
+      category === 'ALL'
+        ? store.rewards
+        : store.rewards.filter((reward) => reward.category === category),
+    [category, store.rewards],
+  );
+  const closeDialog = () => {
+    if (!isRedeeming) {
+      setSelectedReward(null);
+      setTrimester(null);
+    }
+  };
+  const confirmRedeem = () => {
+    if (!selectedReward) return;
+    const reward = selectedReward;
+    startRedeemTransition(async () => {
+      try {
+        const nextStore = await redeemReward({
+          rewardId: reward.id,
+          trimester: trimester ?? undefined,
+        });
+        setStore(nextStore);
+        setMessage(`¡Canje listo! ${reward.name} ya está en tus recompensas.`);
+        setCelebratedReward(reward.name);
+        setSelectedReward(null);
+        setTrimester(null);
+      } catch (error) {
+        setMessage(error instanceof Error ? error.message : 'No pudimos completar el canje');
+      }
+    });
+  };
+
+  return (
+    <div className="space-y-5 rounded-[2.15rem] bg-[#f7fbff] p-2 pb-5 lg:space-y-6 lg:p-3">
+      <section className="relative overflow-hidden rounded-[1.8rem] border border-lagos-100 bg-linear-to-r from-white via-lagos-50 to-bosque-50 px-5 py-6 shadow-md sm:px-7 sm:py-7">
+        <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+          <div className="flex items-center gap-4">
+            <div className="grid h-17 w-17 place-items-center rounded-[1.35rem] bg-linear-to-br from-bosque-100 to-bosque-200 shadow-inner">
+              <span className="scale-90">
+                <StoreBag />
+              </span>
+            </div>
+            <div>
+              <p className="font-simply-olive text-xs font-bold uppercase tracking-[.18em] text-lagos-600">
+                Recompensas para avanzar
+              </p>
+              <h1 className="mt-1 font-super-pandora text-fluid-2xl text-gray-900">
+                Tienda de canjes
+              </h1>
+              <p className="mt-1 max-w-xl font-simply-olive text-fluid-base text-gray-600">
+                Usá tus gemas para obtener ventajas académicas y mejorar tu camino.
+              </p>
+            </div>
+          </div>
+          <div className="flex min-w-66 items-center justify-between gap-4 overflow-hidden rounded-[1.5rem] border border-lagos-100 bg-white px-4 py-3 shadow-sm">
+            <div>
+              <GemBalance gems={store.gems} />
+              <p className="mt-1 font-simply-olive text-xs font-bold uppercase tracking-[.12em] text-gray-500">
+                Gemas disponibles
+              </p>
+            </div>
+            <motion.div
+              animate={celebratedReward ? { rotate: [0, -5, 5, 0], scale: [1, 1.08, 1] } : {}}
+            >
+              <GemChest className="-my-3 -mr-3 scale-90 sm:scale-100" />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        aria-label="Filtros de recompensas"
+        className="relative flex gap-2 overflow-x-auto px-1 pb-1"
+      >
+        {categories.map(([value, label]) => (
+          <button
+            key={value}
+            onClick={() => setCategory(value)}
+            className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 font-simply-olive text-sm font-bold transition ${category === value ? 'bg-linear-to-r from-lagos-500 to-lagos-600 text-white shadow-md' : 'border border-gray-100 bg-white text-gray-600 shadow-xs hover:-translate-y-0.5 hover:text-lagos-700'} hover:cursor-pointer`}
+          >
+            <CategoryIcon category={value} />
+            {label}
+          </button>
+        ))}
+      </section>
+
+      {canManageCatalog && <RewardAdminPanel initialCatalog={initialCatalog} />}
+
+      <section className="relative">
+        <div className="mb-3 flex items-end justify-between gap-3 px-1">
+          <div>
+            <h2 className="font-super-pandora text-xl text-gray-900">Recompensas disponibles</h2>
+            <p className="font-simply-olive text-sm text-gray-500">
+              Elegí la ventaja que mejor acompañe tu aprendizaje.
+            </p>
+          </div>
+          <span className="hidden rounded-full bg-white px-3 py-1 font-candy-beans text-sm text-lagos-600 shadow-sm sm:block">
+            {rewards.length} disponibles
+          </span>
+        </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          {rewards.map((reward) => (
+            <RewardCard
+              key={reward.id}
+              reward={reward}
+              onRedeem={(item) => {
+                setSelectedReward(item);
+                setTrimester(null);
+              }}
+            />
+          ))}
+        </div>
+        {rewards.length === 0 && (
+          <div className="rounded-3xl border border-dashed border-gray-200 bg-white px-6 py-12 text-center">
+            <LockKeyhole className="mx-auto h-8 w-8 text-gray-300" />
+            <p className="mt-3 font-super-pandora text-lg text-gray-700">
+              Próximamente habrá recompensas acá
+            </p>
+          </div>
+        )}
+      </section>
+
+      <section className="relative rounded-[1.7rem] border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
+        <div className="flex items-center gap-3">
+          <span className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-bosque-400 to-bosque-600 text-white shadow-sm">
+            <Trophy className="h-5 w-5" />
+          </span>
+          <div>
+            <h2 className="font-super-pandora text-xl text-gray-900">Mis recompensas</h2>
+            <p className="font-simply-olive text-sm text-gray-500">Tus canjes más recientes.</p>
+          </div>
+        </div>
+        <ul className="mt-4 grid gap-2 md:grid-cols-2 xl:grid-cols-3">
+          {store.recentRewards.length ? (
+            store.recentRewards.map((item) => <RecentRewardItem key={item.id} item={item} />)
+          ) : (
+            <li className="font-simply-olive text-sm text-gray-500">Todavía no hiciste canjes.</li>
+          )}
+        </ul>
+      </section>
+
+      <section className="relative overflow-hidden rounded-[1.8rem] bg-linear-to-r from-[#172f91] via-[#3f48bb] to-bosque-500 px-5 py-6 text-white shadow-md sm:px-7">
+        <div aria-hidden className="absolute -left-4 bottom-0 opacity-95">
+          <div className="relative scale-75 sm:scale-100">
+            <Gem className="h-24 w-24 fill-valle-300 text-lagos-300 drop-shadow-lg" />
+            <Gem className="absolute -right-13 bottom-1 h-18 w-18 fill-lagos-400 text-valle-200 drop-shadow-lg" />
+          </div>
+        </div>
+        <div aria-hidden className="absolute -right-6 -bottom-8 hidden sm:block">
+          <GemChest className="scale-110" />
+        </div>
+        <div className="relative ml-18 max-w-2xl sm:ml-32">
+          <p className="font-candy-beans text-lg text-castillo-200">
+            Subí de nivel con cada desafío
+          </p>
+          <h2 className="font-super-pandora text-2xl">
+            ¡Seguí aprendiendo para conseguir más gemas!
+          </h2>
+          <p className="mt-1 font-simply-olive text-sm leading-6 text-white/85">
+            Resolvé ejercicios, participá en concursos y completá actividades para obtener
+            recompensas.
+          </p>
+          <button
+            onClick={() => setGuideOpen(true)}
+            className="mt-4 rounded-xl border border-white/25 bg-white/15 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-bosque-700"
+          >
+            ¿Cómo conseguir gemas?
+          </button>
+        </div>
+      </section>
+
+      <StoreDialog
+        reward={selectedReward}
+        gems={store.gems}
+        trimester={trimester}
+        submitting={isRedeeming}
+        onClose={closeDialog}
+        onSelectTrimester={setTrimester}
+        onConfirm={confirmRedeem}
+      />
+      <AnimatePresence>
+        {celebratedReward && (
+          <motion.div
+            aria-live="polite"
+            className="pointer-events-none fixed inset-0 z-[105] grid place-items-center"
+            initial={reducedMotion ? false : { opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.08 }}
+          >
+            <div className="relative rounded-[2rem] border border-valle-200 bg-white px-7 py-6 text-center shadow-2xl">
+              <Sparkles className="mx-auto h-9 w-9 text-castillo-400" />
+              <p className="mt-2 font-super-pandora text-xl text-gray-900">¡Canje realizado!</p>
+              <p className="mt-1 font-simply-olive text-sm text-gray-600">{celebratedReward}</p>
+              <Gem className="absolute -right-3 -top-3 h-8 w-8 fill-valle-300 text-valle-500" />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {message && (
+          <motion.div
+            role="status"
+            initial={reducedMotion ? false : { opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 8 }}
+            className="fixed bottom-5 right-5 z-[110] flex max-w-sm items-center gap-3 rounded-2xl bg-gray-900 px-4 py-3 text-white shadow-xl"
+          >
+            <CircleCheck className="h-5 w-5 shrink-0 text-valle-300" />
+            <p className="font-simply-olive text-sm">{message}</p>
+            <button
+              onClick={() => setMessage(null)}
+              className="ml-1 text-xs text-white/70 hover:text-white"
+            >
+              Cerrar
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      <AnimatePresence>
+        {guideOpen && (
+          <motion.div
+            className="fixed inset-0 z-[100] grid place-items-center bg-gray-950/30 p-4"
+            initial={reducedMotion ? false : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? {} : { opacity: 0 }}
+            transition={modalFadeTransition}
+            onMouseDown={() => setGuideOpen(false)}
+          >
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              onMouseDown={(event) => event.stopPropagation()}
+              initial={reducedMotion ? false : { opacity: 0, scale: 0.98, y: 12 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={reducedMotion ? {} : { opacity: 0, scale: 0.985, y: 8 }}
+              transition={modalDialogTransition}
+              className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-xl"
+            >
+              <HelpCircle className="h-8 w-8 text-pradera-500" />
+              <h2 className="mt-3 font-super-pandora text-2xl text-gray-900">
+                Cómo conseguir gemas
+              </h2>
+              <p className="mt-2 font-simply-olive text-sm leading-6 text-gray-600">
+                Completá ejercicios, resolvé problemas por primera vez y participá de las
+                actividades propuestas por tu curso. Cada avance te acerca a una nueva recompensa.
+              </p>
+              <button
+                onClick={() => setGuideOpen(false)}
+                className="mt-5 rounded-xl bg-gray-900 px-4 py-2.5 font-super-pandora text-sm text-white"
+              >
+                Entendido
+              </button>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

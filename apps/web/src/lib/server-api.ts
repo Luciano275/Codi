@@ -9,11 +9,16 @@ export class UnauthorizedError extends Error {
   }
 }
 
-export async function serverFetch<T>(path: string): Promise<T> {
+export async function serverFetch<T>(
+  path: string,
+  options: Pick<RequestInit, 'method' | 'body'> = {},
+): Promise<T> {
   const cookieStore = await cookies();
   const token = cookieStore.get('session')?.value;
 
   const res = await fetch(`${API_URL}${path}`, {
+    method: options.method,
+    body: options.body,
     headers: {
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json',

@@ -1,6 +1,6 @@
 export type IconName =
   | 'map' | 'code' | 'trophy' | 'flask' | 'chart'
-  | 'calendar' | 'badge' | 'gear' | 'shield';
+  | 'calendar' | 'badge' | 'gear' | 'shield' | 'store';
 
 interface SidebarIconProps {
   name: IconName;
@@ -17,6 +17,7 @@ const gradients: Record<IconName, string> = {
   badge: 'from-pradera-400 to-pradera-600',
   gear: 'from-slate-400 to-slate-600',
   shield: 'from-montana-400 to-montana-600',
+  store: 'from-valle-400 to-lagos-600',
 };
 
 const inactiveGradients: Record<IconName, string> = {
@@ -29,6 +30,7 @@ const inactiveGradients: Record<IconName, string> = {
   badge: 'from-gray-100 to-gray-200',
   gear: 'from-gray-100 to-gray-200',
   shield: 'from-gray-100 to-gray-200',
+  store: 'from-gray-100 to-gray-200',
 };
 
 const paths: Record<IconName, string> = {
@@ -41,6 +43,7 @@ const paths: Record<IconName, string> = {
   badge: 'M12 5l1.5 4.5H18l-3.5 3 1.5 5L12 14l-4 3.5 1.5-5L6 9.5h4.5z',
   gear: 'M12 15a3 3 0 100-6 3 3 0 000 6z',
   shield: 'M12 5l-5 2v4c0 3.5 2.5 6.5 5 7 2.5-.5 5-3.5 5-7V7l-5-2z',
+  store: 'M5 10h14l-1 9H6l-1-9zM4 7h16v3H4z',
 };
 
 const whiteStrokes: Record<IconName, { d: string; closed?: boolean }[]> = {
@@ -84,6 +87,11 @@ const whiteStrokes: Record<IconName, { d: string; closed?: boolean }[]> = {
   shield: [
     { d: 'M12 5l-6 3v4c0 3.5 2.5 6.5 6 7 3.5-.5 6-3.5 6-7V8l-6-3z' },
     { d: 'M9 12l2 2 4-4' },
+  ],
+  store: [
+    { d: 'M5 10h14l-1 9H6l-1-9z' },
+    { d: 'M4 7h16v3H4z' },
+    { d: 'M9 14h6' },
   ],
 };
 
