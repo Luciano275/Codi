@@ -54,6 +54,31 @@ enum LeagueName {
   LEGENDARIO
 }
 
+enum RewardCategory {
+  EXAMS
+  PRACTICE
+  ADVANTAGES
+  SPECIALS
+}
+
+enum RewardType {
+  EXAM_BONUS_POINT
+  SMART_HINT
+  DOUBLE_XP
+}
+
+enum RewardRedemptionStatus {
+  COMPLETED
+  REVOKED
+}
+
+enum UserRewardStatus {
+  AVAILABLE
+  ACTIVE
+  USED
+  EXPIRED
+}
+
 // ─── Auth / Users ────────────────────────────────────────
 
 model User {
@@ -80,6 +105,8 @@ model User {
   examAttempts       ExamAttempt[]
   notifications      Notification[]
   lessonCompletions  LessonCompletion[]
+  rewardRedemptions  RewardRedemption[]
+  rewards            UserReward[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -148,9 +175,75 @@ model LessonCompletion {
   lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   completedAt DateTime @default(now())
+  xpAwarded  Int      @default(0)
 
   @@unique([userId, lessonId])
   @@map("codi_lesson_completion")
+}
+
+// ─── Tienda de Canjes ───────────────────────────────────
+
+model Reward {
+  id          String         @id @default(uuid())
+  slug        String         @unique
+  name        String
+  description String
+  category    RewardCategory
+  cost        Int
+  type        RewardType
+  isActive    Boolean        @default(true)
+  metadata    Json
+
+  redemptions RewardRedemption[]
+  userRewards UserReward[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("codi_reward")
+}
+
+model RewardRedemption {
+  id        String                 @id @default(uuid())
+  userId    String
+  user      User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardId  String
+  reward    Reward                 @relation(fields: [rewardId], references: [id])
+  requestId String
+  costPaid  Int
+  status    RewardRedemptionStatus @default(COMPLETED)
+  metadata  Json?
+
+  entitlement UserReward?
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, requestId])
+  @@index([userId, createdAt])
+  @@map("codi_reward_redemption")
+}
+
+model UserReward {
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardId  String
+  reward    Reward           @relation(fields: [rewardId], references: [id])
+  redemptionId String         @unique
+  redemption   RewardRedemption @relation(fields: [redemptionId], references: [id], onDelete: Cascade)
+  slotKey   String
+  status    UserRewardStatus
+  metadata  Json?
+  activatedAt DateTime?
+  expiresAt DateTime?
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, rewardId, status, expiresAt])
+  @@index([userId, rewardId, slotKey])
+  @@map("codi_user_reward")
 }
 
 // ─── Problemas (solo referencia a CMS) ───────────────────
@@ -199,6 +292,7 @@ model Submission {
   submittedAt DateTime  @default(now())
   evaluatedAt DateTime?
   gemsAwarded Boolean   @default(false)
+  xpAwarded   Int       @default(0)
 
   @@map("codi_submission")
 }
@@ -345,5 +439,3 @@ model Notification {
 
   @@map("codi_notification")
 }
-
-
