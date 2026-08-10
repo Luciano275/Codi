@@ -106,7 +106,11 @@ export class SubmissionsService {
 
           if (problem && !previousAccepted) {
             await this.prisma.$transaction(async (transaction) => {
-              await updateUserExperience(transaction, submission.userId, problem.xpReward);
+              const xpAward = await updateUserExperience(transaction, submission.userId, problem.xpReward);
+              await transaction.submission.update({
+                where: { id: submissionId },
+                data: { xpAwarded: xpAward.xpAwarded },
+              });
               await transaction.user.update({
                 where: { id: submission.userId },
                 data: { gems: { increment: problem.gemsReward } },

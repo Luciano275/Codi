@@ -199,14 +199,15 @@ export class CoursesService {
       }
     }
 
-    await this.prisma.$transaction(async (transaction) => {
+    const award = await this.prisma.$transaction(async (transaction) => {
+      const xpAward = await updateUserExperience(transaction, userId, lesson.xpReward);
       await transaction.lessonCompletion.create({
-        data: { userId, lessonId },
+        data: { userId, lessonId, xpAwarded: xpAward.xpAwarded },
       });
-      await updateUserExperience(transaction, userId, lesson.xpReward);
+      return xpAward.xpAwarded;
     });
 
-    return { completed: true, xpAwarded: lesson.xpReward };
+    return { completed: true, xpAwarded: award };
   }
 
   async uncompleteLesson(userId: string, lessonId: string) {
@@ -225,10 +226,10 @@ export class CoursesService {
       await transaction.lessonCompletion.delete({
         where: { userId_lessonId: { userId, lessonId } },
       });
-      await updateUserExperience(transaction, userId, -lesson.xpReward);
+      await updateUserExperience(transaction, userId, -(existing.xpAwarded || lesson.xpReward));
     });
 
-    return { completed: false, xpRefunded: lesson.xpReward };
+    return { completed: false, xpRefunded: existing.xpAwarded || lesson.xpReward };
   }
 
   async getLessonStatus(userId: string, lessonId: string) {
