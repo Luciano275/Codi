@@ -13,6 +13,7 @@ import { AdminModule } from './admin/admin.module';
 import { PlaygroundModule } from './playground/playground.module';
 import { ProblemsModule } from './problems/problems.module';
 import { RedisModule } from './redis/redis.module';
+import { RewardsModule } from './rewards/rewards.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { RedisModule } from './redis/redis.module';
       limit: 60,
     }]),
     RedisModule,
+    RewardsModule,
     PrismaModule,
     AuthModule,
     SubmissionsModule,
