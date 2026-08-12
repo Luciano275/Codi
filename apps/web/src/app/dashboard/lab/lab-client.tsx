@@ -1,8 +1,12 @@
 'use client';
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import LabEditor from './editor';
+import {
+  OperationResultMascot,
+  type OperationResultStatus,
+} from '@/components/feedback/OperationResultMascot';
 import { GemRewardPopup } from '@/components/lab/GemRewardPopup';
 import { ExerciseStatement } from '@/components/lab/ExerciseStatement';
 import { LabToolbar } from '@/components/lab/LabToolbar';
@@ -25,6 +29,12 @@ const ALL_LANGUAGES = [
   { id: 'python', label: 'Python 3', extension: 'py' },
   { id: 'cpp', label: 'C++', extension: 'cpp' },
 ];
+
+interface EvaluationFeedback {
+  id: number;
+  status: OperationResultStatus;
+  score: number;
+}
 
 export default function LabClient({
   user,
@@ -74,6 +84,8 @@ export default function LabClient({
   const [gemReward, setGemReward] = useState<{ amount: number; exerciseTitle: string } | null>(
     null,
   );
+  const [evaluationFeedback, setEvaluationFeedback] = useState<EvaluationFeedback | null>(null);
+  const pendingGemRewardRef = useRef<{ amount: number; exerciseTitle: string } | null>(null);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -128,9 +140,33 @@ export default function LabClient({
   );
 
   const evaluateAndReward = useCallback(
-    () => handleEvaluate(exercise!, code, language, (reward) => setGemReward(reward)),
+    () =>
+      handleEvaluate(
+        exercise!,
+        code,
+        language,
+        (reward) => {
+          pendingGemRewardRef.current = reward;
+        },
+        ({ score }) => {
+          setEvaluationFeedback({
+            id: Date.now(),
+            status: score >= 60 ? 'success' : 'error',
+            score,
+          });
+        },
+      ),
     [exercise, code, language, handleEvaluate],
   );
+
+  const dismissEvaluationFeedback = useCallback(() => {
+    setEvaluationFeedback(null);
+
+    if (pendingGemRewardRef.current) {
+      setGemReward(pendingGemRewardRef.current);
+      pendingGemRewardRef.current = null;
+    }
+  }, []);
 
   const returnToLesson = useCallback(() => {
     if (!lessonId) {
@@ -230,6 +266,18 @@ export default function LabClient({
           />
         </div>
       </div>
+      <OperationResultMascot
+        status={evaluationFeedback?.status ?? null}
+        resultKey={evaluationFeedback?.id}
+        title={evaluationFeedback?.status === 'success' ? '¡VAMOOOS!' : '¡Oh no!'}
+        description={
+          evaluationFeedback?.status === 'success'
+            ? '¡Lo lograste! Tu código superó el desafío.'
+            : 'No salió esta vez. Ajustá tu código y volvé a intentarlo.'
+        }
+        score={evaluationFeedback?.score}
+        onDismiss={dismissEvaluationFeedback}
+      />
       <GemRewardPopup reward={gemReward} onDismiss={() => setGemReward(null)} />
     </>
   );

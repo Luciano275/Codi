@@ -27,6 +27,11 @@ interface EvaluationSubmission {
   cmsResults: EvaluationResult[] | { error?: string } | null;
 }
 
+export interface EvaluationOutcome {
+  score: number;
+  status: string;
+}
+
 function formatEvaluationResults(cmsResults: EvaluationSubmission['cmsResults']) {
   if (Array.isArray(cmsResults)) {
     const results = cmsResults
@@ -77,6 +82,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
       code: string,
       language: string,
       onGemReward: (reward: { amount: number; exerciseTitle: string }) => void,
+      onEvaluationComplete: (outcome: EvaluationOutcome) => void,
     ) => {
       if (!exercise) return;
       clearPolling();
@@ -125,6 +131,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
                   score,
                   status: submission.status,
                 });
+                onEvaluationComplete({ score, status: submission.status });
 
                 if (submission.status === 'ACCEPTED') {
                   window.dispatchEvent(new CustomEvent('user-updated'));
