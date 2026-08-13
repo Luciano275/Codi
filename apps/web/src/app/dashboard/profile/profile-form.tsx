@@ -31,9 +31,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [currentUser, setProfileUser] = useState(user);
   const [displayName, setDisplayName] = useState(user.displayName);
   const [email, setEmail] = useState(user.email ?? '');
-  const [avatarUploadKey, setAvatarUploadKey] = useState<string | null>(null);
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
-  const [removeAvatar, setRemoveAvatar] = useState(false);
   const [xp, setXp] = useState(user.xp);
   const [gems, setGems] = useState(user.gems);
   const [saving, setSaving] = useState(false);
@@ -59,6 +57,32 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     toastTimer.current = setTimeout(() => setToast(null), 3000);
   };
 
+  const publishUserUpdate = (updatedUser: UserProfile) => {
+    setProfileUser(updatedUser);
+    setCurrentUser(updatedUser);
+    window.dispatchEvent(new CustomEvent<UserProfile>('user-updated', { detail: updatedUser }));
+    router.refresh();
+  };
+
+  const saveAvatar = async (avatarUploadKey: string) => {
+    const response = await adminFetch<{ user: UserProfile }>('/api/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatarUploadKey }),
+    });
+    publishUserUpdate(response.user);
+    showToast('success', 'Foto de perfil actualizada');
+  };
+
+  const deleteAvatar = async () => {
+    const response = await adminFetch<{ user: UserProfile }>('/api/auth/me', {
+      method: 'PATCH',
+      body: JSON.stringify({ removeAvatar: true }),
+    });
+    setAvatarPreviewUrl(null);
+    publishUserUpdate(response.user);
+    showToast('success', 'Foto de perfil eliminada');
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
@@ -68,19 +92,11 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         body: JSON.stringify({
           displayName: displayName.trim(),
           email: email.trim() || null,
-          ...(avatarUploadKey ? { avatarUploadKey } : {}),
-          ...(removeAvatar ? { removeAvatar: true } : {}),
           ...(user.role === 'TEACHER' ? { xp, gems } : {}),
         }),
       });
       showToast('success', 'Perfil actualizado correctamente');
-      setProfileUser(response.user);
-      setAvatarPreviewUrl(null);
-      setAvatarUploadKey(null);
-      setRemoveAvatar(false);
-      setCurrentUser(response.user);
-      window.dispatchEvent(new CustomEvent<UserProfile>('user-updated', { detail: response.user }));
-      router.refresh();
+      publishUserUpdate(response.user);
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Error al guardar');
     } finally {
@@ -108,7 +124,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="flex flex-col items-center gap-6 sm:flex-row">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 text-3xl font-bold text-white shadow-md">
-            {avatarPreviewUrl || (currentUser.avatarUrl && !removeAvatar) ? (
+            {avatarPreviewUrl || currentUser.avatarUrl ? (
               <img
                 key={avatarPreviewUrl ?? currentUser.avatarUrl}
                 src={avatarPreviewUrl ?? currentUser.avatarUrl!}
@@ -185,17 +201,10 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         </div>
 
         <AvatarUploadField
-          hasCurrentAvatar={Boolean(currentUser.avatarUrl && !removeAvatar)}
-          onUploadKey={(key) => {
-            setAvatarUploadKey(key);
-            setRemoveAvatar(false);
-          }}
+          hasCurrentAvatar={Boolean(currentUser.avatarUrl)}
+          onUploadKey={saveAvatar}
           onPreviewFile={setAvatarPreview}
-          onRemove={() => {
-            setAvatarUploadKey(null);
-            setAvatarPreviewUrl(null);
-            setRemoveAvatar(true);
-          }}
+          onRemove={deleteAvatar}
         />
 
         {user.role === 'TEACHER' && (

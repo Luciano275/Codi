@@ -7,9 +7,9 @@ import { AvatarCropDialog } from './AvatarCropDialog';
 
 interface AvatarUploadFieldProps {
   hasCurrentAvatar: boolean;
-  onUploadKey: (key: string) => void;
+  onUploadKey: (key: string) => Promise<void>;
   onPreviewFile: (file: File) => void;
-  onRemove: () => void;
+  onRemove: () => Promise<void>;
 }
 
 export function AvatarUploadField({
@@ -23,6 +23,7 @@ export function AvatarUploadField({
   const [candidate, setCandidate] = useState<{ file: File; sourceUrl: string } | null>(null);
   const [fileName, setFileName] = useState<string | null>(hasCurrentAvatar ? 'Foto actual' : null);
   const [progress, setProgress] = useState<number | null>(null);
+  const [isRemoving, setIsRemoving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(
@@ -52,9 +53,9 @@ export function AvatarUploadField({
     setProgress(0);
     try {
       const uploadKey = await uploadFileThroughApi('avatar', croppedFile, setProgress);
+      await onUploadKey(uploadKey);
       onPreviewFile(croppedFile);
-      setFileName('Nueva foto lista para guardar');
-      onUploadKey(uploadKey);
+      setFileName('Foto actualizada');
       setCandidate(null);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : 'No se pudo subir la foto');
@@ -64,9 +65,18 @@ export function AvatarUploadField({
     }
   };
 
-  const removeAvatar = () => {
-    setFileName(null);
-    onRemove();
+  const removeAvatar = async () => {
+    if (isRemoving) return;
+    setError(null);
+    setIsRemoving(true);
+    try {
+      await onRemove();
+      setFileName(null);
+    } catch (removeError) {
+      setError(removeError instanceof Error ? removeError.message : 'No se pudo eliminar la foto');
+    } finally {
+      setIsRemoving(false);
+    }
   };
 
   return (
@@ -85,10 +95,10 @@ export function AvatarUploadField({
         }}
       />
       <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-3">
-        {progress !== null ? (
+        {progress !== null || isRemoving ? (
           <div className="flex items-center gap-3 text-sm text-gray-600">
             <Loader2 className="h-5 w-5 animate-spin text-lagos-600" />
-            Subiendo foto {progress}%
+            {isRemoving ? 'Eliminando foto...' : `Subiendo foto ${progress}%`}
           </div>
         ) : fileName ? (
           <div className="flex items-center gap-3 text-sm">
@@ -97,13 +107,15 @@ export function AvatarUploadField({
             <button
               type="button"
               onClick={() => inputRef.current?.click()}
+              disabled={isRemoving}
               className="rounded-lg px-2 py-1 text-xs font-semibold text-lagos-600 hover:bg-lagos-50"
             >
               Cambiar
             </button>
             <button
               type="button"
-              onClick={removeAvatar}
+              onClick={() => void removeAvatar()}
+              disabled={isRemoving}
               className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
               aria-label="Quitar foto de perfil"
               title="Quitar foto de perfil"
@@ -123,7 +135,7 @@ export function AvatarUploadField({
         )}
       </div>
       <p className="mt-1 text-xs text-gray-400">
-        JPG, PNG o WebP. Máximo 5 MB. Los cambios se aplican al guardar el perfil.
+        JPG, PNG o WebP. Máximo 5 MB. La foto se guarda al confirmarla.
       </p>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
       {candidate && (
