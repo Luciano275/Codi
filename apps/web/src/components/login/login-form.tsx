@@ -80,16 +80,18 @@ export default function LoginForm() {
       <div className="bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10">
         <div className="flex flex-col items-center text-center mb-7">
           <motion.div
+            className="relative mb-4 h-36 w-36 overflow-hidden md:h-40 md:w-40"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
           >
             <Image
-              src="/logo.png"
+              src="/logo.png?v=2"
               alt="Codi"
-              width={200}
-              height={200}
-              className="w-full max-w-50 h-auto mb-4 drop-shadow-lg"
+              fill
+              priority
+              sizes="(max-width: 768px) 144px, 160px"
+              className="object-contain drop-shadow-lg"
             />
           </motion.div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">
@@ -187,15 +189,6 @@ export default function LoginForm() {
             </motion.button>
           </div>
         </form>
-
-        <div className="mt-6 text-center">
-          <p className="text-sm text-white/60">
-            ¿No tenés cuenta?{' '}
-            <a href="/register" className="font-bold text-[#00D2D3] hover:text-[#00E8E9] transition-colors">
-              Crear cuenta
-            </a>
-          </p>
-        </div>
       </div>
     </motion.div>
   );
