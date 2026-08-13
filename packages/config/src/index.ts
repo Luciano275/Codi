@@ -13,8 +13,10 @@ export const config = {
   aws: {
     get bucket() { return process.env.AWS_BUCKET_NAME; },
     get region() { return process.env.AWS_REGION; },
-    get access_key() { return process.env.AWS_ACCESS_KEY; },
-    get secret_key() { return process.env.AWS_SECRET_KEY; }
+    get accessKey() { return process.env.AWS_ACCESS_KEY; },
+    get secretKey() { return process.env.AWS_SECRET_KEY; },
+    get endpoint() { return process.env.S3_ENDPOINT; },
+    get signedReadExpiresIn() { return parseInt(process.env.S3_SIGNED_READ_EXPIRES_IN || '86400', 10); },
   },
   eval: {
     get pythonBin() { return process.env.EVAL_PYTHON_BIN || `${process.env.HOME}/.codi_venv/bin/python3`; },

@@ -89,7 +89,7 @@ model User {
   username     String        @unique
   email        String?
   displayName  String
-  avatarUrl    String?
+  avatarObjectKey String?
   role         Role          @default(STUDENT)
 
   xp           Int      @default(0)
@@ -155,6 +155,11 @@ model Lesson {
   order     Int
   type      LessonType
   content   Json?
+  pdfObjectKey String?
+  pdfFileName  String?
+  videoObjectKey String?
+  videoFileName  String?
+  videoContentType String?
   xpReward  Int        @default(50)
   problems  Problem[]
   completions LessonCompletion[]

@@ -1,13 +1,14 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  User, Mail, Image, Zap, Gem, Trophy, TrendingUp,
+  User, Mail, Zap, Gem, Trophy, TrendingUp,
   Save, Loader2, CheckCircle2, AlertCircle,
 } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { adminFetch } from '@/lib/admin-api';
+import { AvatarUploadField } from '@/components/uploads/AvatarUploadField';
 
 interface ProfileFormProps {
   user: UserProfile;
@@ -19,9 +20,24 @@ export default function ProfileForm({ user }: ProfileFormProps) {
 
   const [displayName, setDisplayName] = useState(user.displayName);
   const [email, setEmail] = useState(user.email ?? '');
-  const [avatarUrl, setAvatarUrl] = useState(user.avatarUrl ?? '');
+  const [avatarUploadKey, setAvatarUploadKey] = useState<string | null>(null);
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [removeAvatar, setRemoveAvatar] = useState(false);
+  const [xp, setXp] = useState(user.xp);
+  const [gems, setGems] = useState(user.gems);
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  useEffect(() => () => {
+    if (avatarPreviewUrl) URL.revokeObjectURL(avatarPreviewUrl);
+  }, [avatarPreviewUrl]);
+
+  const setAvatarPreview = (file: File) => {
+    setAvatarPreviewUrl((previousUrl) => {
+      if (previousUrl) URL.revokeObjectURL(previousUrl);
+      return URL.createObjectURL(file);
+    });
+  };
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -33,15 +49,18 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     e.preventDefault();
     setSaving(true);
     try {
-      await adminFetch('/api/auth/me', {
+      const response = await adminFetch<{ user: UserProfile }>('/api/auth/me', {
         method: 'PATCH',
         body: JSON.stringify({
           displayName: displayName.trim(),
           email: email.trim() || null,
-          avatarUrl: avatarUrl.trim() || null,
+          ...(avatarUploadKey ? { avatarUploadKey } : {}),
+          ...(removeAvatar ? { removeAvatar: true } : {}),
+          ...(user.role === 'TEACHER' ? { xp, gems } : {}),
         }),
       });
       showToast('success', 'Perfil actualizado correctamente');
+      window.dispatchEvent(new CustomEvent<UserProfile>('user-updated', { detail: response.user }));
       router.refresh();
     } catch (e) {
       showToast('error', e instanceof Error ? e.message : 'Error al guardar');
@@ -64,8 +83,8 @@ export default function ProfileForm({ user }: ProfileFormProps) {
       <div className="mb-8 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
         <div className="flex flex-col items-center gap-6 sm:flex-row">
           <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 text-3xl font-bold text-white shadow-md">
-            {avatarUrl ? (
-              <img src={avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
+            {avatarPreviewUrl || (user.avatarUrl && !removeAvatar) ? (
+              <img src={avatarPreviewUrl ?? user.avatarUrl!} alt="" className="h-full w-full rounded-full object-cover" />
             ) : (
               user.displayName.charAt(0).toUpperCase()
             )}
@@ -115,22 +134,30 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             placeholder="Sin correo" />
         </div>
 
-        <div>
-          <label className="mb-1 flex items-center gap-1.5 font-simply-olive text-sm font-medium text-gray-700">
-            <Image className="h-4 w-4 text-gray-400" />URL del avatar
-          </label>
-          <input type="url" value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)}
-            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none transition-colors focus:border-lagos-400 focus:ring-2 focus:ring-lagos-100"
-            placeholder="https://ejemplo.com/avatar.png" />
-        </div>
+        <AvatarUploadField
+          hasCurrentAvatar={Boolean(user.avatarUrl && !removeAvatar)}
+          onUploadKey={(key) => { setAvatarUploadKey(key); setRemoveAvatar(false); }}
+          onPreviewFile={setAvatarPreview}
+          onRemove={() => { setAvatarUploadKey(null); setAvatarPreviewUrl(null); setRemoveAvatar(true); }}
+        />
 
-        {avatarUrl && (
-          <div className="flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3">
-            <span className="font-simply-olive text-xs text-gray-500">Vista previa:</span>
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 text-sm font-bold text-white">
-              <img src={avatarUrl} alt="" className="h-full w-full rounded-full object-cover"
-                onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+        {user.role === 'TEACHER' && (
+          <div className="grid gap-4 rounded-xl border border-amber-100 bg-amber-50/60 p-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1 flex items-center gap-1.5 font-simply-olive text-sm font-medium text-amber-800">
+                <Zap className="h-4 w-4" />XP
+              </label>
+              <input type="number" min={0} value={xp} onChange={(event) => setXp(Math.max(0, Number(event.target.value) || 0))}
+                className="w-full rounded-xl border border-amber-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100" />
             </div>
+            <div>
+              <label className="mb-1 flex items-center gap-1.5 font-simply-olive text-sm font-medium text-cyan-800">
+                <Gem className="h-4 w-4" />Gemas
+              </label>
+              <input type="number" min={0} value={gems} onChange={(event) => setGems(Math.max(0, Number(event.target.value) || 0))}
+                className="w-full rounded-xl border border-cyan-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-cyan-400 focus:ring-2 focus:ring-cyan-100" />
+            </div>
+            <p className="sm:col-span-2 text-xs text-amber-700">Como docente podés ajustar tus estadísticas. Tu nivel se recalcula al guardar el XP.</p>
           </div>
         )}
 

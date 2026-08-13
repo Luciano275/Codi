@@ -33,7 +33,7 @@ export class AuthController {
     @CurrentUser() user: User,
     @Body() dto: UpdateProfileDto,
   ) {
-    const profile = await this.authService.updateProfile(user.id, dto);
+    const profile = await this.authService.updateProfile(user, dto);
     return { user: profile };
   }
 }

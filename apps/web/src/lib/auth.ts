@@ -8,7 +8,7 @@ export interface UserProfile {
   username: string;
   displayName: string;
   email: string;
-  avatarUrl: string;
+  avatarUrl: string | null;
   role: string;
   xp: number;
   gems: number;
@@ -16,7 +16,7 @@ export interface UserProfile {
   streak: number;
 }
 
-const API_URL = process.env.API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export const auth = cache(async (): Promise<UserProfile | null> => {
   const token = (await cookies()).get('session')?.value;

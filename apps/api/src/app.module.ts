@@ -14,6 +14,7 @@ import { PlaygroundModule } from './playground/playground.module';
 import { ProblemsModule } from './problems/problems.module';
 import { RedisModule } from './redis/redis.module';
 import { RewardsModule } from './rewards/rewards.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { RewardsModule } from './rewards/rewards.module';
       limit: 60,
     }]),
     RedisModule,
+    UploadsModule,
     RewardsModule,
     PrismaModule,
     AuthModule,

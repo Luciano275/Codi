@@ -15,7 +15,8 @@ export function toProfile(user: User): UserProfile {
     username: user.username,
     displayName: user.displayName,
     email: user.email,
-    avatarUrl: user.avatarUrl,
+    // The API signs private S3 objects immediately before serializing a response.
+    avatarUrl: null,
     role: user.role,
     xp: user.xp,
     gems: user.gems,

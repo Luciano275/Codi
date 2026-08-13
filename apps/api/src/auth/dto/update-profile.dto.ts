@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength } from 'class-validator';
+import { IsBoolean, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -13,6 +13,20 @@ export class UpdateProfileDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(500)
-  avatarUrl?: string;
+  @MaxLength(512)
+  avatarUploadKey?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  removeAvatar?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  xp?: number;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  gems?: number;
 }

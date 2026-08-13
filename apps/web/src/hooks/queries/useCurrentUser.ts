@@ -2,6 +2,7 @@
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@/lib/query-keys';
+import type { UserProfile } from '@/lib/auth';
 
 export function useCurrentUser() {
   return useQuery({
@@ -10,14 +11,7 @@ export function useCurrentUser() {
       const res = await fetch('/api/proxy/api/auth/me');
       const data = await res.json();
       if (!data?.user) throw new Error('No user data');
-      return data.user as {
-        id: string;
-        username: string;
-        displayName: string;
-        xp: number;
-        gems: number;
-        level: number;
-      };
+      return data.user as UserProfile;
     },
     staleTime: 5 * 60 * 1000,
   });

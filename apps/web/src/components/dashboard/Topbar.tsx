@@ -15,14 +15,21 @@ interface TopbarProps {
 
 export default function Topbar({ user }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState(user);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: fetchedUser } = useCurrentUser();
   const invalidateCurrentUser = useInvalidateCurrentUser();
 
-  const clientUser = fetchedUser ?? user;
+  const clientUser = currentUser;
 
   useEffect(() => {
-    function handleUserUpdate() {
+    if (fetchedUser) setCurrentUser(fetchedUser);
+  }, [fetchedUser]);
+
+  useEffect(() => {
+    function handleUserUpdate(event: Event) {
+      const updatedUser = (event as CustomEvent<UserProfile>).detail;
+      if (updatedUser) setCurrentUser(updatedUser);
       invalidateCurrentUser();
     }
     window.addEventListener('user-updated', handleUserUpdate);
@@ -96,9 +103,13 @@ export default function Topbar({ user }: TopbarProps) {
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 p-0.5 shadow-xs md:h-9 md:w-9">
               <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
-                <span className="text-xs font-bold text-lagos-600 md:text-sm">
-                  {clientUser.displayName.charAt(0).toUpperCase()}
-                </span>
+                {clientUser.avatarUrl ? (
+                  <img src={clientUser.avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
+                ) : (
+                  <span className="text-xs font-bold text-lagos-600 md:text-sm">
+                    {clientUser.displayName.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
             </div>
             <span className="hidden text-sm font-semibold text-gray-800 lg:block">

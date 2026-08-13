@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { AuthService as CodiAuthService, verifyCmsPassword, toProfile } from '@codi/auth';
@@ -6,6 +6,8 @@ import type { LoginResult, UserProfile } from '@codi/auth';
 import { prisma } from '@codi/database';
 import type { User, CmsUserSource } from '@codi/database';
 import { getLevelFromXp } from '@codi/progression';
+import { S3Service } from '../s3/s3.service';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 type CmsUserRow = {
   id: number;
@@ -29,21 +31,26 @@ export class AuthService {
   private readonly logger = new Logger(AuthService.name);
   private codiAuth: CodiAuthService;
 
-  constructor(private jwtService: JwtService) {
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly s3: S3Service,
+  ) {
     this.codiAuth = new CodiAuthService((payload) =>
       this.jwtService.sign({ ...payload, jti: crypto.randomUUID() }),
     );
   }
 
   async login(username: string, password: string): Promise<LoginResult> {
+    let result: LoginResult;
     try {
-      const result = await this.codiAuth.login(username, password);
-      this.logger.log(`Login success: ${username}`);
-      return result;
+      result = await this.codiAuth.login(username, password);
     } catch (err) {
       this.logger.warn(`Login failed: ${username} — ${(err as Error).message}`);
       throw new UnauthorizedException('Los datos no son correctos');
     }
+    this.logger.log(`Login success: ${username}`);
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: result.user.id } });
+    return { token: result.token, user: await this.serializeProfile(user) };
   }
 
   async verifyAndSync(username: string, password: string) {
@@ -120,18 +127,61 @@ export class AuthService {
         where: { id: user.id },
         data: { level, streak, lastActiveAt: now },
       });
-      return toProfile(updated);
+      return this.serializeProfile(updated);
     }
 
-    return toProfile(user);
+    return this.serializeProfile(user);
   }
 
   async updateProfile(
-    userId: string,
-    data: { displayName?: string; email?: string; avatarUrl?: string },
+    currentUser: User,
+    data: UpdateProfileDto,
   ): Promise<UserProfile> {
-    const user = await prisma.user.update({ where: { id: userId }, data });
-    return toProfile(user);
+    if (currentUser.role !== 'TEACHER' && (data.xp !== undefined || data.gems !== undefined)) {
+      throw new ForbiddenException('Solo los docentes pueden modificar sus estadísticas');
+    }
+    if (data.avatarUploadKey && data.removeAvatar) {
+      throw new BadRequestException('No se puede reemplazar y eliminar la foto al mismo tiempo');
+    }
+
+    let avatarObjectKey: string | undefined;
+    if (data.avatarUploadKey) {
+      const avatar = await this.s3.promotePendingObject(
+        currentUser.id,
+        'avatar',
+        data.avatarUploadKey,
+        currentUser.id,
+      );
+      avatarObjectKey = avatar.objectKey;
+    }
+
+    try {
+      const user = await prisma.user.update({
+        where: { id: currentUser.id },
+        data: {
+          ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
+          ...(data.email !== undefined ? { email: data.email } : {}),
+          ...(data.xp !== undefined ? { xp: data.xp, level: getLevelFromXp(data.xp) } : {}),
+          ...(data.gems !== undefined ? { gems: data.gems } : {}),
+          ...(avatarObjectKey ? { avatarObjectKey } : {}),
+          ...(data.removeAvatar ? { avatarObjectKey: null } : {}),
+        },
+      });
+
+      if ((avatarObjectKey || data.removeAvatar) && currentUser.avatarObjectKey) {
+        await this.s3.deleteObject(currentUser.avatarObjectKey);
+      }
+      return this.serializeProfile(user);
+    } catch (error) {
+      if (avatarObjectKey) await this.s3.deleteObject(avatarObjectKey);
+      throw error;
+    }
+  }
+
+  private async serializeProfile(user: User): Promise<UserProfile> {
+    const profile = toProfile(user);
+    const avatar = await this.s3.signedResource(user.avatarObjectKey, null, null);
+    return { ...profile, avatarUrl: avatar?.url ?? null };
   }
 
   private async upsertUser(params: {

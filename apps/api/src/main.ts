@@ -29,8 +29,6 @@ async function bootstrap() {
     'redis.user': 'REDIS_USER',
     'aws.region': 'AWS_REGION',
     'aws.bucket': 'AWS_BUCKET_NAME',
-    'aws.access_key': 'AWS_ACCESS_KEY',
-    'aws.secret_key': 'AWS_SECRET_KEY',
     'database.url': 'DATABASE_URL',
   };
 
