@@ -18,6 +18,7 @@ export interface UserProfile {
   displayName: string;
   email: string | null;
   avatarUrl: string | null;
+  profileBanner: string;
   role: Role;
   xp: number;
   gems: number;

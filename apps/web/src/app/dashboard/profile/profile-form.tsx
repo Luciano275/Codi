@@ -13,11 +13,17 @@ import {
   Loader2,
   CheckCircle2,
   AlertCircle,
+  Flag,
 } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { adminFetch } from '@/lib/admin-api';
 import { AvatarUploadField } from '@/components/uploads/AvatarUploadField';
 import { useSetCurrentUser } from '@/hooks/queries/useCurrentUser';
+import {
+  getPlayerBanner,
+  playerBanners,
+  type PlayerBannerId,
+} from '@/components/player-profile/player-banner';
 
 interface ProfileFormProps {
   user: UserProfile;
@@ -32,6 +38,9 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [displayName, setDisplayName] = useState(user.displayName);
   const [email, setEmail] = useState(user.email ?? '');
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [profileBanner, setProfileBanner] = useState<PlayerBannerId>(
+    getPlayerBanner(user.profileBanner).id,
+  );
   const [xp, setXp] = useState(user.xp);
   const [gems, setGems] = useState(user.gems);
   const [saving, setSaving] = useState(false);
@@ -92,6 +101,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
         body: JSON.stringify({
           displayName: displayName.trim(),
           email: email.trim() || null,
+          profileBanner,
           ...(user.role === 'TEACHER' ? { xp, gems } : {}),
         }),
       });
@@ -206,6 +216,42 @@ export default function ProfileForm({ user }: ProfileFormProps) {
           onPreviewFile={setAvatarPreview}
           onRemove={deleteAvatar}
         />
+
+        <fieldset>
+          <legend className="mb-2 flex items-center gap-1.5 font-simply-olive text-sm font-medium text-gray-700">
+            <Flag className="h-4 w-4 text-bosque-500" />
+            Estandarte competitivo
+          </legend>
+          <p className="mb-3 font-simply-olive text-xs text-gray-500">
+            Será el color de tu ficha pública en el ranking.
+          </p>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {playerBanners.map((banner) => {
+              const selected = profileBanner === banner.id;
+              return (
+                <button
+                  key={banner.id}
+                  type="button"
+                  aria-pressed={selected}
+                  onClick={() => setProfileBanner(banner.id)}
+                  className={`flex items-center justify-between rounded-xl border-2 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-bosque-200 ${banner.surfaceClass} ${selected ? `${banner.borderClass} shadow-[0_3px_0_rgba(42,36,96,.35)]` : 'border-transparent opacity-70 hover:opacity-100'}`}
+                >
+                  <span>
+                    <span className="block font-super-pandora text-sm text-white">
+                      {banner.name}
+                    </span>
+                    <span
+                      className={`mt-0.5 block font-simply-olive text-xs ${banner.ornamentClass}`}
+                    >
+                      {banner.description}
+                    </span>
+                  </span>
+                  {selected && <CheckCircle2 className="h-5 w-5 text-white" />}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
 
         {user.role === 'TEACHER' && (
           <div className="grid gap-4 rounded-xl border border-amber-100 bg-amber-50/60 p-4 sm:grid-cols-2">

@@ -90,6 +90,7 @@ model User {
   email        String?
   displayName  String
   avatarObjectKey String?
+  profileBanner String       @default("BOSQUE")
   role         Role          @default(STUDENT)
 
   xp           Int      @default(0)

@@ -1,4 +1,6 @@
-import { IsBoolean, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
+
+const profileBanners = ['BOSQUE', 'DESIERTO', 'CASTILLO', 'PRADERA'] as const;
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -19,6 +21,10 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   removeAvatar?: boolean;
+
+  @IsOptional()
+  @IsIn(profileBanners)
+  profileBanner?: (typeof profileBanners)[number];
 
   @IsOptional()
   @IsInt()

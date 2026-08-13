@@ -1,4 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+  UnauthorizedException,
+  Logger,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as crypto from 'crypto';
 import { AuthService as CodiAuthService, verifyCmsPassword, toProfile } from '@codi/auth';
@@ -133,10 +139,7 @@ export class AuthService {
     return this.serializeProfile(user);
   }
 
-  async updateProfile(
-    currentUser: User,
-    data: UpdateProfileDto,
-  ): Promise<UserProfile> {
+  async updateProfile(currentUser: User, data: UpdateProfileDto): Promise<UserProfile> {
     if (currentUser.role !== 'TEACHER' && (data.xp !== undefined || data.gems !== undefined)) {
       throw new ForbiddenException('Solo los docentes pueden modificar sus estadísticas');
     }
@@ -161,6 +164,7 @@ export class AuthService {
         data: {
           ...(data.displayName !== undefined ? { displayName: data.displayName } : {}),
           ...(data.email !== undefined ? { email: data.email } : {}),
+          ...(data.profileBanner !== undefined ? { profileBanner: data.profileBanner } : {}),
           ...(data.xp !== undefined ? { xp: data.xp, level: getLevelFromXp(data.xp) } : {}),
           ...(data.gems !== undefined ? { gems: data.gems } : {}),
           ...(avatarObjectKey ? { avatarObjectKey } : {}),

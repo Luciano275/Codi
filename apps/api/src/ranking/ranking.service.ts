@@ -20,22 +20,25 @@ export class RankingService {
         username: true,
         displayName: true,
         avatarObjectKey: true,
+        profileBanner: true,
         xp: true,
         gems: true,
         level: true,
       },
     });
 
-    return Promise.all(users.map(async (user, index) => {
-      const avatar = await this.s3.signedResource(user.avatarObjectKey, null, null);
-      const { avatarObjectKey, ...profile } = user;
-      return {
-        rank: index + 1,
-        ...profile,
-        avatarUrl: avatar?.url ?? null,
-        level: getLevelFromXp(user.xp),
-      };
-    }));
+    return Promise.all(
+      users.map(async (user, index) => {
+        const avatar = await this.s3.signedResource(user.avatarObjectKey, null, null);
+        const { avatarObjectKey, ...profile } = user;
+        return {
+          rank: index + 1,
+          ...profile,
+          avatarUrl: avatar?.url ?? null,
+          level: getLevelFromXp(user.xp),
+        };
+      }),
+    );
   }
 
   async getPlayerProfile(id: string) {
@@ -46,6 +49,7 @@ export class RankingService {
         username: true,
         displayName: true,
         avatarObjectKey: true,
+        profileBanner: true,
         xp: true,
         gems: true,
         streak: true,
@@ -64,15 +68,21 @@ export class RankingService {
 
     if (!user || user.role !== 'STUDENT') throw new NotFoundException('Jugador no encontrado');
 
-    const [higherRanked, totalStudents, completedLessons, acceptedSubmissions, totalSubmissions, avatar] =
-      await Promise.all([
-        this.prisma.user.count({ where: { role: 'STUDENT', xp: { gt: user.xp } } }),
-        this.prisma.user.count({ where: { role: 'STUDENT' } }),
-        this.prisma.lessonCompletion.count({ where: { userId: id } }),
-        this.prisma.submission.count({ where: { userId: id, status: 'ACCEPTED' } }),
-        this.prisma.submission.count({ where: { userId: id } }),
-        this.s3.signedResource(user.avatarObjectKey, null, null),
-      ]);
+    const [
+      higherRanked,
+      totalStudents,
+      completedLessons,
+      acceptedSubmissions,
+      totalSubmissions,
+      avatar,
+    ] = await Promise.all([
+      this.prisma.user.count({ where: { role: 'STUDENT', xp: { gt: user.xp } } }),
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
+      this.prisma.lessonCompletion.count({ where: { userId: id } }),
+      this.prisma.submission.count({ where: { userId: id, status: 'ACCEPTED' } }),
+      this.prisma.submission.count({ where: { userId: id } }),
+      this.s3.signedResource(user.avatarObjectKey, null, null),
+    ]);
 
     const { avatarObjectKey, role: _role, achievements, ...player } = user;
     return {
@@ -84,7 +94,10 @@ export class RankingService {
       completedLessons,
       acceptedSubmissions,
       totalSubmissions,
-      achievements: achievements.map(({ achievement, unlockedAt }) => ({ ...achievement, unlockedAt })),
+      achievements: achievements.map(({ achievement, unlockedAt }) => ({
+        ...achievement,
+        unlockedAt,
+      })),
     };
   }
 }

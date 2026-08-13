@@ -114,6 +114,7 @@ export interface RankingUser {
 }
 
 export interface CompetitivePlayerProfile extends RankingUser {
+  profileBanner: string;
   streak: number;
   createdAt: string;
   totalStudents: number;

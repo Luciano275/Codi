@@ -1,0 +1,2 @@
+ALTER TABLE "codi_user"
+  ADD COLUMN "profileBanner" TEXT NOT NULL DEFAULT 'BOSQUE';

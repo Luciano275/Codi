@@ -9,6 +9,7 @@ export interface UserProfile {
   displayName: string;
   email: string;
   avatarUrl: string | null;
+  profileBanner: string;
   role: string;
   xp: number;
   gems: number;

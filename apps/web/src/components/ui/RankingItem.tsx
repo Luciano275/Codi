@@ -1,6 +1,7 @@
 import { Trophy, Zap, Gem } from 'lucide-react';
 import Link from 'next/link';
 import type { RankingUser } from '@/lib/server-api';
+import { PlayerAvatar } from '@/components/player-profile/PlayerAvatar';
 
 interface RankingItemProps {
   user: RankingUser;
@@ -19,12 +20,6 @@ const rankGradients = [
   'from-desierto-50 to-amber-50 border-desierto-200',
 ];
 
-const avatarGradients = [
-  'from-castillo-400 to-castillo-500',
-  'from-slate-400 to-slate-500',
-  'from-desierto-500 to-desierto-700',
-];
-
 export default function RankingItem({ user, isTopThree }: RankingItemProps) {
   const gradientClass = isTopThree
     ? rankGradients[user.rank - 1]
@@ -35,56 +30,49 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
       <Link
         href={`/dashboard/players/${user.id}`}
         aria-label={`Ver perfil competitivo de ${user.displayName}`}
-      className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
-        isTopThree
-          ? `bg-linear-to-r ${gradientClass} border shadow-xs`
-          : 'border border-transparent hover:bg-gray-50'
-      }`}
-      >
-      <div className="flex h-6 w-6 shrink-0 items-center justify-center md:h-7 md:w-7">
-        {isTopThree ? (
-          <Trophy className={`h-4 w-4 md:h-5 md:w-5 ${rankColors[user.rank - 1]}`} />
-        ) : (
-          <span className="font-simply-olive text-[10px] font-semibold text-gray-400 md:text-xs">
-            {user.rank}
-          </span>
-        )}
-      </div>
-
-      <div
-        className={`flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] font-bold text-white shadow-xs md:h-8 md:w-8 md:text-xs ${
+        className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
           isTopThree
-            ? `bg-linear-to-br ${avatarGradients[user.rank - 1]}`
-            : 'bg-gray-200 text-gray-500'
+            ? `bg-linear-to-r ${gradientClass} border shadow-xs`
+            : 'border border-transparent hover:bg-gray-50'
         }`}
       >
-        {user.avatarUrl ? (
-          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
-        ) : (
-          user.displayName.charAt(0).toUpperCase()
-        )}
-      </div>
+        <div className="flex h-6 w-6 shrink-0 items-center justify-center md:h-7 md:w-7">
+          {isTopThree ? (
+            <Trophy className={`h-4 w-4 md:h-5 md:w-5 ${rankColors[user.rank - 1]}`} />
+          ) : (
+            <span className="font-simply-olive text-[10px] font-semibold text-gray-400 md:text-xs">
+              {user.rank}
+            </span>
+          )}
+        </div>
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold text-gray-800 md:text-sm">
-          {user.displayName}
-        </p>
-        <p className="truncate font-simply-olive text-[10px] text-gray-400 md:text-xs">
-          Nivel {user.level}
-        </p>
-      </div>
+        <PlayerAvatar
+          avatarUrl={user.avatarUrl}
+          displayName={user.displayName}
+          rank={user.rank}
+          className="h-7 w-7 rounded-full text-[10px] font-bold shadow-xs md:h-8 md:w-8 md:text-xs"
+        />
 
-      <div className="flex shrink-0 items-center gap-1 md:gap-1.5">
-        <Zap className="h-3 w-3 text-amber-400 md:h-3.5 md:w-3.5" />
-        <span className="font-candy-beans text-[10px] text-gray-600 md:text-xs">
-          {user.xp.toLocaleString()}
-        </span>
-      </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-xs font-semibold text-gray-800 md:text-sm">
+            {user.displayName}
+          </p>
+          <p className="truncate font-simply-olive text-[10px] text-gray-400 md:text-xs">
+            Nivel {user.level}
+          </p>
+        </div>
 
-      <div className="flex shrink-0 items-center gap-1">
-        <Gem className="h-3 w-3 text-cyan-400 md:h-3.5 md:w-3.5" />
-        <span className="font-candy-beans text-[10px] text-gray-500 md:text-xs">{user.gems}</span>
-      </div>
+        <div className="flex shrink-0 items-center gap-1 md:gap-1.5">
+          <Zap className="h-3 w-3 text-amber-400 md:h-3.5 md:w-3.5" />
+          <span className="font-candy-beans text-[10px] text-gray-600 md:text-xs">
+            {user.xp.toLocaleString()}
+          </span>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-1">
+          <Gem className="h-3 w-3 text-cyan-400 md:h-3.5 md:w-3.5" />
+          <span className="font-candy-beans text-[10px] text-gray-500 md:text-xs">{user.gems}</span>
+        </div>
       </Link>
     </li>
   );
