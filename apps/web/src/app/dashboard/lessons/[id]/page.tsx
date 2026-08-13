@@ -105,6 +105,20 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
             </div>
           </div>
 
+          {lesson.resources?.video && (
+            <div className="mb-8 overflow-hidden rounded-2xl border border-gray-100 bg-black shadow-sm">
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                className="aspect-video w-full"
+                src={lesson.resources.video.url}
+              >
+                Tu navegador no puede reproducir este video.
+              </video>
+            </div>
+          )}
+
           {/* Markdown content */}
           {description ? (
             <div className="mb-10 rounded-2xl border border-gray-100 bg-white p-8 shadow-sm">
@@ -120,13 +134,13 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
           )}
 
           {/* PDF resource */}
-          {(lesson.content?.pdfUrl as string) && (
+          {lesson.resources?.pdf && (
             <div className="mb-10 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
               <h3 className="font-super-pandora mb-3 text-base text-gray-800">
                 Material complementario
               </h3>
               <a
-                href={lesson.content?.pdfUrl as string}
+                href={lesson.resources.pdf.url}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group flex items-center gap-3 rounded-xl bg-gray-50 px-4 py-3 transition-colors hover:bg-lagos-50"

@@ -14,10 +14,12 @@ import { RolesGuard } from '../auth/guards/roles.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { CreateLessonDto } from './dto/create-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import type { User } from '@codi/database';
 
 @Controller('admin/lessons')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
+@Roles('TEACHER', 'ADMIN')
 export class AdminLessonsController {
   constructor(private readonly lessons: AdminLessonsService) {}
 
@@ -32,13 +34,13 @@ export class AdminLessonsController {
   }
 
   @Post()
-  async create(@Body() dto: CreateLessonDto) {
-    return this.lessons.create(dto);
+  async create(@CurrentUser() user: User, @Body() dto: CreateLessonDto) {
+    return this.lessons.create(user.id, dto);
   }
 
   @Patch(':id')
-  async update(@Param('id') id: string, @Body() dto: UpdateLessonDto) {
-    return this.lessons.update(id, dto);
+  async update(@CurrentUser() user: User, @Param('id') id: string, @Body() dto: UpdateLessonDto) {
+    return this.lessons.update(user.id, id, dto);
   }
 
   @Delete(':id')

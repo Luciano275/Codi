@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { RedisClientType } from 'redis';
 import { RedisService } from '../redis/redis.service';
+import { S3Service } from '../s3/s3.service';
 
 const LESSON_CACHE_TTL_SECONDS = 60 * 60;
 
@@ -12,6 +13,7 @@ export class LessonsService {
   constructor(
     private readonly prisma: PrismaService,
     redisService: RedisService,
+    private readonly s3: S3Service,
   ) {
     this.redis = redisService.getClient();
   }
@@ -23,7 +25,12 @@ export class LessonsService {
       lesson.problems.map((problem: { id: string }) => problem.id),
     );
 
-    return { ...lesson, solvedProblemIds };
+    const [pdf, video] = await Promise.all([
+      this.s3.signedResource(lesson.pdfObjectKey, lesson.pdfFileName, 'application/pdf'),
+      this.s3.signedResource(lesson.videoObjectKey, lesson.videoFileName, lesson.videoContentType),
+    ]);
+
+    return { ...lesson, resources: { pdf, video }, solvedProblemIds };
   }
 
   private async findCachedLesson(lessonId: string) {

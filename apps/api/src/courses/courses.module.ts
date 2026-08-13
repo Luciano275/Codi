@@ -4,9 +4,10 @@ import { CoursesService } from './courses.service';
 import { LessonsController } from './lessons.controller';
 import { LessonsService } from './lessons.service';
 import { RedisModule } from '../redis/redis.module';
+import { S3Module } from '../s3/s3.module';
 
 @Module({
-  imports: [RedisModule],
+  imports: [RedisModule, S3Module],
   controllers: [CoursesController, LessonsController],
   providers: [CoursesService, LessonsService],
 })

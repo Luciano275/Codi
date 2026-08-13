@@ -202,9 +202,13 @@ export default function AdminLessonsPage() {
                     </div>
                     <div>
                       <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">PDF</h5>
-                      {(lesson.content?.pdfUrl as string) ? (
-                        <a href={lesson.content?.pdfUrl as string} target="_blank" rel="noopener noreferrer" className="text-sm text-lagos-600 underline hover:text-lagos-700">Ver PDF</a>
+                      {lesson.resources?.pdf ? (
+                        <a href={lesson.resources.pdf.url} target="_blank" rel="noopener noreferrer" className="text-sm text-lagos-600 underline hover:text-lagos-700">Ver PDF</a>
                       ) : <span className="text-sm italic text-gray-400">Sin PDF</span>}
+                    </div>
+                    <div>
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">Video</h5>
+                      {lesson.resources?.video ? <span className="text-sm text-gray-600">{lesson.resources.video.fileName ?? 'Video adjunto'}</span> : <span className="text-sm italic text-gray-400">Sin video</span>}
                     </div>
                   </div>
                   <div>

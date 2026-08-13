@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Save, Loader2, X, Search, ChevronDown, ChevronUp, Eye, Edit3, Gem } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
+import { PrivateFileUploadField } from '@/components/uploads/PrivateFileUploadField';
 
 type LessonType = 'THEORY' | 'PRACTICE' | 'CHALLENGE' | 'EXAM';
 type Difficulty = 'EASY' | 'MEDIUM' | 'HARD' | 'EXPERT';
@@ -30,6 +31,10 @@ interface Lesson {
   order: number;
   xpReward: number;
   content: Record<string, unknown>;
+  resources?: {
+    pdf: { url: string; fileName: string | null } | null;
+    video: { url: string; fileName: string | null; contentType: string | null } | null;
+  };
   module: { id: string; title: string; course: { id: string; title: string } };
   problems: Problem[];
 }
@@ -76,7 +81,10 @@ export function LessonForm({
   const [order, setOrder] = useState(lesson?.order ?? 1);
   const [xpReward, setXpReward] = useState(lesson?.xpReward ?? 50);
   const [description, setDescription] = useState((lesson?.content?.description as string) ?? '');
-  const [pdfUrl, setPdfUrl] = useState((lesson?.content?.pdfUrl as string) ?? '');
+  const [pdfUploadKey, setPdfUploadKey] = useState<string | null>(null);
+  const [videoUploadKey, setVideoUploadKey] = useState<string | null>(null);
+  const [removePdf, setRemovePdf] = useState(false);
+  const [removeVideo, setRemoveVideo] = useState(false);
   const [instructions, setInstructions] = useState((lesson?.content?.instructions as string) ?? '');
   const [selectedProblemIds, setSelectedProblemIds] = useState<string[]>(lesson?.problems.map((p) => p.id) ?? []);
   const [problemSearch, setProblemSearch] = useState('');
@@ -114,10 +122,13 @@ export function LessonForm({
         xpReward,
         content: {
           description: description.trim(),
-          pdfUrl: pdfUrl.trim(),
           instructions: instructions.trim(),
         },
         problemIds: selectedProblemIds,
+        ...(pdfUploadKey ? { pdfUploadKey } : {}),
+        ...(videoUploadKey ? { videoUploadKey } : {}),
+        ...(removePdf ? { removePdf: true } : {}),
+        ...(removeVideo ? { removeVideo: true } : {}),
       });
     } finally {
       setSaving(false);
@@ -223,10 +234,26 @@ export function LessonForm({
           )}
         </div>
 
-        <div>
-          <label className="mb-1 block font-simply-olive text-sm font-medium text-gray-600">URL del PDF (opcional)</label>
-          <input type="url" value={pdfUrl} onChange={(e) => setPdfUrl(e.target.value)} className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-lagos-400 focus:ring-2 focus:ring-lagos-100" placeholder="https://ejemplo.com/material.pdf" />
-        </div>
+        <PrivateFileUploadField
+          assetType="lesson-pdf"
+          accept="application/pdf"
+          label="PDF complementario (opcional)"
+          helpText="Solo PDF, hasta 25 MB."
+          preview="pdf"
+          currentFileName={removePdf ? null : lesson?.resources?.pdf?.fileName}
+          onUploadKey={(key) => { setPdfUploadKey(key); setRemovePdf(false); }}
+          onRemove={() => { setPdfUploadKey(null); setRemovePdf(true); }}
+        />
+
+        <PrivateFileUploadField
+          assetType="lesson-video"
+          accept="video/mp4,video/webm"
+          label="Video ilustrativo (opcional)"
+          helpText="MP4 o WebM, hasta 500 MB. Se mostrará antes de la explicación de la lesson."
+          currentFileName={removeVideo ? null : lesson?.resources?.video?.fileName}
+          onUploadKey={(key) => { setVideoUploadKey(key); setRemoveVideo(false); }}
+          onRemove={() => { setVideoUploadKey(null); setRemoveVideo(true); }}
+        />
 
         <div>
           <label className="mb-1 block font-simply-olive text-sm font-medium text-gray-600">Instrucciones adicionales (opcional)</label>

@@ -30,6 +30,10 @@ export interface AdminLesson {
   order: number;
   xpReward: number;
   content: Record<string, unknown>;
+  resources: {
+    pdf: { url: string; fileName: string | null } | null;
+    video: { url: string; fileName: string | null; contentType: string | null } | null;
+  };
   module: { id: string; title: string; course: { id: string; title: string } };
   problems: AdminProblem[];
 }

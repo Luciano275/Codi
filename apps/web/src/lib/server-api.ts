@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 
-const API_URL = process.env.API_URL || 'http://localhost:4000';
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -60,6 +60,10 @@ export interface Lesson {
   type: string;
   xpReward: number;
   content: Record<string, unknown>;
+  resources: {
+    pdf: SignedResource | null;
+    video: SignedResource | null;
+  };
   problems: Problem[];
   solvedProblemIds: string[];
   module: {
@@ -68,6 +72,13 @@ export interface Lesson {
     course: { id: string; title: string; slug: string };
     lessons: { id: string; title: string; order: number; type: string }[];
   };
+}
+
+export interface SignedResource {
+  url: string;
+  fileName: string | null;
+  contentType: string | null;
+  expiresAt: string;
 }
 
 export interface Problem {
