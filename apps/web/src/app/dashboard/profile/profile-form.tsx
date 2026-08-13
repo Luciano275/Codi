@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   User,
@@ -41,6 +42,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
   const [profileBanner, setProfileBanner] = useState<PlayerBannerId>(
     getPlayerBanner(user.profileBanner).id,
   );
+  const [savingBanner, setSavingBanner] = useState<PlayerBannerId | null>(null);
   const [xp, setXp] = useState(user.xp);
   const [gems, setGems] = useState(user.gems);
   const [saving, setSaving] = useState(false);
@@ -90,6 +92,30 @@ export default function ProfileForm({ user }: ProfileFormProps) {
     setAvatarPreviewUrl(null);
     publishUserUpdate(response.user);
     showToast('success', 'Foto de perfil eliminada');
+  };
+
+  const saveProfileBanner = async (nextBanner: PlayerBannerId) => {
+    if (nextBanner === profileBanner || savingBanner) return;
+
+    const previousBanner = profileBanner;
+    setProfileBanner(nextBanner);
+    setSavingBanner(nextBanner);
+    try {
+      const response = await adminFetch<{ user: UserProfile }>('/api/auth/me', {
+        method: 'PATCH',
+        body: JSON.stringify({ profileBanner: nextBanner }),
+      });
+      publishUserUpdate(response.user);
+      showToast('success', 'Estandarte competitivo actualizado');
+    } catch (error) {
+      setProfileBanner(previousBanner);
+      showToast(
+        'error',
+        error instanceof Error ? error.message : 'No se pudo guardar el estandarte',
+      );
+    } finally {
+      setSavingBanner(null);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -172,6 +198,13 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                 </span>
               </span>
             </div>
+            <Link
+              href={`/dashboard/players/${currentUser.id}`}
+              className="mt-4 inline-flex items-center gap-2 rounded-xl border-2 border-bosque-200 bg-bosque-50 px-3 py-2 font-super-pandora text-sm text-bosque-700 transition hover:-translate-y-0.5 hover:border-bosque-400"
+            >
+              <Trophy className="h-4 w-4" />
+              Ver mi perfil competitivo
+            </Link>
           </div>
         </div>
       </div>
@@ -223,7 +256,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
             Estandarte competitivo
           </legend>
           <p className="mb-3 font-simply-olive text-xs text-gray-500">
-            Será el color de tu ficha pública en el ranking.
+            Elegí uno para guardarlo y usarlo inmediatamente en tu ficha pública.
           </p>
           <div className="grid gap-2 sm:grid-cols-2">
             {playerBanners.map((banner) => {
@@ -233,8 +266,9 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                   key={banner.id}
                   type="button"
                   aria-pressed={selected}
-                  onClick={() => setProfileBanner(banner.id)}
-                  className={`flex items-center justify-between rounded-xl border-2 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-bosque-200 ${banner.surfaceClass} ${selected ? `${banner.borderClass} shadow-[0_3px_0_rgba(42,36,96,.35)]` : 'border-transparent opacity-70 hover:opacity-100'}`}
+                  disabled={savingBanner !== null}
+                  onClick={() => void saveProfileBanner(banner.id)}
+                  className={`flex items-center justify-between rounded-xl border-2 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-bosque-200 disabled:cursor-wait disabled:opacity-60 ${banner.surfaceClass} ${selected ? `${banner.borderClass} shadow-[0_3px_0_rgba(42,36,96,.35)]` : 'border-transparent opacity-70 hover:opacity-100'}`}
                 >
                   <span>
                     <span className="block font-super-pandora text-sm text-white">

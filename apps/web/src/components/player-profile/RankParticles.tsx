@@ -10,7 +10,7 @@ const rankParticleColors = {
 type ParticleStyle = CSSProperties & Record<`--particle-${string}`, string>;
 
 interface RankParticlesProps {
-  rank: number;
+  rank: number | null;
 }
 
 export function RankParticles({ rank }: RankParticlesProps) {

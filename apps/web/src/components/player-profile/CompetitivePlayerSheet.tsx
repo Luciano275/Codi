@@ -93,9 +93,12 @@ function CampaignRecord({ player }: { player: CompetitivePlayerProfile }) {
 
 export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlayerSheetProps) {
   const banner = getPlayerBanner(player.profileBanner);
-  const isPodium = player.rank <= 3;
-  const rankTitle = rankTitles[player.rank - 1] ?? 'Jugador del ranking';
-  const rankBorder = rankBorderClasses[player.rank - 1] ?? 'border-bosque-300';
+  const rankIndex = player.rank ? player.rank - 1 : -1;
+  const isPodium = player.rank !== null && player.rank <= 3;
+  const rankTitle = player.isRanked
+    ? (rankTitles[rankIndex] ?? 'Jugador del ranking')
+    : 'Perfil competitivo personal';
+  const rankBorder = rankBorderClasses[rankIndex] ?? 'border-bosque-300';
 
   return (
     <div className="space-y-6">
@@ -111,7 +114,7 @@ export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlaye
               <PlayerAvatar
                 avatarUrl={player.avatarUrl}
                 displayName={player.displayName}
-                rank={player.rank}
+                rank={player.rank ?? undefined}
                 className="h-30 w-30 text-5xl sm:h-36 sm:w-36"
               />
             </div>
@@ -132,7 +135,9 @@ export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlaye
                   <Trophy className="h-4 w-4 text-castillo-600" />
                 )}
                 <span className="font-candy-beans text-sm text-desierto-800">
-                  Puesto #{player.rank} de {player.totalStudents}
+                  {player.isRanked
+                    ? `Puesto #${player.rank} de ${player.totalStudents}`
+                    : 'Ficha personal'}
                 </span>
               </div>
             </div>

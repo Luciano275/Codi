@@ -41,7 +41,7 @@ export class RankingService {
     );
   }
 
-  async getPlayerProfile(id: string) {
+  async getPlayerProfile(id: string, viewerId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: {
@@ -66,7 +66,11 @@ export class RankingService {
       },
     });
 
-    if (!user || user.role !== 'STUDENT') throw new NotFoundException('Jugador no encontrado');
+    if (!user || (user.role !== 'STUDENT' && user.id !== viewerId)) {
+      throw new NotFoundException('Jugador no encontrado');
+    }
+
+    const isRanked = user.role === 'STUDENT';
 
     const [
       higherRanked,
@@ -76,16 +80,18 @@ export class RankingService {
       totalSubmissions,
       avatar,
     ] = await Promise.all([
-      this.prisma.user.count({
-        where: {
-          role: 'STUDENT',
-          OR: [
-            { xp: { gt: user.xp } },
-            { xp: user.xp, createdAt: { lt: user.createdAt } },
-            { xp: user.xp, createdAt: user.createdAt, id: { lt: user.id } },
-          ],
-        },
-      }),
+      isRanked
+        ? this.prisma.user.count({
+            where: {
+              role: 'STUDENT',
+              OR: [
+                { xp: { gt: user.xp } },
+                { xp: user.xp, createdAt: { lt: user.createdAt } },
+                { xp: user.xp, createdAt: user.createdAt, id: { lt: user.id } },
+              ],
+            },
+          })
+        : Promise.resolve(0),
       this.prisma.user.count({ where: { role: 'STUDENT' } }),
       this.prisma.lessonCompletion.count({ where: { userId: id } }),
       this.prisma.submission.count({ where: { userId: id, status: 'ACCEPTED' } }),
@@ -98,7 +104,8 @@ export class RankingService {
       ...player,
       level: getLevelFromXp(user.xp),
       avatarUrl: avatar?.url ?? null,
-      rank: higherRanked + 1,
+      rank: isRanked ? higherRanked + 1 : null,
+      isRanked,
       totalStudents,
       completedLessons,
       acceptedSubmissions,

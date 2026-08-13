@@ -113,7 +113,9 @@ export interface RankingUser {
   level: number;
 }
 
-export interface CompetitivePlayerProfile extends RankingUser {
+export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
+  rank: number | null;
+  isRanked: boolean;
   profileBanner: string;
   streak: number;
   createdAt: string;
