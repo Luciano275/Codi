@@ -1,4 +1,5 @@
 import { Trophy, Zap, Gem } from 'lucide-react';
+import Link from 'next/link';
 import type { RankingUser } from '@/lib/server-api';
 
 interface RankingItemProps {
@@ -6,18 +7,22 @@ interface RankingItemProps {
   isTopThree: boolean;
 }
 
-const rankColors = ['text-castillo-500', 'text-slate-400', 'text-amber-600'];
+const rankColors = [
+  'text-castillo-500 drop-shadow-[0_0_9px_rgba(255,215,78,.95)]',
+  'text-slate-400',
+  'text-desierto-700',
+];
 
 const rankGradients = [
-  'from-castillo-50 to-amber-50 border-castillo-200',
+  'from-castillo-100 via-amber-50 to-castillo-50 border-castillo-300 shadow-[0_0_22px_rgba(255,204,71,.38)]',
   'from-slate-50 to-gray-50 border-slate-200',
-  'from-amber-50 to-desierto-50 border-amber-200',
+  'from-desierto-50 to-amber-50 border-desierto-200',
 ];
 
 const avatarGradients = [
   'from-castillo-400 to-castillo-500',
   'from-slate-400 to-slate-500',
-  'from-amber-500 to-desierto-500',
+  'from-desierto-500 to-desierto-700',
 ];
 
 export default function RankingItem({ user, isTopThree }: RankingItemProps) {
@@ -26,13 +31,16 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
     : 'border-gray-100 hover:bg-gray-50';
 
   return (
-    <li
+    <li>
+      <Link
+        href={`/dashboard/players/${user.id}`}
+        aria-label={`Ver perfil competitivo de ${user.displayName}`}
       className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
         isTopThree
           ? `bg-linear-to-r ${gradientClass} border shadow-xs`
-          : 'border border-transparent'
+          : 'border border-transparent hover:bg-gray-50'
       }`}
-    >
+      >
       <div className="flex h-6 w-6 shrink-0 items-center justify-center md:h-7 md:w-7">
         {isTopThree ? (
           <Trophy className={`h-4 w-4 md:h-5 md:w-5 ${rankColors[user.rank - 1]}`} />
@@ -77,6 +85,7 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
         <Gem className="h-3 w-3 text-cyan-400 md:h-3.5 md:w-3.5" />
         <span className="font-candy-beans text-[10px] text-gray-500 md:text-xs">{user.gems}</span>
       </div>
+      </Link>
     </li>
   );
 }

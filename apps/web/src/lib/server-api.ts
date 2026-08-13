@@ -113,6 +113,22 @@ export interface RankingUser {
   level: number;
 }
 
+export interface CompetitivePlayerProfile extends RankingUser {
+  streak: number;
+  createdAt: string;
+  totalStudents: number;
+  completedLessons: number;
+  acceptedSubmissions: number;
+  totalSubmissions: number;
+  achievements: {
+    code: string;
+    title: string;
+    description: string;
+    iconUrl: string | null;
+    unlockedAt: string;
+  }[];
+}
+
 export async function fetchCourses(): Promise<Course[]> {
   return serverFetch<Course[]>('/api/courses');
 }
@@ -127,4 +143,8 @@ export async function fetchProgress(): Promise<ProgressData> {
 
 export async function fetchGlobalRanking(limit = 10): Promise<RankingUser[]> {
   return serverFetch<RankingUser[]>(`/api/ranking/global?limit=${limit}`);
+}
+
+export async function fetchCompetitivePlayer(id: string): Promise<CompetitivePlayerProfile> {
+  return serverFetch<CompetitivePlayerProfile>(`/api/ranking/players/${id}`);
 }

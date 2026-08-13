@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { RankingService } from './ranking.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
@@ -12,5 +12,11 @@ export class RankingController {
     const parsed = limit ? parseInt(limit, 10) : 50;
     const safeLimit = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 200) : 50;
     return this.ranking.getGlobal(safeLimit);
+  }
+
+  @Get('players/:id')
+  @UseGuards(JwtAuthGuard)
+  async player(@Param('id') id: string) {
+    return this.ranking.getPlayerProfile(id);
   }
 }
