@@ -2,6 +2,7 @@ import { Trophy, Zap, Gem } from 'lucide-react';
 import Link from 'next/link';
 import type { RankingUser } from '@/lib/server-api';
 import { PlayerAvatar } from '@/components/player-profile/PlayerAvatar';
+import styles from './ranking-item.module.css';
 
 interface RankingItemProps {
   user: RankingUser;
@@ -30,7 +31,7 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
       <Link
         href={`/dashboard/players/${user.id}`}
         aria-label={`Ver perfil competitivo de ${user.displayName}`}
-        className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
+        className={`${styles.shimmer} flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
           isTopThree
             ? `bg-linear-to-r ${gradientClass} border shadow-xs`
             : 'border border-transparent hover:bg-gray-50'

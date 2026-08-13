@@ -1,0 +1,54 @@
+.shimmer {
+  isolation: isolate;
+  overflow: hidden;
+  position: relative;
+}
+
+.shimmer::after {
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.12) 25%,
+    rgba(255, 255, 255, 0.9) 48%,
+    rgba(0, 210, 211, 0.24) 58%,
+    transparent 100%
+  );
+  content: '';
+  inset-block: -45%;
+  left: -45%;
+  opacity: 0;
+  pointer-events: none;
+  position: absolute;
+  transform: skewX(-18deg);
+  width: 35%;
+  z-index: 1;
+}
+
+.shimmer:hover::after,
+.shimmer:focus-visible::after {
+  animation: ranking-shimmer-sweep 850ms ease-out;
+}
+
+@keyframes ranking-shimmer-sweep {
+  0% {
+    opacity: 0;
+    transform: translateX(0) skewX(-18deg);
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(450%) skewX(-18deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer:hover::after,
+  .shimmer:focus-visible::after {
+    animation: none;
+    opacity: 0;
+  }
+}
