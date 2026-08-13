@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Gem, ChevronDown, LogOut, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
-import { useCurrentUser, useInvalidateCurrentUser } from '@/hooks/queries/useCurrentUser';
+import { useCurrentUser, useSetCurrentUser } from '@/hooks/queries/useCurrentUser';
 import { XPBar } from '@/components/level-up/XPBar';
 import StatChip from '@/components/ui/StatChip';
 
@@ -15,26 +15,24 @@ interface TopbarProps {
 
 export default function Topbar({ user }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [currentUser, setCurrentUser] = useState(user);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { data: fetchedUser } = useCurrentUser();
-  const invalidateCurrentUser = useInvalidateCurrentUser();
+  const { data: fetchedUser, refetch } = useCurrentUser();
+  const setCurrentUser = useSetCurrentUser();
 
-  const clientUser = currentUser;
-
-  useEffect(() => {
-    if (fetchedUser) setCurrentUser(fetchedUser);
-  }, [fetchedUser]);
+  const clientUser = fetchedUser ?? user;
 
   useEffect(() => {
     function handleUserUpdate(event: Event) {
       const updatedUser = (event as CustomEvent<UserProfile>).detail;
-      if (updatedUser) setCurrentUser(updatedUser);
-      invalidateCurrentUser();
+      if (updatedUser) {
+        setCurrentUser(updatedUser);
+        return;
+      }
+      void refetch();
     }
     window.addEventListener('user-updated', handleUserUpdate);
     return () => window.removeEventListener('user-updated', handleUserUpdate);
-  }, [invalidateCurrentUser]);
+  }, [refetch, setCurrentUser]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -101,16 +99,19 @@ export default function Topbar({ user }: TopbarProps) {
             onClick={() => setDropdownOpen(!dropdownOpen)}
             className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-100"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-linear-to-br from-lagos-400 to-valle-400 p-0.5 shadow-xs md:h-9 md:w-9">
-              <div className="flex h-full w-full items-center justify-center rounded-full bg-white">
-                {clientUser.avatarUrl ? (
-                  <img src={clientUser.avatarUrl} alt="" className="h-full w-full rounded-full object-cover" />
-                ) : (
-                  <span className="text-xs font-bold text-lagos-600 md:text-sm">
-                    {clientUser.displayName.charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
+            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-lagos-100 shadow-xs md:h-9 md:w-9">
+              {clientUser.avatarUrl ? (
+                <img
+                  key={clientUser.avatarUrl}
+                  src={clientUser.avatarUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <span className="text-xs font-bold text-lagos-600 md:text-sm">
+                  {clientUser.displayName.charAt(0).toUpperCase()}
+                </span>
+              )}
             </div>
             <span className="hidden text-sm font-semibold text-gray-800 lg:block">
               {clientUser.displayName}

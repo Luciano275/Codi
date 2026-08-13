@@ -21,12 +21,16 @@ const avatarGradients = [
 ];
 
 export default function RankingItem({ user, isTopThree }: RankingItemProps) {
-  const gradientClass = isTopThree ? rankGradients[user.rank - 1] : 'border-gray-100 hover:bg-gray-50';
+  const gradientClass = isTopThree
+    ? rankGradients[user.rank - 1]
+    : 'border-gray-100 hover:bg-gray-50';
 
   return (
     <li
       className={`flex items-center gap-2 rounded-xl px-2.5 py-2 transition-all duration-200 md:gap-3 md:px-3 md:py-2.5 ${
-        isTopThree ? `bg-linear-to-r ${gradientClass} border shadow-xs` : 'border border-transparent'
+        isTopThree
+          ? `bg-linear-to-r ${gradientClass} border shadow-xs`
+          : 'border border-transparent'
       }`}
     >
       <div className="flex h-6 w-6 shrink-0 items-center justify-center md:h-7 md:w-7">
@@ -40,16 +44,26 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
       </div>
 
       <div
-        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow-xs md:h-8 md:w-8 md:text-xs ${
-          isTopThree ? `bg-linear-to-br ${avatarGradients[user.rank - 1]}` : 'bg-gray-200 text-gray-500'
+        className={`flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full text-[10px] font-bold text-white shadow-xs md:h-8 md:w-8 md:text-xs ${
+          isTopThree
+            ? `bg-linear-to-br ${avatarGradients[user.rank - 1]}`
+            : 'bg-gray-200 text-gray-500'
         }`}
       >
-        {user.displayName.charAt(0).toUpperCase()}
+        {user.avatarUrl ? (
+          <img src={user.avatarUrl} alt="" className="h-full w-full object-cover" />
+        ) : (
+          user.displayName.charAt(0).toUpperCase()
+        )}
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-xs font-semibold text-gray-800 md:text-sm">{user.displayName}</p>
-        <p className="truncate font-simply-olive text-[10px] text-gray-400 md:text-xs">Nivel {user.level}</p>
+        <p className="truncate text-xs font-semibold text-gray-800 md:text-sm">
+          {user.displayName}
+        </p>
+        <p className="truncate font-simply-olive text-[10px] text-gray-400 md:text-xs">
+          Nivel {user.level}
+        </p>
       </div>
 
       <div className="flex shrink-0 items-center gap-1 md:gap-1.5">
