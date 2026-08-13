@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { ChevronRight, FileText, FileCode2, Play, Zap, CheckCircle2 } from 'lucide-react';
 import { auth } from '@/lib/auth';
 import { serverFetch } from '@/lib/server-api';
@@ -61,9 +62,9 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
       {/* Header */}
       <div className="mb-8">
         <div className="mb-2 flex items-center gap-2 text-sm text-gray-400">
-          <a href="/dashboard" className="transition-colors hover:text-lagos-600">
+          <Link href="/dashboard" className="transition-colors hover:text-lagos-600">
             Ruta de aprendizaje
-          </a>
+          </Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span className="text-gray-600">{course.title}</span>
         </div>
@@ -105,7 +106,7 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
 
                 return (
                   <li key={lesson.id}>
-                    <a
+                    <Link
                       href={`/dashboard/lessons/${lesson.id}`}
                       className="group flex items-center gap-4 px-5 py-3.5 transition-colors hover:bg-gray-50"
                     >
@@ -130,7 +131,7 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
                         +{lesson.xpReward} XP
                       </span>
                       <ChevronRight className="h-4 w-4 text-gray-300 transition-colors group-hover:text-lagos-500" />
-                    </a>
+                    </Link>
                   </li>
                 );
               })}

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import {
   FileText,
   FileCode2,
@@ -73,9 +74,12 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
         <div className="mx-auto w-full max-w-4xl px-10 py-8">
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-2 text-sm text-gray-400">
-            <a href={`/dashboard/courses/${lesson.module.course.id}`} className="transition-colors hover:text-lagos-600">
+            <Link
+              href={`/dashboard/courses/${lesson.module.course.id}`}
+              className="transition-colors hover:text-lagos-600"
+            >
               {lesson.module.course.title}
-            </a>
+            </Link>
             <ChevronRight className="h-3.5 w-3.5" />
             <span className="text-gray-500">{lesson.module.title}</span>
           </nav>
@@ -167,7 +171,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                 {lesson.problems.map((problem) => {
                   const solved = lesson.solvedProblemIds?.includes(problem.id);
                   return (
-                  <a
+                  <Link
                     key={problem.id}
                     href={`/dashboard/lab?problemId=${problem.id}&lessonId=${id}`}
                     className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors group ${
@@ -206,7 +210,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                       +{problem.gemsReward}
                     </span>
                     <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
-                  </a>
+                  </Link>
                 );
               })}
               </div>
@@ -222,24 +226,24 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
           <div className="flex items-center justify-between border-t border-gray-100 pt-6">
             <div>
               {prevLesson && (
-                <a
+                <Link
                   href={`/dashboard/lessons/${prevLesson.id}`}
                   className="group flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-lagos-600"
                 >
                   <ChevronRight className="h-4 w-4 rotate-180" />
                   <span className="max-w-xs truncate">{prevLesson.title}</span>
-                </a>
+                </Link>
               )}
             </div>
             <div className="text-right">
               {nextLesson && (
-                <a
+                <Link
                   href={`/dashboard/lessons/${nextLesson.id}`}
                   className="group flex items-center gap-2 text-sm text-gray-500 transition-colors hover:text-lagos-600"
                 >
                   <span className="max-w-xs truncate">{nextLesson.title}</span>
                   <ChevronRight className="h-4 w-4" />
-                </a>
+                </Link>
               )}
             </div>
           </div>
