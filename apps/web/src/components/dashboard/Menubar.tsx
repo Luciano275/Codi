@@ -40,6 +40,7 @@ export default function Menubar({ userRole }: MenubarProps) {
   };
 
   const isAdminActive = pathname.startsWith('/dashboard/admin');
+  const isTeachingActive = pathname.startsWith('/dashboard/teaching');
 
   return (
     <>
@@ -99,6 +100,27 @@ export default function Menubar({ userRole }: MenubarProps) {
             );
           })}
         </ul>
+
+        {(userRole === 'TEACHER' || userRole === 'ADMIN') && (
+          <div className="border-t border-gray-200 pt-2">
+            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase tracking-widest text-gray-400">
+              Docencia
+            </p>
+            <Link
+              href="/dashboard/teaching/lessons"
+              onClick={() => setCollapsed(true)}
+              className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
+                isTeachingActive
+                  ? 'bg-white text-gray-900 shadow-xs'
+                  : 'text-gray-500 hover:bg-white/70 hover:text-gray-800'
+              }`}
+            >
+              <SidebarIcon name="badge" active={isTeachingActive} />
+              <span>Lecciones</span>
+              {isTeachingActive && <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />}
+            </Link>
+          </div>
+        )}
 
         {userRole === 'ADMIN' && (
           <div className="border-t border-gray-200 pt-2">

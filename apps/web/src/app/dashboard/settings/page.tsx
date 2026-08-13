@@ -41,7 +41,7 @@ export default async function SettingsPage() {
         {
           icon: Shield,
           label: 'Rol',
-          value: user.role === 'ADMIN' ? 'Administrador' : 'Estudiante',
+          value: user.role === 'ADMIN' ? 'Administrador' : user.role === 'TEACHER' ? 'Docente' : 'Estudiante',
           color: 'text-bosque-600 bg-bosque-100',
         },
       ],

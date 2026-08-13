@@ -6,11 +6,11 @@ import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('admin/problems')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles('ADMIN')
 export class AdminProblemsController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
+  @Roles('TEACHER', 'ADMIN')
   async findAll(@Query('search') search?: string) {
     await this.prisma.$executeRaw`
       INSERT INTO codi_problem (id, "cmsTaskId", "cmsTaskName", title, "createdAt", "updatedAt")
@@ -43,6 +43,7 @@ export class AdminProblemsController {
   }
 
   @Patch(':id')
+  @Roles('ADMIN')
   async updateProblem(
     @Param('id') id: string,
     @Body() body: { difficulty?: string; gemsReward?: number },
