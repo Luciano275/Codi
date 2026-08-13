@@ -9,6 +9,8 @@ import {
 } from '@/lib/server-api';
 import { CompetitiveAchievements } from '@/components/player-profile/CompetitiveAchievements';
 import { CompetitivePlayerSheet } from '@/components/player-profile/CompetitivePlayerSheet';
+import { getPlayerBannerTheme } from '@/components/player-profile/player-banner';
+import styles from '@/components/player-profile/competitive-player.module.css';
 
 async function PlayerProfile({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -28,10 +30,13 @@ async function PlayerProfile({ params }: { params: Promise<{ id: string }> }) {
     : 0;
 
   return (
-    <div className="mx-auto max-w-6xl space-y-5 pb-2">
+    <div
+      className="mx-auto max-w-6xl space-y-5 pb-2"
+      style={getPlayerBannerTheme(player.profileBanner)}
+    >
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 border-b-2 border-transparent px-1 py-1 font-simply-olive text-sm font-bold text-slate-500 transition hover:border-bosque-300 hover:text-bosque-700"
+        className={`${styles.backLink} inline-flex items-center gap-2 border-b-2 border-transparent px-1 py-1 font-simply-olive text-sm font-bold text-slate-500 transition`}
       >
         <ChevronLeft className="h-4 w-4" /> Volver al ranking
       </Link>
