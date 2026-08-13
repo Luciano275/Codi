@@ -42,6 +42,7 @@ export function useAdminLessons() {
   return useQuery({
     queryKey: queryKeys.lessons.admin.all,
     queryFn: () => adminFetch<AdminLesson[]>('/api/admin/lessons'),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -49,6 +50,7 @@ export function useAdminCourses() {
   return useQuery({
     queryKey: queryKeys.courses.all,
     queryFn: () => adminFetch<AdminCourse[]>('/api/courses'),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -56,6 +58,7 @@ export function useAdminProblems() {
   return useQuery({
     queryKey: ['problems', 'admin'] as const,
     queryFn: () => adminFetch<AdminProblem[]>('/api/admin/problems'),
+    staleTime: 5 * 60 * 1000,
   });
 }
 
@@ -63,8 +66,7 @@ export function useDeleteLesson() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) =>
-      adminFetch(`/api/admin/lessons/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => adminFetch(`/api/admin/lessons/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },

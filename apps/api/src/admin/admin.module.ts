@@ -7,20 +7,17 @@ import { AdminCoursesService } from './admin-courses.service';
 import { AdminModulesController } from './admin-modules.controller';
 import { AdminModulesService } from './admin-modules.service';
 import { S3Module } from '../s3/s3.module';
-import { RedisModule } from '../redis/redis.module';
+import { ContentCacheModule } from '../content-cache/content-cache.module';
+import { AdminProblemsService } from './admin-problems.service';
 
 @Module({
-  imports: [S3Module, RedisModule],
+  imports: [S3Module, ContentCacheModule],
   controllers: [
     AdminLessonsController,
     AdminProblemsController,
     AdminCoursesController,
     AdminModulesController,
   ],
-  providers: [
-    AdminLessonsService,
-    AdminCoursesService,
-    AdminModulesService,
-  ],
+  providers: [AdminLessonsService, AdminCoursesService, AdminModulesService, AdminProblemsService],
 })
 export class AdminModule {}

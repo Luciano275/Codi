@@ -1,14 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
-  Plus, Pencil, Trash2, Loader2, FileText, BookOpen, AlertCircle,
-  ChevronDown, ChevronUp, ExternalLink, ChevronRight, X,
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2,
+  FileText,
+  BookOpen,
+  AlertCircle,
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  ChevronRight,
+  X,
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { adminFetch } from '@/lib/admin-api';
+import { queryKeys } from '@/lib/query-keys';
 import { LessonForm } from '@/components/admin/LessonForm';
 import {
   useAdminLessons,
@@ -16,7 +28,12 @@ import {
   useAdminProblems,
   useDeleteLesson,
 } from '@/hooks/queries/useAdminLessons';
-import type { AdminLesson, AdminProblem, LessonType, Difficulty } from '@/hooks/queries/useAdminLessons';
+import type {
+  AdminLesson,
+  AdminProblem,
+  LessonType,
+  Difficulty,
+} from '@/hooks/queries/useAdminLessons';
 
 const LESSON_TYPES: { value: LessonType; label: string }[] = [
   { value: 'THEORY', label: 'Teoría' },
@@ -33,6 +50,7 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 };
 
 export default function AdminLessonsPage() {
+  const queryClient = useQueryClient();
   const searchParams = useSearchParams();
   const filterModuleId = searchParams.get('moduleId') || '';
   const filterCourseId = searchParams.get('courseId') || '';
@@ -60,7 +78,10 @@ export default function AdminLessonsPage() {
 
   const handleUpdate = async (data: any) => {
     if (!editingLesson) return;
-    await adminFetch(`/api/admin/lessons/${editingLesson.id}`, { method: 'PATCH', body: JSON.stringify(data) });
+    await adminFetch(`/api/admin/lessons/${editingLesson.id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
     setEditingLesson(null);
     setShowForm(false);
     lessonsQuery.refetch();
@@ -77,6 +98,11 @@ export default function AdminLessonsPage() {
         method: 'PATCH',
         body: JSON.stringify(updates),
       });
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['problems', 'admin'] }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.courses.all }),
+      ]);
     } catch {}
   };
 
@@ -101,29 +127,50 @@ export default function AdminLessonsPage() {
     <div className="mx-auto max-w-5xl">
       {filterCourse && (
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/dashboard/admin/courses" className="transition-colors hover:text-lagos-600">Cursos</Link>
+          <Link href="/dashboard/admin/courses" className="transition-colors hover:text-lagos-600">
+            Cursos
+          </Link>
           <ChevronRight className="h-3.5 w-3.5" />
-          <Link href={`/dashboard/admin/courses/${filterCourse.id}`} className="transition-colors hover:text-lagos-600">{filterCourse.title}</Link>
-          {filterModule && <><ChevronRight className="h-3.5 w-3.5" /><span className="text-gray-600">{filterModule.title}</span></>}
+          <Link
+            href={`/dashboard/admin/courses/${filterCourse.id}`}
+            className="transition-colors hover:text-lagos-600"
+          >
+            {filterCourse.title}
+          </Link>
+          {filterModule && (
+            <>
+              <ChevronRight className="h-3.5 w-3.5" />
+              <span className="text-gray-600">{filterModule.title}</span>
+            </>
+          )}
         </div>
       )}
 
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="font-super-pandora text-2xl text-gray-900">Gestión de Lecciones</h1>
-          <p className="font-simply-olive mt-0.5 text-sm text-gray-500">Creá y administrá las lecciones de la plataforma</p>
+          <p className="font-simply-olive mt-0.5 text-sm text-gray-500">
+            Creá y administrá las lecciones de la plataforma
+          </p>
         </div>
         <button
-          onClick={() => { setEditingLesson(null); setInitialFormCourseId(filterCourseId); setInitialFormModuleId(filterModuleId); setShowForm(true); }}
+          onClick={() => {
+            setEditingLesson(null);
+            setInitialFormCourseId(filterCourseId);
+            setInitialFormModuleId(filterModuleId);
+            setShowForm(true);
+          }}
           className="flex items-center gap-2 rounded-xl bg-pradera-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pradera-600"
         >
-          <Plus className="h-4 w-4" />Nueva lección
+          <Plus className="h-4 w-4" />
+          Nueva lección
         </button>
       </div>
 
       {lessonsQuery.isError && (
         <div className="mb-4 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-700">
-          <AlertCircle className="h-4 w-4 shrink-0" />{lessonsQuery.error.message}
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {lessonsQuery.error.message}
         </div>
       )}
 
@@ -131,8 +178,16 @@ export default function AdminLessonsPage() {
         <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 pt-10 pb-10">
           <div className="w-full max-w-2xl rounded-2xl border border-gray-100 bg-white p-6 shadow-xl">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-super-pandora text-lg text-gray-800">{editingLesson ? 'Editar lección' : 'Nueva lección'}</h2>
-              <button onClick={() => { setShowForm(false); setEditingLesson(null); }} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
+              <h2 className="font-super-pandora text-lg text-gray-800">
+                {editingLesson ? 'Editar lección' : 'Nueva lección'}
+              </h2>
+              <button
+                onClick={() => {
+                  setShowForm(false);
+                  setEditingLesson(null);
+                }}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -141,7 +196,10 @@ export default function AdminLessonsPage() {
               courses={courses}
               allProblems={allProblems}
               onSave={editingLesson ? handleUpdate : handleCreate}
-              onCancel={() => { setShowForm(false); setEditingLesson(null); }}
+              onCancel={() => {
+                setShowForm(false);
+                setEditingLesson(null);
+              }}
               initialCourseId={initialFormCourseId}
               initialModuleId={initialFormModuleId}
               onUpdateProblem={updateProblem}
@@ -154,73 +212,159 @@ export default function AdminLessonsPage() {
         {displayedLessons.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-gray-200 bg-white p-10 text-center">
             <FileText className="mx-auto mb-3 h-10 w-10 text-gray-300" />
-            <p className="font-simply-olive text-gray-500">{filterModuleId ? 'Este módulo no tiene lecciones.' : 'No hay lecciones aún. Creá la primera.'}</p>
+            <p className="font-simply-olive text-gray-500">
+              {filterModuleId
+                ? 'Este módulo no tiene lecciones.'
+                : 'No hay lecciones aún. Creá la primera.'}
+            </p>
           </div>
         ) : (
           displayedLessons.map((lesson) => (
-            <div key={lesson.id} className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md">
+            <div
+              key={lesson.id}
+              className="rounded-2xl border border-gray-100 bg-white shadow-sm transition-shadow hover:shadow-md"
+            >
               <div
                 role="button"
                 tabIndex={0}
                 onClick={() => setExpandedId(expandedId === lesson.id ? null : lesson.id)}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setExpandedId(expandedId === lesson.id ? null : lesson.id); } }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setExpandedId(expandedId === lesson.id ? null : lesson.id);
+                  }
+                }}
                 className="flex w-full cursor-pointer items-center gap-4 px-5 py-4 text-left"
               >
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                  lesson.type === 'THEORY' ? 'bg-lagos-100 text-lagos-600' : lesson.type === 'PRACTICE' ? 'bg-pradera-100 text-pradera-600' : lesson.type === 'CHALLENGE' ? 'bg-castillo-100 text-castillo-600' : 'bg-volcan-100 text-volcan-600'
-                }`}>
+                <div
+                  className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                    lesson.type === 'THEORY'
+                      ? 'bg-lagos-100 text-lagos-600'
+                      : lesson.type === 'PRACTICE'
+                        ? 'bg-pradera-100 text-pradera-600'
+                        : lesson.type === 'CHALLENGE'
+                          ? 'bg-castillo-100 text-castillo-600'
+                          : 'bg-volcan-100 text-volcan-600'
+                  }`}
+                >
                   <BookOpen className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="truncate font-semibold text-gray-900">{lesson.title}</p>
-                  <p className="truncate text-xs text-gray-400">{lesson.module.course.title} &rsaquo; {lesson.module.title} &middot; Orden {lesson.order}</p>
+                  <p className="truncate text-xs text-gray-400">
+                    {lesson.module.course.title} &rsaquo; {lesson.module.title} &middot; Orden{' '}
+                    {lesson.order}
+                  </p>
                 </div>
                 <div className="hidden items-center gap-2 sm:flex">
-                  <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">{typeLabel(lesson.type)}</span>
-                  <span className="font-candy-beans text-sm text-amber-600">+{lesson.xpReward} XP</span>
+                  <span className="rounded-lg bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-600">
+                    {typeLabel(lesson.type)}
+                  </span>
+                  <span className="font-candy-beans text-sm text-amber-600">
+                    +{lesson.xpReward} XP
+                  </span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <a href={`/dashboard/lessons/${lesson.id}`} target="_blank" rel="noopener noreferrer" className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-lagos-600" title="Ver lección">
+                  <a
+                    href={`/dashboard/lessons/${lesson.id}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-lagos-600"
+                    title="Ver lección"
+                  >
                     <ExternalLink className="h-4 w-4" />
                   </a>
-                  <button onClick={(e) => { e.stopPropagation(); setEditingLesson(lesson); setShowForm(true); }} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600" title="Editar">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingLesson(lesson);
+                      setShowForm(true);
+                    }}
+                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+                    title="Editar"
+                  >
                     <Pencil className="h-4 w-4" />
                   </button>
-                  <button onClick={(e) => { e.stopPropagation(); handleDelete(lesson.id); }} className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500" title="Eliminar">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDelete(lesson.id);
+                    }}
+                    className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
+                    title="Eliminar"
+                  >
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-                {expandedId === lesson.id ? <ChevronUp className="h-4 w-4 text-gray-300" /> : <ChevronDown className="h-4 w-4 text-gray-300" />}
+                {expandedId === lesson.id ? (
+                  <ChevronUp className="h-4 w-4 text-gray-300" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-300" />
+                )}
               </div>
 
               {expandedId === lesson.id && (
                 <div className="border-t border-gray-50 px-5 py-4">
                   <div className="mb-3 grid gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">Descripción</h5>
-                      {(lesson.content?.description as string) ? <MarkdownRenderer content={lesson.content?.description as string} /> : <span className="text-sm italic text-gray-400">Sin descripción</span>}
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        Descripción
+                      </h5>
+                      {(lesson.content?.description as string) ? (
+                        <MarkdownRenderer content={lesson.content?.description as string} />
+                      ) : (
+                        <span className="text-sm italic text-gray-400">Sin descripción</span>
+                      )}
                     </div>
                     <div>
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">PDF</h5>
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        PDF
+                      </h5>
                       {lesson.resources?.pdf ? (
-                        <a href={lesson.resources.pdf.url} target="_blank" rel="noopener noreferrer" className="text-sm text-lagos-600 underline hover:text-lagos-700">Ver PDF</a>
-                      ) : <span className="text-sm italic text-gray-400">Sin PDF</span>}
+                        <a
+                          href={lesson.resources.pdf.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-lagos-600 underline hover:text-lagos-700"
+                        >
+                          Ver PDF
+                        </a>
+                      ) : (
+                        <span className="text-sm italic text-gray-400">Sin PDF</span>
+                      )}
                     </div>
                     <div>
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">Video</h5>
-                      {lesson.resources?.video ? <span className="text-sm text-gray-600">{lesson.resources.video.fileName ?? 'Video adjunto'}</span> : <span className="text-sm italic text-gray-400">Sin video</span>}
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        Video
+                      </h5>
+                      {lesson.resources?.video ? (
+                        <span className="text-sm text-gray-600">
+                          {lesson.resources.video.fileName ?? 'Video adjunto'}
+                        </span>
+                      ) : (
+                        <span className="text-sm italic text-gray-400">Sin video</span>
+                      )}
                     </div>
                   </div>
                   <div>
-                    <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">Ejercicios ({lesson.problems.length})</h5>
+                    <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      Ejercicios ({lesson.problems.length})
+                    </h5>
                     {lesson.problems.length === 0 ? (
                       <span className="text-sm italic text-gray-400">Ninguno</span>
                     ) : (
                       <div className="flex flex-wrap gap-2">
                         {lesson.problems.map((p) => (
-                          <span key={p.id} className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs">
+                          <span
+                            key={p.id}
+                            className="inline-flex items-center gap-2 rounded-lg border border-gray-200 px-3 py-1.5 text-xs"
+                          >
                             <span className="font-medium text-gray-800">{p.title}</span>
-                            <span className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${DIFFICULTY_COLORS[p.difficulty] || 'bg-gray-100 text-gray-600'}`}>{p.difficulty}</span>
+                            <span
+                              className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${DIFFICULTY_COLORS[p.difficulty] || 'bg-gray-100 text-gray-600'}`}
+                            >
+                              {p.difficulty}
+                            </span>
                           </span>
                         ))}
                       </div>

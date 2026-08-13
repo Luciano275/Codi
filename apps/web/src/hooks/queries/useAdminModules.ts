@@ -17,6 +17,8 @@ export function useCreateModule() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.courses.admin.byId(variables.courseId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }
@@ -34,6 +36,8 @@ export function useUpdateModule() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.courses.admin.byId(variables.courseId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }
@@ -48,6 +52,8 @@ export function useDeleteModule() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.courses.admin.byId(variables.courseId),
       });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }

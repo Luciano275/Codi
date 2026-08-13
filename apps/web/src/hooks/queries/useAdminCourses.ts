@@ -59,6 +59,8 @@ export function useCreateCourse() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }
@@ -67,7 +69,10 @@ export function useUpdateCourse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Partial<{
+    mutationFn: ({
+      id,
+      ...data
+    }: { id: string } & Partial<{
       title: string;
       slug: string;
       level: number;
@@ -82,6 +87,8 @@ export function useUpdateCourse() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.byId(variables.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }
@@ -90,10 +97,11 @@ export function useDeleteCourse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) =>
-      adminFetch(`/api/admin/courses/${id}`, { method: 'DELETE' }),
+    mutationFn: (id: string) => adminFetch(`/api/admin/courses/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
     },
   });
 }

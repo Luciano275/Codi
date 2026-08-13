@@ -2,10 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto';
+import { ContentCacheService } from '../content-cache/content-cache.service';
 
 @Injectable()
 export class AdminCoursesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly contentCache: ContentCacheService,
+  ) {}
 
   async findAll() {
     return this.prisma.course.findMany({
@@ -29,12 +33,16 @@ export class AdminCoursesService {
   }
 
   async create(dto: CreateCourseDto) {
-    return this.prisma.course.create({ data: dto });
+    const course = await this.prisma.course.create({ data: dto });
+    await this.contentCache.invalidateCourseTree([course.id]);
+    return course;
   }
 
   async update(id: string, dto: UpdateCourseDto) {
     try {
-      return await this.prisma.course.update({ where: { id }, data: dto });
+      const course = await this.prisma.course.update({ where: { id }, data: dto });
+      await this.contentCache.invalidateCourseTree([course.id]);
+      return course;
     } catch {
       throw new NotFoundException('Course not found');
     }
@@ -43,6 +51,7 @@ export class AdminCoursesService {
   async remove(id: string) {
     try {
       await this.prisma.course.delete({ where: { id } });
+      await this.contentCache.invalidateCourseTree([id]);
     } catch {
       throw new NotFoundException('Course not found');
     }
