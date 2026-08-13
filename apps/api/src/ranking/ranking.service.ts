@@ -13,7 +13,7 @@ export class RankingService {
   async getGlobal(limit = 50) {
     const users = await this.prisma.user.findMany({
       where: { role: 'STUDENT' },
-      orderBy: { xp: 'desc' },
+      orderBy: [{ xp: 'desc' }, { createdAt: 'asc' }, { id: 'asc' }],
       take: limit,
       select: {
         id: true,
@@ -76,7 +76,16 @@ export class RankingService {
       totalSubmissions,
       avatar,
     ] = await Promise.all([
-      this.prisma.user.count({ where: { role: 'STUDENT', xp: { gt: user.xp } } }),
+      this.prisma.user.count({
+        where: {
+          role: 'STUDENT',
+          OR: [
+            { xp: { gt: user.xp } },
+            { xp: user.xp, createdAt: { lt: user.createdAt } },
+            { xp: user.xp, createdAt: user.createdAt, id: { lt: user.id } },
+          ],
+        },
+      }),
       this.prisma.user.count({ where: { role: 'STUDENT' } }),
       this.prisma.lessonCompletion.count({ where: { userId: id } }),
       this.prisma.submission.count({ where: { userId: id, status: 'ACCEPTED' } }),
