@@ -68,14 +68,16 @@ export default function Topbar({ user }: TopbarProps) {
       </div>
 
       <div className="absolute left-1/2 hidden -translate-x-1/2 w-full max-w-[300px] items-center gap-3 md:flex">
-        <Image
-          src="/logo.png"
-          alt="Codi"
-          width={48}
-          height={48}
-          priority
-          className="w-full max-w-12 object-contain drop-shadow-xs md:max-w-15"
-        />
+        <div className="relative h-12 w-12 shrink-0 overflow-hidden md:h-15 md:w-15">
+          <Image
+            src="/logo.png?v=2"
+            alt="Codi"
+            fill
+            priority
+            sizes="(max-width: 768px) 48px, 60px"
+            className="object-contain drop-shadow-xs"
+          />
+        </div>
         <div>
           <h2 className="font-super-pandora text-base leading-tight text-gray-900 drop-shadow-xs md:text-lg">
             Programación Competitiva
