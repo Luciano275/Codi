@@ -171,7 +171,7 @@ export default function LabEditor({ value, onChange, language, fontSize, tabSize
         cursorBlinking: caretAnimation,
       }}
       loading={
-        <div className="flex h-full items-center justify-center bg-[#1e1e1e]">
+        <div className="flex h-full w-full items-center justify-center bg-[#1e1e1e]">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-gray-600 border-t-gray-300" />
         </div>
       }
