@@ -1,7 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState, useTransition } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   BookOpenCheck,
   CircleCheck,
@@ -17,10 +19,16 @@ import {
 } from 'lucide-react';
 import type { AdminReward, RecentReward, RewardsStoreData, StoreReward } from '@codi/types';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
+import diamondChestImage from '@/assets/diamonds_chest.png';
+import shopImage from '@/assets/shop.png';
+import shopWallpaperImage from '@/assets/shop_wallpaper.png';
 import { redeemReward } from './actions';
-import { RewardAdminPanel } from './reward-admin-panel';
-import { GemChest, RewardIllustration, StoreBag } from './store-illustrations';
-import { StoreDialog } from './store-dialog';
+import { RewardIllustration } from './store-illustrations';
+
+const RewardAdminPanel = dynamic(() =>
+  import('./reward-admin-panel').then((module) => module.RewardAdminPanel),
+);
+const StoreDialog = dynamic(() => import('./store-dialog').then((module) => module.StoreDialog));
 
 const categories = [
   ['ALL', 'Todas'],
@@ -31,6 +39,34 @@ const categories = [
 ] as const;
 
 type Category = (typeof categories)[number][0];
+
+const rewardCategories = {
+  EXAMS: 'Exámenes',
+  PRACTICE: 'Práctica',
+  ADVANTAGES: 'Ventajas',
+  SPECIALS: 'Especiales',
+} as const;
+
+const rewardThemes = {
+  exam: {
+    card: 'border-castillo-200 from-castillo-50 via-white to-desierto-50',
+    tag: 'bg-castillo-100 text-desierto-700',
+    price: 'border-castillo-200 bg-castillo-100 text-desierto-800',
+    action: 'from-desierto-500 to-castillo-500',
+  },
+  hint: {
+    card: 'border-bosque-200 from-bosque-50 via-white to-fuchsia-50',
+    tag: 'bg-bosque-100 text-bosque-700',
+    price: 'border-bosque-200 bg-bosque-100 text-bosque-800',
+    action: 'from-bosque-500 to-bosque-400',
+  },
+  'double-xp': {
+    card: 'border-lagos-200 from-lagos-50 via-white to-valle-50',
+    tag: 'bg-lagos-100 text-lagos-700',
+    price: 'border-lagos-200 bg-lagos-100 text-lagos-800',
+    action: 'from-lagos-500 to-valle-500',
+  },
+} as const;
 
 function useRemainingTime(expiresAt: string | null | undefined) {
   const [now, setNow] = useState(() => Date.now());
@@ -46,40 +82,25 @@ function useRemainingTime(expiresAt: string | null | undefined) {
   return `${Math.floor(minutes / 60)}h ${minutes % 60}m restantes`;
 }
 
-function RewardCard({
+function ActiveDoubleXpDuration({ expiresAt }: { expiresAt: string | null | undefined }) {
+  const remaining = useRemainingTime(expiresAt);
+  return (
+    <p className="mb-3 flex items-center gap-1.5 font-simply-olive text-xs font-bold text-lagos-700">
+      <Clock3 className="h-3.5 w-3.5" />
+      {remaining ? `2× XP activo · ${remaining}` : 'Duración: 24 horas'}
+    </p>
+  );
+}
+
+const RewardCard = memo(function RewardCard({
   reward,
   onRedeem,
 }: {
   reward: StoreReward;
   onRedeem: (reward: StoreReward) => void;
 }) {
-  const remaining = useRemainingTime(reward.entitlement?.expiresAt);
-  const category = {
-    EXAMS: 'Exámenes',
-    PRACTICE: 'Práctica',
-    ADVANTAGES: 'Ventajas',
-    SPECIALS: 'Especiales',
-  }[reward.category];
-  const theme = {
-    exam: {
-      card: 'border-castillo-200 from-castillo-50 via-white to-desierto-50',
-      tag: 'bg-castillo-100 text-desierto-700',
-      price: 'border-castillo-200 bg-castillo-100 text-desierto-800',
-      action: 'from-desierto-500 to-castillo-500',
-    },
-    hint: {
-      card: 'border-bosque-200 from-bosque-50 via-white to-fuchsia-50',
-      tag: 'bg-bosque-100 text-bosque-700',
-      price: 'border-bosque-200 bg-bosque-100 text-bosque-800',
-      action: 'from-bosque-500 to-bosque-400',
-    },
-    'double-xp': {
-      card: 'border-lagos-200 from-lagos-50 via-white to-valle-50',
-      tag: 'bg-lagos-100 text-lagos-700',
-      price: 'border-lagos-200 bg-lagos-100 text-lagos-800',
-      action: 'from-lagos-500 to-valle-500',
-    },
-  }[reward.visual];
+  const category = rewardCategories[reward.category];
+  const theme = rewardThemes[reward.visual];
   const acquired = reward.acquiredTrimesters?.length ?? 0;
   const buttonLabel =
     reward.status === 'ACTIVE'
@@ -98,7 +119,7 @@ function RewardCard({
 
   return (
     <article
-      className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[1.8rem] border-2 bg-linear-to-b p-4 shadow-md transition-transform duration-200 hover:-translate-y-1 ${theme.card}`}
+      className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[1.8rem] border-2 bg-linear-to-b p-4 shadow-md transition-transform duration-200 [contain-intrinsic-size:auto_390px] [content-visibility:auto] hover:-translate-y-1 ${theme.card}`}
     >
       <span aria-hidden className="absolute right-4 top-3 font-candy-beans text-xl text-white">
         ✦
@@ -120,10 +141,7 @@ function RewardCard({
       <p className="mt-1 font-simply-olive text-sm leading-6 text-gray-500">{reward.description}</p>
       <div className="mt-auto pt-4">
         {reward.type === 'DOUBLE_XP' && (
-          <p className="mb-3 flex items-center gap-1.5 font-simply-olive text-xs font-bold text-lagos-700">
-            <Clock3 className="h-3.5 w-3.5" />
-            {remaining ? `2× XP activo · ${remaining}` : 'Duración: 24 horas'}
-          </p>
+          <ActiveDoubleXpDuration expiresAt={reward.entitlement?.expiresAt} />
         )}
         {reward.type === 'EXAM_BONUS_POINT' && acquired > 0 && (
           <p className="mb-3 font-simply-olive text-xs font-bold text-desierto-700">
@@ -153,7 +171,7 @@ function RewardCard({
       </div>
     </article>
   );
-}
+});
 
 function GemBalance({ gems }: { gems: number }) {
   const displayedGems = useAnimatedValue(gems, 650);
@@ -248,6 +266,10 @@ export default function StoreClient({
         : store.rewards.filter((reward) => reward.category === category),
     [category, store.rewards],
   );
+  const openRewardDialog = useCallback((reward: StoreReward) => {
+    setSelectedReward(reward);
+    setTrimester(null);
+  }, []);
   const closeDialog = () => {
     if (!isRedeeming) {
       setSelectedReward(null);
@@ -279,10 +301,15 @@ export default function StoreClient({
       <section className="relative overflow-hidden rounded-[1.8rem] border border-lagos-100 bg-linear-to-r from-white via-lagos-50 to-bosque-50 px-5 py-6 shadow-md sm:px-7 sm:py-7">
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
-            <div className="grid h-17 w-17 place-items-center rounded-[1.35rem] bg-linear-to-br from-bosque-100 to-bosque-200 shadow-inner">
-              <span className="scale-90">
-                <StoreBag />
-              </span>
+            <div className="relative h-17 w-17 shrink-0 overflow-hidden rounded-[1.35rem] bg-bosque-100 shadow-inner">
+              <Image
+                src={shopImage}
+                alt=""
+                fill
+                priority
+                sizes="68px"
+                className="object-cover"
+              />
             </div>
             <div>
               <p className="font-simply-olive text-xs font-bold uppercase tracking-[.18em] text-lagos-600">
@@ -304,9 +331,16 @@ export default function StoreClient({
               </p>
             </div>
             <motion.div
+              className="relative -my-3 -mr-3 h-25 w-25 shrink-0 sm:h-31 sm:w-31"
               animate={celebratedReward ? { rotate: [0, -5, 5, 0], scale: [1, 1.08, 1] } : {}}
             >
-              <GemChest className="-my-3 -mr-3 scale-90 sm:scale-100" />
+              <Image
+                src={diamondChestImage}
+                alt="Cofre de gemas"
+                fill
+                sizes="(max-width: 640px) 100px, 124px"
+                className="object-contain"
+              />
             </motion.div>
           </div>
         </div>
@@ -344,14 +378,7 @@ export default function StoreClient({
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {rewards.map((reward) => (
-            <RewardCard
-              key={reward.id}
-              reward={reward}
-              onRedeem={(item) => {
-                setSelectedReward(item);
-                setTrimester(null);
-              }}
-            />
+            <RewardCard key={reward.id} reward={reward} onRedeem={openRewardDialog} />
           ))}
         </div>
         {rewards.length === 0 && (
@@ -383,17 +410,16 @@ export default function StoreClient({
         </ul>
       </section>
 
-      <section className="relative overflow-hidden rounded-[1.8rem] bg-linear-to-r from-[#172f91] via-[#3f48bb] to-bosque-500 px-5 py-6 text-white shadow-md sm:px-7">
-        <div aria-hidden className="absolute -left-4 bottom-0 opacity-95">
-          <div className="relative scale-75 sm:scale-100">
-            <Gem className="h-24 w-24 fill-valle-300 text-lagos-300 drop-shadow-lg" />
-            <Gem className="absolute -right-13 bottom-1 h-18 w-18 fill-lagos-400 text-valle-200 drop-shadow-lg" />
-          </div>
-        </div>
-        <div aria-hidden className="absolute -right-6 -bottom-8 hidden sm:block">
-          <GemChest className="scale-110" />
-        </div>
-        <div className="relative ml-18 max-w-2xl sm:ml-32">
+      <section className="relative overflow-hidden rounded-[1.8rem] bg-[#172f91] px-5 py-6 text-white shadow-md sm:px-7">
+        <Image
+          src={shopWallpaperImage}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1200px"
+          className="object-cover object-bottom"
+        />
+        <div aria-hidden className="absolute inset-0 bg-[#172f91]/35" />
+        <div className="relative max-w-2xl">
           <p className="font-candy-beans text-lg text-castillo-200">
             Subí de nivel con cada desafío
           </p>
@@ -413,15 +439,17 @@ export default function StoreClient({
         </div>
       </section>
 
-      <StoreDialog
-        reward={selectedReward}
-        gems={store.gems}
-        trimester={trimester}
-        submitting={isRedeeming}
-        onClose={closeDialog}
-        onSelectTrimester={setTrimester}
-        onConfirm={confirmRedeem}
-      />
+      {selectedReward && (
+        <StoreDialog
+          reward={selectedReward}
+          gems={store.gems}
+          trimester={trimester}
+          submitting={isRedeeming}
+          onClose={closeDialog}
+          onSelectTrimester={setTrimester}
+          onConfirm={confirmRedeem}
+        />
+      )}
       <AnimatePresence>
         {celebratedReward && (
           <motion.div
