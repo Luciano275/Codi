@@ -38,7 +38,7 @@ function CompetitiveStat({
   tone: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-950/35 p-4 backdrop-blur-sm">
+    <div className="rounded-2xl border-2 border-bosque-800 bg-bosque-900 p-4 shadow-[inset_0_1px_rgba(255,255,255,.08)]">
       <Icon className={`h-5 w-5 ${tone}`} />
       <p className="mt-3 font-candy-beans text-2xl text-white">{value}</p>
       <p className="mt-1 font-simply-olive text-xs font-bold uppercase tracking-[.12em] text-white/55">
@@ -62,10 +62,10 @@ function AchievementShelf({ achievements }: { achievements: CompetitivePlayerPro
       {achievements.map((achievement) => (
         <div
           key={achievement.code}
-          className="group rounded-2xl border border-lagos-100 bg-white p-3 transition hover:-translate-y-0.5 hover:border-lagos-300 hover:shadow-md"
+          className="group rounded-2xl border border-desierto-100 bg-white p-3 transition hover:-translate-y-0.5 hover:border-desierto-300 hover:shadow-md"
         >
           <div className="flex items-start gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-linear-to-br from-castillo-100 to-lagos-100 text-lagos-600">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-desierto-100 text-desierto-700">
               <Award className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -107,36 +107,35 @@ async function PlayerProfile({ params }: { params: Promise<{ id: string }> }) {
         <ChevronLeft className="h-4 w-4" /> Volver al ranking
       </Link>
 
-      <section className="relative overflow-hidden rounded-[2rem] bg-[#0a1635] px-5 py-7 text-white shadow-xl sm:px-8 sm:py-9">
-        <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_15%_0%,rgba(34,211,238,.26),transparent_28%),radial-gradient(circle_at_100%_100%,rgba(139,92,246,.3),transparent_35%)]" />
+      <section className="relative overflow-hidden rounded-[2rem] border-4 border-bosque-800 bg-bosque-700 px-5 py-7 text-white shadow-[0_18px_0_rgba(71,91,42,.34)] sm:px-8 sm:py-9">
         <div aria-hidden className="absolute -right-10 -top-12 text-[15rem] font-candy-beans text-white/[.04]">
           {player.rank}
         </div>
         <div className="relative grid gap-7 lg:grid-cols-[1fr_420px] lg:items-center">
           <div className="flex items-center gap-5 sm:gap-7">
-            <div className="relative h-28 w-28 shrink-0 rounded-[2rem] bg-linear-to-br from-castillo-300 via-lagos-400 to-valle-500 p-1 shadow-[0_0_0_6px_rgba(255,255,255,.1),0_18px_45px_rgba(0,0,0,.35)] sm:h-36 sm:w-36">
-              <div className="h-full w-full overflow-hidden rounded-[1.75rem] bg-slate-900">
+            <div className="relative h-28 w-28 shrink-0 rounded-[2rem] bg-desierto-300 p-1 shadow-[0_0_0_6px_rgba(255,238,184,.16),0_14px_0_rgba(39,71,36,.55)] sm:h-36 sm:w-36">
+              <div className="h-full w-full overflow-hidden rounded-[1.75rem] bg-bosque-900">
                 <PlayerAvatar player={player} />
               </div>
-              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border border-white/15 bg-slate-950 px-3 py-1 font-candy-beans text-sm text-castillo-200 shadow-lg">
+              <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-desierto-300 bg-bosque-900 px-3 py-1 font-candy-beans text-sm text-desierto-100 shadow-lg">
                 NIVEL {player.level}
               </div>
             </div>
             <div className="min-w-0 pt-3">
-              <p className="font-simply-olive text-xs font-bold uppercase tracking-[.22em] text-cyan-200">
+              <p className="font-simply-olive text-xs font-bold uppercase tracking-[.22em] text-desierto-200">
                 Perfil competitivo
               </p>
               <h1 className="mt-2 truncate font-super-pandora text-3xl sm:text-4xl">{player.displayName}</h1>
               <p className="mt-1 font-simply-olive text-sm text-white/60">@{player.username}</p>
-              <div className="mt-4 inline-flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2 text-sm text-castillo-100">
-                <Trophy className="h-4 w-4 text-castillo-300" />
+              <div className="mt-4 inline-flex items-center gap-2 rounded-xl border-2 border-desierto-300 bg-bosque-900 px-3 py-2 text-sm text-desierto-100">
+                <Trophy className="h-4 w-4 text-desierto-300" />
                 Puesto #{player.rank} de {player.totalStudents}
               </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-2">
             <CompetitiveStat icon={Zap} label="XP total" value={player.xp.toLocaleString()} tone="text-amber-300" />
-            <CompetitiveStat icon={Gem} label="Gemas" value={player.gems.toLocaleString()} tone="text-cyan-300" />
+            <CompetitiveStat icon={Gem} label="Gemas" value={player.gems.toLocaleString()} tone="text-valle-200" />
             <CompetitiveStat icon={Flame} label="Racha" value={`${player.streak} días`} tone="text-orange-300" />
             <CompetitiveStat icon={Target} label="Precisión" value={`${successRate}%`} tone="text-emerald-300" />
           </div>
@@ -144,8 +143,8 @@ async function PlayerProfile({ params }: { params: Promise<{ id: string }> }) {
       </section>
 
       <section className="grid gap-4 md:grid-cols-3">
-        <div className="rounded-2xl border border-lagos-100 bg-white p-5 shadow-sm">
-          <Swords className="h-6 w-6 text-lagos-600" />
+        <div className="rounded-2xl border border-desierto-100 bg-white p-5 shadow-sm">
+          <Swords className="h-6 w-6 text-desierto-700" />
           <p className="mt-4 font-candy-beans text-3xl text-slate-900">{player.acceptedSubmissions}</p>
           <p className="font-simply-olive text-sm text-slate-500">Problemas superados</p>
         </div>
