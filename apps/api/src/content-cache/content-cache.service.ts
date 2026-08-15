@@ -4,7 +4,8 @@ import { RedisService } from '../redis/redis.service';
 
 export const ADMIN_LESSONS_CACHE_KEY = 'admin:lessons:all';
 export const ADMIN_PROBLEMS_CACHE_KEY = 'admin:problems:all';
-export const CONTENT_LIST_CACHE_TTL_SECONDS = 10 * 60;
+export const ADMIN_COURSES_CACHE_KEY = 'admin:courses:all';
+export const CONTENT_CACHE_TTL_SECONDS = 60 * 60;
 
 @Injectable()
 export class ContentCacheService {
@@ -32,7 +33,7 @@ export class ContentCacheService {
 
     try {
       await this.redis.set(key, JSON.stringify(value), {
-        expiration: { type: 'EX', value: CONTENT_LIST_CACHE_TTL_SECONDS },
+        expiration: { type: 'EX', value: CONTENT_CACHE_TTL_SECONDS },
       });
     } catch (error) {
       this.logger.warn(`No se pudo escribir la caché ${key}: ${String(error)}`);
@@ -61,7 +62,16 @@ export class ContentCacheService {
   }
 
   private courseKeys(courseIds: string[]) {
-    return ['courses:all', ...courseIds.filter(Boolean).map((courseId) => `courses:${courseId}`)];
+    const validCourseIds = courseIds.filter(Boolean);
+
+    return [
+      'courses:all',
+      ADMIN_COURSES_CACHE_KEY,
+      ...validCourseIds.flatMap((courseId) => [
+        `courses:${courseId}`,
+        `admin:courses:${courseId}`,
+      ]),
+    ];
   }
 
   private async delete(keys: string[]) {
