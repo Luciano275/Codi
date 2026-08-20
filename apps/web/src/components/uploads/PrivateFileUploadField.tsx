@@ -12,6 +12,7 @@ interface PrivateFileUploadFieldProps {
   currentFileName?: string | null;
   preview?: 'pdf';
   onUploadKey: (uploadKey: string) => void;
+  onUploadStateChange?: (isUploading: boolean) => void;
   onRemove?: () => void;
 }
 
@@ -23,6 +24,7 @@ export function PrivateFileUploadField({
   currentFileName,
   preview,
   onUploadKey,
+  onUploadStateChange,
   onRemove,
 }: PrivateFileUploadFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,9 +33,12 @@ export function PrivateFileUploadField({
   const [error, setError] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  useEffect(() => () => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-  }, [previewUrl]);
+  useEffect(
+    () => () => {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+    },
+    [previewUrl],
+  );
 
   const selectFile = async (file: File) => {
     setError(null);
@@ -44,6 +49,7 @@ export function PrivateFileUploadField({
       });
     }
     setProgress(0);
+    onUploadStateChange?.(true);
     try {
       const uploadKey = await uploadFileThroughApi(assetType, file, setProgress);
       setFileName(file.name);
@@ -52,13 +58,16 @@ export function PrivateFileUploadField({
       setError(uploadError instanceof Error ? uploadError.message : 'No se pudo subir el archivo');
     } finally {
       setProgress(null);
+      onUploadStateChange?.(false);
       if (inputRef.current) inputRef.current.value = '';
     }
   };
 
   return (
     <div>
-      <label className="mb-1 block font-simply-olive text-sm font-medium text-gray-600">{label}</label>
+      <label className="mb-1 block font-simply-olive text-sm font-medium text-gray-600">
+        {label}
+      </label>
       <input
         ref={inputRef}
         type="file"
@@ -76,7 +85,11 @@ export function PrivateFileUploadField({
             <span className="min-w-0 flex-1 truncate font-medium text-gray-700">{fileName}</span>
             <button
               type="button"
-              onClick={() => { setFileName(null); setPreviewUrl(null); onRemove?.(); }}
+              onClick={() => {
+                setFileName(null);
+                setPreviewUrl(null);
+                onRemove?.();
+              }}
               className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
               aria-label={`Quitar ${label}`}
             >
@@ -90,7 +103,11 @@ export function PrivateFileUploadField({
             disabled={progress !== null}
             className="flex w-full items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-lagos-600 hover:bg-lagos-50 disabled:cursor-wait"
           >
-            {progress !== null ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
+            {progress !== null ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <FileUp className="h-4 w-4" />
+            )}
             {progress !== null ? `Subiendo ${progress}%` : 'Seleccionar archivo'}
           </button>
         )}
@@ -98,8 +115,14 @@ export function PrivateFileUploadField({
       <p className="mt-1 text-xs text-gray-400">{helpText}</p>
       {preview === 'pdf' && previewUrl && (
         <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 bg-white">
-          <div className="border-b border-gray-100 px-3 py-2 text-xs font-medium text-gray-500">Vista previa local del PDF</div>
-          <iframe src={previewUrl} title="Vista previa local del PDF" className="h-72 w-full bg-gray-50" />
+          <div className="border-b border-gray-100 px-3 py-2 text-xs font-medium text-gray-500">
+            Vista previa local del PDF
+          </div>
+          <iframe
+            src={previewUrl}
+            title="Vista previa local del PDF"
+            className="h-72 w-full bg-gray-50"
+          />
         </div>
       )}
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
