@@ -46,7 +46,7 @@ export class UploadsController {
     @Body() dto: LessonAssetUploadDto,
     @UploadedFile(lessonFilePipe) file: StoredUpload,
   ) {
-    if (dto.assetType !== 'lesson-pdf' && dto.assetType !== 'lesson-video') {
+    if (!['lesson-image', 'lesson-pdf', 'lesson-video'].includes(dto.assetType)) {
       throw new BadRequestException('Tipo de carga inválido');
     }
     return this.s3.uploadPending(user.id, dto.assetType, file);

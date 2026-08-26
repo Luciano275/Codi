@@ -57,14 +57,31 @@ export class AdminLessonsService {
   }
 
   async create(userId: string, dto: CreateLessonDto) {
-    const { problemIds, pdfUploadKey, videoUploadKey, removePdf, removeVideo, ...data } = dto;
-    if (removePdf || removeVideo)
+    const {
+      problemIds,
+      imageUploadKey,
+      pdfUploadKey,
+      videoUploadKey,
+      removeImage,
+      removePdf,
+      removeVideo,
+      ...data
+    } = dto;
+    if (removeImage || removePdf || removeVideo)
       throw new BadRequestException('No se puede eliminar un recurso al crear');
     const lessonId = randomUUID();
+    let image: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
     let pdf: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
     let video: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
 
     try {
+      if (imageUploadKey)
+        image = await this.s3.promotePendingObject(
+          userId,
+          'lesson-image',
+          imageUploadKey,
+          lessonId,
+        );
       if (pdfUploadKey)
         pdf = await this.s3.promotePendingObject(userId, 'lesson-pdf', pdfUploadKey, lessonId);
       if (videoUploadKey)
@@ -79,6 +96,13 @@ export class AdminLessonsService {
           id: lessonId,
           ...data,
           content: (data.content as object | undefined) ?? {},
+          ...(image
+            ? {
+                imageObjectKey: image.objectKey,
+                imageFileName: image.fileName,
+                imageContentType: image.contentType,
+              }
+            : {}),
           ...(pdf ? { pdfObjectKey: pdf.objectKey, pdfFileName: pdf.fileName } : {}),
           ...(video
             ? {
@@ -100,6 +124,7 @@ export class AdminLessonsService {
       return this.serializeLesson(lesson);
     } catch (error) {
       await Promise.all([
+        this.s3.deleteObject(image?.objectKey),
         this.s3.deleteObject(pdf?.objectKey),
         this.s3.deleteObject(video?.objectKey),
       ]);
@@ -114,13 +139,29 @@ export class AdminLessonsService {
     });
     if (!existing) throw new NotFoundException('Lesson not found');
 
-    const { problemIds, pdfUploadKey, videoUploadKey, removePdf, removeVideo, ...data } = dto;
-    if ((pdfUploadKey && removePdf) || (videoUploadKey && removeVideo)) {
+    const {
+      problemIds,
+      imageUploadKey,
+      pdfUploadKey,
+      videoUploadKey,
+      removeImage,
+      removePdf,
+      removeVideo,
+      ...data
+    } = dto;
+    if (
+      (imageUploadKey && removeImage) ||
+      (pdfUploadKey && removePdf) ||
+      (videoUploadKey && removeVideo)
+    ) {
       throw new BadRequestException('No se puede reemplazar y eliminar el mismo recurso');
     }
+    let image: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
     let pdf: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
     let video: Awaited<ReturnType<S3Service['promotePendingObject']>> | undefined;
     try {
+      if (imageUploadKey)
+        image = await this.s3.promotePendingObject(userId, 'lesson-image', imageUploadKey, id);
       if (pdfUploadKey)
         pdf = await this.s3.promotePendingObject(userId, 'lesson-pdf', pdfUploadKey, id);
       if (videoUploadKey)
@@ -130,6 +171,13 @@ export class AdminLessonsService {
         data: {
           ...data,
           ...(data.content !== undefined ? { content: data.content as object } : {}),
+          ...(image || removeImage
+            ? {
+                imageObjectKey: image?.objectKey ?? null,
+                imageFileName: image?.fileName ?? null,
+                imageContentType: image?.contentType ?? null,
+              }
+            : {}),
           ...(pdf || removePdf
             ? { pdfObjectKey: pdf?.objectKey ?? null, pdfFileName: pdf?.fileName ?? null }
             : {}),
@@ -152,6 +200,7 @@ export class AdminLessonsService {
         },
       });
       await Promise.all([
+        image || removeImage ? this.s3.deleteObject(existing.imageObjectKey) : undefined,
         pdf || removePdf ? this.s3.deleteObject(existing.pdfObjectKey) : undefined,
         video || removeVideo ? this.s3.deleteObject(existing.videoObjectKey) : undefined,
       ]);
@@ -162,6 +211,7 @@ export class AdminLessonsService {
       return this.serializeLesson(lesson);
     } catch (error) {
       await Promise.all([
+        this.s3.deleteObject(image?.objectKey),
         this.s3.deleteObject(pdf?.objectKey),
         this.s3.deleteObject(video?.objectKey),
       ]);
@@ -178,6 +228,7 @@ export class AdminLessonsService {
 
     await this.prisma.lesson.delete({ where: { id } });
     await Promise.all([
+      this.s3.deleteObject(existing.imageObjectKey),
       this.s3.deleteObject(existing.pdfObjectKey),
       this.s3.deleteObject(existing.videoObjectKey),
     ]);
@@ -187,6 +238,9 @@ export class AdminLessonsService {
 
   private async serializeLesson<
     T extends {
+      imageObjectKey: string | null;
+      imageFileName: string | null;
+      imageContentType: string | null;
       pdfObjectKey: string | null;
       pdfFileName: string | null;
       videoObjectKey: string | null;
@@ -194,10 +248,11 @@ export class AdminLessonsService {
       videoContentType: string | null;
     },
   >(lesson: T) {
-    const [pdf, video] = await Promise.all([
+    const [image, pdf, video] = await Promise.all([
+      this.s3.signedResource(lesson.imageObjectKey, lesson.imageFileName, lesson.imageContentType),
       this.s3.signedResource(lesson.pdfObjectKey, lesson.pdfFileName, 'application/pdf'),
       this.s3.signedResource(lesson.videoObjectKey, lesson.videoFileName, lesson.videoContentType),
     ]);
-    return { ...lesson, resources: { pdf, video } };
+    return { ...lesson, resources: { image, pdf, video } };
   }
 }

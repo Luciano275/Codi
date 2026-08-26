@@ -25,12 +25,13 @@ export class LessonsService {
       lesson.problems.map((problem: { id: string }) => problem.id),
     );
 
-    const [pdf, video] = await Promise.all([
+    const [image, pdf, video] = await Promise.all([
+      this.s3.signedResource(lesson.imageObjectKey, lesson.imageFileName, lesson.imageContentType),
       this.s3.signedResource(lesson.pdfObjectKey, lesson.pdfFileName, 'application/pdf'),
       this.s3.signedResource(lesson.videoObjectKey, lesson.videoFileName, lesson.videoContentType),
     ]);
 
-    return { ...lesson, resources: { pdf, video }, solvedProblemIds };
+    return { ...lesson, resources: { image, pdf, video }, solvedProblemIds };
   }
 
   private async findCachedLesson(lessonId: string) {

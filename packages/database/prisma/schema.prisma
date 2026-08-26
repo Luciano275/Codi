@@ -156,6 +156,9 @@ model Lesson {
   order     Int
   type      LessonType
   content   Json?
+  imageObjectKey String?
+  imageFileName  String?
+  imageContentType String?
   pdfObjectKey String?
   pdfFileName  String?
   videoObjectKey String?

@@ -1,4 +1,14 @@
-import { IsString, IsOptional, IsInt, IsEnum, IsArray, IsObject, IsBoolean, Min, MaxLength } from 'class-validator';
+import {
+  IsString,
+  IsOptional,
+  IsInt,
+  IsEnum,
+  IsArray,
+  IsObject,
+  IsBoolean,
+  Min,
+  MaxLength,
+} from 'class-validator';
 import { LessonType } from '@codi/database';
 
 export class CreateLessonDto {
@@ -33,6 +43,11 @@ export class CreateLessonDto {
   @IsOptional()
   @IsString()
   @MaxLength(512)
+  imageUploadKey?: string;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(512)
   pdfUploadKey?: string;
 
   @IsOptional()
@@ -43,6 +58,10 @@ export class CreateLessonDto {
   @IsOptional()
   @IsBoolean()
   removePdf?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  removeImage?: boolean;
 
   @IsOptional()
   @IsBoolean()
