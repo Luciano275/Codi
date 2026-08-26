@@ -31,6 +31,7 @@ export interface AdminLesson {
   xpReward: number;
   content: Record<string, unknown>;
   resources: {
+    image: { url: string; fileName: string | null; contentType: string | null } | null;
     pdf: { url: string; fileName: string | null } | null;
     video: { url: string; fileName: string | null; contentType: string | null } | null;
   };

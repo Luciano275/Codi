@@ -109,6 +109,16 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
             </div>
           </div>
 
+          {lesson.resources?.image && (
+            <div className="mb-8 overflow-hidden rounded-2xl border border-gray-100 bg-gray-50 shadow-sm">
+              <img
+                src={lesson.resources.image.url}
+                alt={`Imagen de la lección: ${lesson.title}`}
+                className="h-auto w-full"
+              />
+            </div>
+          )}
+
           {lesson.resources?.video && (
             <div className="mb-8 overflow-hidden rounded-2xl border border-gray-100 bg-black shadow-sm">
               <video

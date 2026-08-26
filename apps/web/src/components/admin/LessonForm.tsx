@@ -32,6 +32,7 @@ interface Lesson {
   xpReward: number;
   content: Record<string, unknown>;
   resources?: {
+    image: { url: string; fileName: string | null; contentType: string | null } | null;
     pdf: { url: string; fileName: string | null } | null;
     video: { url: string; fileName: string | null; contentType: string | null } | null;
   };
@@ -81,10 +82,13 @@ export function LessonForm({
   const [order, setOrder] = useState(lesson?.order ?? 1);
   const [xpReward, setXpReward] = useState(lesson?.xpReward ?? 50);
   const [description, setDescription] = useState((lesson?.content?.description as string) ?? '');
+  const [imageUploadKey, setImageUploadKey] = useState<string | null>(null);
   const [pdfUploadKey, setPdfUploadKey] = useState<string | null>(null);
   const [videoUploadKey, setVideoUploadKey] = useState<string | null>(null);
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const [isPdfUploading, setIsPdfUploading] = useState(false);
   const [isVideoUploading, setIsVideoUploading] = useState(false);
+  const [removeImage, setRemoveImage] = useState(false);
   const [removePdf, setRemovePdf] = useState(false);
   const [removeVideo, setRemoveVideo] = useState(false);
   const [instructions, setInstructions] = useState((lesson?.content?.instructions as string) ?? '');
@@ -106,7 +110,7 @@ export function LessonForm({
       p.title.toLowerCase().includes(problemSearch.toLowerCase()) ||
       p.cmsTaskName.toLowerCase().includes(problemSearch.toLowerCase()),
   );
-  const isUploadingAsset = isPdfUploading || isVideoUploading;
+  const isUploadingAsset = isImageUploading || isPdfUploading || isVideoUploading;
 
   const toggleProblem = (id: string) => {
     setSelectedProblemIds((prev) =>
@@ -130,8 +134,10 @@ export function LessonForm({
           instructions: instructions.trim(),
         },
         problemIds: selectedProblemIds,
+        ...(imageUploadKey ? { imageUploadKey } : {}),
         ...(pdfUploadKey ? { pdfUploadKey } : {}),
         ...(videoUploadKey ? { videoUploadKey } : {}),
+        ...(removeImage ? { removeImage: true } : {}),
         ...(removePdf ? { removePdf: true } : {}),
         ...(removeVideo ? { removeVideo: true } : {}),
       });
@@ -283,12 +289,32 @@ export function LessonForm({
         </div>
 
         <PrivateFileUploadField
+          assetType="lesson-image"
+          accept="image/jpeg,image/png,image/webp"
+          label="Imagen ilustrativa (opcional)"
+          helpText="JPG, PNG o WebP, hasta 10 MB. Se mostrará a ancho completo en la lección."
+          preview="image"
+          currentFileName={removeImage ? null : lesson?.resources?.image?.fileName}
+          currentFileUrl={removeImage ? null : lesson?.resources?.image?.url}
+          onUploadStateChange={setIsImageUploading}
+          onUploadKey={(key) => {
+            setImageUploadKey(key);
+            setRemoveImage(false);
+          }}
+          onRemove={() => {
+            setImageUploadKey(null);
+            setRemoveImage(true);
+          }}
+        />
+
+        <PrivateFileUploadField
           assetType="lesson-pdf"
           accept="application/pdf"
           label="PDF complementario (opcional)"
           helpText="Solo PDF, hasta 25 MB."
           preview="pdf"
           currentFileName={removePdf ? null : lesson?.resources?.pdf?.fileName}
+          currentFileUrl={removePdf ? null : lesson?.resources?.pdf?.url}
           onUploadStateChange={setIsPdfUploading}
           onUploadKey={(key) => {
             setPdfUploadKey(key);
@@ -305,7 +331,9 @@ export function LessonForm({
           accept="video/mp4,video/webm"
           label="Video ilustrativo (opcional)"
           helpText="MP4 o WebM, hasta 500 MB. Se mostrará antes de la explicación de la lesson."
+          preview="video"
           currentFileName={removeVideo ? null : lesson?.resources?.video?.fileName}
+          currentFileUrl={removeVideo ? null : lesson?.resources?.video?.url}
           onUploadStateChange={setIsVideoUploading}
           onUploadKey={(key) => {
             setVideoUploadKey(key);

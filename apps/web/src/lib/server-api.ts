@@ -61,6 +61,7 @@ export interface Lesson {
   xpReward: number;
   content: Record<string, unknown>;
   resources: {
+    image: SignedResource | null;
     pdf: SignedResource | null;
     video: SignedResource | null;
   };

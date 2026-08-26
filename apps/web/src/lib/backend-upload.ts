@@ -1,4 +1,4 @@
-export type UploadAssetType = 'avatar' | 'lesson-pdf' | 'lesson-video';
+export type UploadAssetType = 'avatar' | 'lesson-image' | 'lesson-pdf' | 'lesson-video';
 
 interface UploadResponse {
   uploadKey: string;

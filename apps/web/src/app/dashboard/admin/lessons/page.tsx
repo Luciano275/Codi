@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
+import { LessonAssetPreview } from '@/components/uploads/LessonAssetPreview';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { adminFetch } from '@/lib/admin-api';
@@ -316,31 +317,44 @@ export default function AdminLessonsPage() {
                         <span className="text-sm italic text-gray-400">Sin descripción</span>
                       )}
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                        Imagen
+                      </h5>
+                      {lesson.resources?.image ? (
+                        <LessonAssetPreview
+                          type="image"
+                          sourceUrl={lesson.resources.image.url}
+                          fileName={lesson.resources.image.fileName}
+                        />
+                      ) : (
+                        <span className="text-sm italic text-gray-400">Sin imagen</span>
+                      )}
+                    </div>
+                    <div className="md:col-span-2">
                       <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
                         PDF
                       </h5>
                       {lesson.resources?.pdf ? (
-                        <a
-                          href={lesson.resources.pdf.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-sm text-lagos-600 underline hover:text-lagos-700"
-                        >
-                          Ver PDF
-                        </a>
+                        <LessonAssetPreview
+                          type="pdf"
+                          sourceUrl={lesson.resources.pdf.url}
+                          fileName={lesson.resources.pdf.fileName}
+                        />
                       ) : (
                         <span className="text-sm italic text-gray-400">Sin PDF</span>
                       )}
                     </div>
-                    <div>
+                    <div className="md:col-span-2">
                       <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
                         Video
                       </h5>
                       {lesson.resources?.video ? (
-                        <span className="text-sm text-gray-600">
-                          {lesson.resources.video.fileName ?? 'Video adjunto'}
-                        </span>
+                        <LessonAssetPreview
+                          type="video"
+                          sourceUrl={lesson.resources.video.url}
+                          fileName={lesson.resources.video.fileName}
+                        />
                       ) : (
                         <span className="text-sm italic text-gray-400">Sin video</span>
                       )}
