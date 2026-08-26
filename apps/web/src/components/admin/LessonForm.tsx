@@ -286,6 +286,10 @@ export function LessonForm({
               placeholder="Escribí el contenido en Markdown..."
             />
           )}
+          <p className="mt-1 text-xs text-gray-400">
+            Destacados: <code>[!IMPORTANT] Mensaje</code>, <code>[!TIP]</code>,{' '}
+            <code>[!WARNING]</code> o <code>[!NOTE]</code>.
+          </p>
         </div>
 
         <PrivateFileUploadField

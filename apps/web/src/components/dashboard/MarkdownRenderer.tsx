@@ -4,12 +4,48 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
+import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
+import { CircleAlert, Info, Lightbulb, TriangleAlert, type LucideIcon } from 'lucide-react';
 import type { Components } from 'react-markdown';
 
 interface MarkdownRendererProps {
   content: string;
   className?: string;
 }
+
+type CalloutKind = 'IMPORTANT' | 'NOTE' | 'TIP' | 'WARNING';
+
+interface CalloutStyle {
+  label: string;
+  Icon: LucideIcon;
+  className: string;
+}
+
+const CALLOUT_MARKER = /^\[!(IMPORTANT|NOTE|TIP|WARNING)\]$/i;
+const PLAIN_CALLOUT_MARKER = /^\[!(IMPORTANT|NOTE|TIP|WARNING)\](?:\s+(.*))?$/i;
+
+const calloutStyles: Record<CalloutKind, CalloutStyle> = {
+  IMPORTANT: {
+    label: 'Importante',
+    Icon: CircleAlert,
+    className: 'border-desierto-200 bg-desierto-50 text-desierto-900',
+  },
+  NOTE: {
+    label: 'Nota',
+    Icon: Info,
+    className: 'border-lagos-200 bg-lagos-50 text-lagos-900',
+  },
+  TIP: {
+    label: 'Consejo',
+    Icon: Lightbulb,
+    className: 'border-pradera-200 bg-pradera-50 text-pradera-900',
+  },
+  WARNING: {
+    label: 'Advertencia',
+    Icon: TriangleAlert,
+    className: 'border-volcan-200 bg-volcan-50 text-volcan-900',
+  },
+};
 
 function preprocess(md: string): string {
   const lines = md.split('\n');
@@ -19,6 +55,15 @@ function preprocess(md: string): string {
   while (i < lines.length) {
     const line = lines[i];
     const trimmed = line.trim();
+    const plainCallout = trimmed.match(PLAIN_CALLOUT_MARKER);
+
+    if (plainCallout) {
+      const [, kind, message] = plainCallout;
+      out.push(`> [!${kind.toUpperCase()}]`, '>');
+      if (message) out.push(`> ${message}`);
+      i++;
+      continue;
+    }
 
     const isSep = /^\|[-:| ]+\|$/.test(trimmed);
     const isRow = trimmed.startsWith('|') && trimmed.endsWith('|');
@@ -65,10 +110,59 @@ function preprocess(md: string): string {
     }
   }
 
-  return out.join('\n');
+  return out
+    .join('\n')
+    .replace(/^(>\s*\[!(?:IMPORTANT|NOTE|TIP|WARNING)\]\s*$)\n(?=>\s*\S)/gim, '$1\n>\n');
+}
+
+function getNodeText(node: ReactNode): string {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  return Children.toArray(node).map(getNodeText).join('');
+}
+
+function isMarkdownElement(node: ReactNode): node is ReactElement<{ children?: ReactNode }> {
+  return isValidElement<{ children?: ReactNode }>(node);
+}
+
+function getBlockquoteElements(children: ReactNode) {
+  return Children.toArray(children).filter(isMarkdownElement);
+}
+
+function getCalloutKind(children: ReactNode): CalloutKind | null {
+  const [marker] = getBlockquoteElements(children);
+  if (!marker) return null;
+
+  const match = getNodeText(marker.props.children).trim().match(CALLOUT_MARKER);
+  return match ? (match[1].toUpperCase() as CalloutKind) : null;
+}
+
+function Callout({ kind, children }: { kind: CalloutKind; children: ReactNode }) {
+  const { label, Icon, className } = calloutStyles[kind];
+
+  return (
+    <aside
+      className={`not-prose my-5 rounded-xl border p-4 ${className}`}
+      role="note"
+      aria-label={label}
+    >
+      <div className="flex items-center gap-2 text-sm font-semibold">
+        <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+        {label}
+      </div>
+      <div className="mt-2 text-sm leading-6 [&_a]:font-medium [&_a]:underline [&_ol]:my-2 [&_p]:my-0 [&_ul]:my-2">
+        {children}
+      </div>
+    </aside>
+  );
 }
 
 const tableComponents: Components = {
+  blockquote: ({ children }) => {
+    const kind = getCalloutKind(children);
+    if (!kind) return <blockquote>{children}</blockquote>;
+
+    return <Callout kind={kind}>{getBlockquoteElements(children).slice(1)}</Callout>;
+  },
   table: ({ children }) => (
     <div className="my-3 overflow-x-auto rounded-lg border border-gray-200">
       <table className="w-full border-collapse text-sm">{children}</table>
