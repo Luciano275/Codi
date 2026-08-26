@@ -71,7 +71,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
 
       {/* Main content */}
       <div className="flex flex-1 flex-col overflow-y-auto">
-        <div className="mx-auto w-full max-w-4xl px-10 py-8">
+        <div className="w-full px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-2 text-sm text-gray-400">
             <Link
