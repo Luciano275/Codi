@@ -1,7 +1,8 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useRouter } from '@bprogress/next';
 import { LockKeyhole, Map, Sparkles, Trophy } from 'lucide-react';
 import type { RankingUser } from '@/lib/server-api';
 import type { IslandViewModel } from './types';
@@ -26,18 +27,34 @@ export default function IslandExplorer({
 }: IslandExplorerProps) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [departingId, setDepartingId] = useState<string | null>(null);
+  const [showFlash, setShowFlash] = useState(false);
+  const router = useRouter();
   const hoveredIsland = islands.find((island) => island.id === hoveredId);
+
+  useEffect(() => {
+    if (!departingId) return;
+    const island = islands.find((candidate) => candidate.id === departingId);
+    if (!island) return;
+
+    const flashTimeout = window.setTimeout(() => setShowFlash(true), 250);
+    const navigationTimeout = window.setTimeout(() => router.push(island.href), 850);
+
+    return () => {
+      window.clearTimeout(flashTimeout);
+      window.clearTimeout(navigationTimeout);
+    };
+  }, [departingId, islands, router]);
 
   function enterIsland(island: IslandViewModel) {
     if (!island.available || departingId) return;
     setDepartingId(island.id);
-    window.setTimeout(() => window.location.assign(island.href), 520);
   }
 
   return (
     <section className="relative h-full overflow-hidden bg-[#22344e] text-white">
       <IslandWorld
         islands={islands}
+        departingId={departingId}
         onHover={setHoveredId}
         onSelect={(islandId) => {
           const island = islands.find((candidate) => candidate.id === islandId);
@@ -46,9 +63,8 @@ export default function IslandExplorer({
       />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_68%,transparent_5%,rgba(5,17,31,0.15)_57%,rgba(5,17,31,0.65)_100%)]" />
       <div
-        className={`pointer-events-none absolute inset-0 z-30 bg-[radial-gradient(circle_at_50%_55%,#ffffff_0%,#dff5ff_34%,rgba(223,245,255,0)_75%)] transition-opacity duration-500 ${departingId ? 'opacity-100' : 'opacity-0'}`}
+        className={`pointer-events-none absolute inset-0 z-30 bg-white transition-opacity duration-500 ${showFlash ? 'opacity-100' : 'opacity-0'}`}
       />
-
       <header className="pointer-events-none absolute inset-x-0 top-4 z-10 px-4 text-center md:top-7">
         <p className="font-simply-olive mb-1 text-[10px] font-bold uppercase tracking-[0.32em] text-sky-200/75 md:text-xs">
           Mapa de mundos

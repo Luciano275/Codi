@@ -8,11 +8,19 @@ import type { IslandViewModel } from './types';
 
 interface IslandWorldProps {
   islands: IslandViewModel[];
+  departingId: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
 }
 
 const HOVER_LIFT = 0.22;
+const ENTER_DURATION = 0.55;
+const ENTER_LIFT_OFFSET = 2.4;
+const ENTER_FLY_OFFSET = 3.4;
+
+function easeInQuart(t: number) {
+  return t * t * t * t;
+}
 
 function makeUnavailable(root: THREE.Object3D) {
   root.traverse((child) => {
@@ -87,11 +95,12 @@ function disposeObject(root: THREE.Object3D) {
   });
 }
 
-export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldProps) {
+export default function IslandWorld({ islands, departingId, onHover, onSelect }: IslandWorldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loadError, setLoadError] = useState(false);
   const notifyHover = useEffectEvent(onHover);
   const notifySelect = useEffectEvent(onSelect);
+  const startEnterRef = useRef<((id: string) => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -147,6 +156,12 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
     let state: 'islands' | 'entering' = 'islands';
     let hoveredIsland: THREE.Object3D | undefined;
     let pressedAt = { x: 0, y: 0 };
+    const enterFromCamPos = new THREE.Vector3();
+    const enterFromTarget = new THREE.Vector3();
+    const enterWorldPos = new THREE.Vector3();
+    const enterTargetPos = new THREE.Vector3();
+    let enterIsland: THREE.Object3D | undefined;
+    let enterT = 0;
 
     Promise.all(islands.map((island) => loader.loadAsync(island.modelPath)))
       .then((models) => {
@@ -155,9 +170,10 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
           return;
         }
         models.forEach((model, index) => {
-          const root = prepareIsland(model.scene, islands[index], index, islands.length);
+          const island = islands[index];
+          const root = prepareIsland(model.scene, island, index, islands.length);
           const selectedClip = THREE.AnimationClip.findByName(model.animations, 'Island_Selected');
-          if (selectedClip) {
+          if (island.available && selectedClip) {
             const mixer = new THREE.AnimationMixer(root);
             const selectedAction = mixer.clipAction(selectedClip);
             selectedAction.setLoop(THREE.LoopRepeat, Infinity);
@@ -225,7 +241,6 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
       if (Math.hypot(event.clientX - pressedAt.x, event.clientY - pressedAt.y) > 6) return;
       const island = pickIsland(event);
       if (!island?.userData.available) return;
-      state = 'entering';
       setHover(undefined);
       notifySelect(island.userData.islandId);
     };
@@ -234,6 +249,25 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
       renderer.domElement.style.cursor = 'grab';
       setHover(undefined);
     };
+
+    const startEnter = (id: string) => {
+      const island = islandRoots.find((root) => root.userData.islandId === id);
+      if (!island) return;
+      state = 'entering';
+      controls.enabled = false;
+      setHover(undefined);
+      enterIsland = island;
+      island.getWorldPosition(enterWorldPos);
+      enterTargetPos.set(
+        enterWorldPos.x,
+        enterWorldPos.y + ENTER_LIFT_OFFSET,
+        enterWorldPos.z + ENTER_FLY_OFFSET,
+      );
+      enterFromCamPos.copy(camera.position);
+      enterFromTarget.copy(controls.target);
+      enterT = 0;
+    };
+    startEnterRef.current = startEnter;
 
     renderer.domElement.addEventListener('pointermove', handlePointerMove);
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
@@ -264,7 +298,16 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
         );
         ring.rotation.z += delta * 0.9;
       });
-      controls.update();
+
+      if (state === 'entering' && enterIsland) {
+        enterT = Math.min(1, enterT + delta / ENTER_DURATION);
+        const eased = easeInQuart(enterT);
+        camera.position.lerpVectors(enterFromCamPos, enterTargetPos, eased);
+        controls.target.lerpVectors(enterFromTarget, enterWorldPos, eased);
+        camera.lookAt(controls.target);
+      } else {
+        controls.update();
+      }
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
     };
@@ -274,6 +317,7 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
       disposed = true;
       cancelAnimationFrame(frameId);
       observer.disconnect();
+      startEnterRef.current = null;
       notifyHover(null);
       controls.dispose();
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);
@@ -285,6 +329,11 @@ export default function IslandWorld({ islands, onHover, onSelect }: IslandWorldP
       renderer.domElement.remove();
     };
   }, [islands]);
+
+  useEffect(() => {
+    if (!departingId) return;
+    startEnterRef.current?.(departingId);
+  }, [departingId]);
 
   return (
     <div
