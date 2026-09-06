@@ -1,0 +1,281 @@
+========================================================================
+RESUMEN COMPLETO DEL PROYECTO — Codi-lab
+========================================================================
+Fecha: 2026-09-05
+Archivo principal: index.html (3 bloques: <head>/CSS, <script type=module>
+Three.js, <script> menú antes de </body>). Modelo: isla.glb.
+
+Nota de método: NUNCA se abre navegador. Todo cambio se verifica con
+`node --check` sobre los bloques de script extraídos del HTML
+(python3 + regex → blk.mjs), más greps de referencias huérfanas.
+
+------------------------------------------------------------------------
+1) QUÉ SE HIZO Y CÓMO
+------------------------------------------------------------------------
+
+1.1 MENÚ / SIDEBAR (CSS + JS)
+  - Paleta Duolingo plana (sin neón ni glassmorphism):
+    --clr-green #58cc02, dark #46a302, deep #2b7d03, lite #dff5c4,
+    hover #e9fbd3, ink #3c3c3c, muted #a8a8a8, line #ececec;
+    rojo Duolingo para "Cerrar" (#ff4b4b / shadow #d83a3a).
+  - #menu-btn → arriba a la izquierda (left:20px, z-index 40).
+  - #sidebar anclada a la IZQUIERDA (antes derecha): border-right verde,
+    sombra 8px 0 28px, translateX(-100%) → 0. body.menu-open
+    .sidebar-header { padding-left:86px } para que el botón X flotante
+    (z-index 40 > sidebar 30) no tape el título.
+  - Lógica en IIFE antes de </body>: toggle body.menu-open, overlay,
+    cerrar con Esc o al hacer clic en un item.
+
+1.2 PERFIL (CSS+HTML)
+  - #profile fijo arriba a la derecha (z-index 15): avatar redondo
+    (https://i.pravatar.cc/96 con fallback degradado verde), nombre
+    "Luciano Luna", @luna755, píldora verde "NIVEL 5".
+
+1.3 TÍTULO CENTRAL DINÁMICO
+  - #center-title (Orbitron 900, blanco, contorno #46a302 + sombra
+    offset #2b7d03) fijo al 14% superior.
+  - ISLAND_TITLES = ["Programación Competitiva","Programación Mobile"].
+  - En hover de una isla el título muestra el nombre del curso con
+    la clase .pop (animación title-in 0.4s elastic); sin hover vuelve a
+    "Selecciona una isla de aprendizaje". Se eliminó el hover-banner.
+
+1.4 BUG "ISLAS BORRADAS" (importante)
+  - El JS escribía en #animation-name (x4) y #island-hint (x4), que ya
+    no existían en el DOM → null.textContent tiraba un error ANTES de
+    frameAllIslands() y las islas nunca se colocaban.
+  - Solución: eliminar TODAS esas referencias; verificado con grep
+    (0 ocurrencias). frameAllIslands volvió a ejecutarse.
+
+1.5 CÁMARA INICIAL (frameAllIslands)
+  - Box3 sobre todas las islas → size + center.
+  - distance = max(fitWidth, fitHeight) con fitMargin = 1.15 (zoom de
+    carga cercano).
+  - pitch 30°: elevation = tan(30°)*distance; cámara en
+    (center.x, center.y+elevation, center.z+distance); lookAt(center).
+  - defaultTarget/desiredTarget/controls.target = center; minDistance
+    = distance*0.35, maxDistance = distance*3.
+  - La shadow camera se extiende para cubrir las dos islas.
+
+1.6 ILUMINACIÓN "UN SOLO SOL" (estilo cel / Genshin)
+  - Referencia: single_horizon_sun.py (azimut 200°, elevación 25°,
+    color 1/.86/.68, energía 3, world 0.07).
+  - AmbientLight(0.07) muy tenue → luego se reemplazó por
+    HemisphereLight(0x9fc4ff, 0x3a322a, 0.45) como relleno urbano
+    frío + sol DirectionalLight(0xffdbad) energía 4 en (-23,25,8)
+    (elevación ~45°, pedida por el usuario).
+  - shadow.bias -0.0005, normalBias 0.02, shadow map 2048.
+  - Render: ACESFilmicToneMapping, toneMappingExposure 1.4,
+    outputColorSpace SRGBColorSpace. Fondo #22344e.
+
+1.7 ESPACIADO Y ZOOM DE ISLAS
+  - ISLAND_SPACING_FACTOR 1.6 → 1.35 (islas más juntas).
+  - fitMargin 1.3 → 1.15 (vista de carga más aumentada).
+
+1.8 FLUJO "ENTRAR A LA ISLA" → CAMINITO (Three.js)
+  - Estado: "islands" ↔ "entering" ↔ "path" (también transient).
+  - Clic en isla (pickIsland) → beginEnterIsland:
+      * guarda estado, desactiva OrbitControls, título central = curso,
+      * transición de 1.6s (updateTransition, easeInOutCubic):
+         0→0.6   cámara vuela dentro de la isla (sin OrbitControls:
+                 en animate, cuando state==="entering" se llama
+                 camera.lookAt(controls.target) y se salta
+                 controls.update() que pisaría la pose manual).
+         0.45   se enciende el DIV #flash (blanco, z-index 55,
+                 pointer-events:none, transición opacity .25s).
+         0.6    bajo el flash: hideIslands(), buildPath(),
+                 buildDecor(), scene.background = BG_PATH (gris claro
+                 0xf1f2f6), framePath(), se guarda framePos/frameTarget.
+         0.6→1  glide de cámara al encuadre del caminito.
+         1.0    apaga flash, habilita controles, state="path",
+                 transition=null.
+  - BUG corregido durante esta feature: updateTransition estaba
+    condicionada a state==="entering", pero build() ponía "path" →
+    la transición quedaba colgada y el flash blanco se quedaba
+    permanentemente. Fix: llamar updateTransition SIEMPRE que exista
+    transition, y mover `state="path"` al cierre.
+  - BUG 2: controls.update() recalcula camera.position desde su offset
+    esférico y pisa el vuelo manual → separado: durante "entering" no
+    se llama OrbitControls; se usa camera.lookAt manual cada frame.
+  - BUG 3: controls.target.lerp(desiredTarget) corría cada frame y
+    peleaba con el target manual → gateado con state!=="entering".
+
+1.9 CAMINITO DE 10 ESCALONES (curvo, estilo Duolingo)
+  - Constantes: PATH_STEPS=10, STEP_SPACING=3.6, STEP_RADIUS=1.05.
+  - Curva en "S": CatmullRomCurve3 sobre muestras donde x es lineal
+    en [-span/2, span/2], z = sin(t*2π)*amp (amp = max(span*0.13,3.2))
+    y y = sin(t*π)*0.5 (onda de altura).
+  - Pista: TubeGeometry(curve,120,0.55,8) aplanada (scale.y=0.28),
+    color #c7cfd7.
+  - Escalones: getPointAt(i/(N-1)) para distancia uniforme:
+      * cilindro base (radius/ancho 0.92, h=0.9),
+      * toro rim borde tipo Duolingo,
+      * tapa con número (CanvasTexture 256px con círculo de color,
+        borde y texto 900).
+  - Colores: paso 1 verde brillante (#9be84a) + latido
+    (pathCurrentBaseY + sin(time*2.4)*0.12, respeta la altura de curva),
+    pasos 2-3 verde #58cc02, pasos 4-10 VERDE TRANSLÚCIDO
+    (opacity 0.35 en body+rim+cap, transparent:true).
+  - Conectores: cilindros a lo largo de la cuerda
+    (quaternion.setFromUnitVectors(UP, dir), scale.y=len, y-0.25).
+  - Cinemática: framePath() reencuadra con Box3, fitMargin 1.3,
+    pitch 30°, minDistance 0.4*distance, maxDistance 2.4*distance.
+
+1.10 FONDO CLARO PARA EL CAMINITO
+  - BG_ISLANDS=0x22344e, BG_PATH=0xf1f2f6 (blanco/gris claro).
+  - Se aplica scene.background=BG_PATH al construir; se restaura
+    BG_ISLANDS en returnToIslands (Esc).
+
+1.11 DIBUJITOS DECORATIVOS (buildDecor)
+  - Grupo decorGroup, creado con el caminito, eliminado al volver.
+  - Manchas/óvalos pastel planos en el suelo (CircleGeometry rotado,
+    MeshBasicMaterial transparente, depthWrite:false):
+    azul #bfe8ff, rosa #ffe3dc, amarillo #fff1bd, verde #c9eec9,
+    lavanda #e8dffc, celeste #d3ecff + "sol" #fff3c9 al fondo.
+  - Anillos RingGeometry decorativos (#9dc8ff, #ffc9b8, #a9dcb0).
+  - Nubecitas: grupos de 3 burbujas blancas/azul claro (#dfeaf6)
+    flotando alrededor del camino.
+
+1.12 SALIR / VOLVER
+  - Esc (keydown) llama returnToIslands(): remueve pathGroup y
+    decorGroup, restaura islas (visible=true), scene.background,
+    frameAllIslands(), desiredTarget/target=defaultTarget, título
+    restaurado.
+  - Guards: pointermove (hover) y click solo operan en state==="islands".
+
+------------------------------------------------------------------------
+2) CÓMO SE VERIFICÓ TODO
+------------------------------------------------------------------------
+  - node --check sobre los blocs extraídos (siempre syntax OK).
+  - Grep 0 referencias a animation-name / island-hint / hover-banner.
+  - No se abrió el navegador (instrucción explícita del usuario);
+    la verificación visual queda pendiente para el usuario.
+
+------------------------------------------------------------------------
+3) RENDIMIENTO RESPECTO A LAS SOMBRAS — ANÁLISIS Y MEJORAS
+------------------------------------------------------------------------
+
+ESTADO ACTUAL:
+  - Sol: DirectionalLight con castShadow=true, mapa de sombras 2048,
+    shadow.camera (left/right/top/bottom) extendido en frameAllIslands
+    para cubrir AMBAS islas (shadowSpan = max(size.x,size.z)*0.85)
+    y en framePath el box del caminito (más el margen visual).
+  - Lo que tienden a golpear: islas GLB con miles de triángulos y
+    material MeshStandardMaterial (con o sin maps), escalones con
+    CylinderGeometry de 28 segmentos → muchas caras proyectando y
+    muchas caras recibiendo.
+
+PROBLEMAS TÍPICOS QUE ESTE ESQUEMA SUFRE:
+  1) Una sola shadow map camera DINÁMICA que cambia de tamaño con cada
+     estado (islas → caminito) obliga a re-extender left/right/top/
+     bottom y updateProjectionMatrix() en cada transición.
+  2) El rango (shadowSpan) crece si las islas son grandes → los
+     texeles por unidad empeoran (píxeles de sombra borrosos).
+  3) Texturas de número en los escalones + transparent:true (pasos
+     bloqueados) introducen overdraw y, si las sombras se renderizan
+     con materiales transparentes, coste extra + artefactos.
+
+MEJORAS DE RENDIMIENTO CONCRETAS (orden de impacto):
+
+A) Sombras separadas / sombra por estado (la más importante)
+   - Viviendo con mapas 2048 para TODA la escena es caro para lo que
+     se ve. Mejor: usar DOS luces direccionales o dos configuraciones:
+       * Luz "islas": shadow camera ajustada a la caja de las islas
+         (mapa 1024 basta), se usa en estados islands/entering.
+       * Luz "caminito": shadow camera pequeña centrada en la curva
+         del path (mapa 1024), usado en estado path.
+     Alternativa más simple sin dos luces: reajustar la shadow camera
+     por estado (ya se hace), pero bajar a 1024 y hacer que el rango
+     sea el mínimo (más texeles de calidad) en vez de *0.85 con margen
+     holgado.
+
+B) Limit SR en el shadow map de las islas
+   - Si los rands por escena son grandes (isla GLB ~24.7 unidades),
+     PCFSoftShadowMap en 2048 dedicando el 100% a la isla devuelve
+     buena calidad SIN necesidad de 4096. Subir a 4096 solo si se ve
+     granulado y entonces/devuelve el coste 4x. Recomendado: 2048
+     para islas, 1024 para el caminito (los escalones son formas
+     simples y planas).
+
+C) No proyectar sombras en todo
+   - Los dibujitos decorativos (MeshBasicMaterial, transparente,
+     depthWrite:false) NO deben participar del mapa de sombras:
+       decorMesh.castShadow = false;
+       decorMesh.receiveShadow = false;
+     Ahorra raster transversal en el pase de sombras (varias decenas de
+     triángulos × luz).
+   - La pista TubeGeometry del caminito (120×8≈%... cientos de
+     segmentos) puede hacer receiveShadow=true solo si se quiere la
+     sombra de los escalones encima; si no, false.
+
+D) Transparentes fuera del pase de sombras
+   - Los 7 pasos bloqueados (transparent:true) NO deberían castear
+     sombra: stepMesh.castShadow=false para locked. La sombra de un
+     objeto translúcido se rasteriza igual y produce siluetas marcadas
+     que no corresponden a un objeto "fantasma". Ahorro directo de
+     sobre-proyección.
+
+E) El paso de updateProjectionMatrix() de la shadow camera
+   - Se llama en cada framePath()/frameAllIslands(). No es barato en
+     términos de CPU/GPU. Esquema: solo actualizar la shadow camera
+     cuando cambia ESTADO, no en el animate() de cada frame. Ya es el
+     caso (se hace en el build de cada estado), mantener así y NUNCA
+     reajustarla dentro del loop.
+
+F) Normalizar el far de la shadow camera
+   - shadow.camera.far = 250 es amplísimo para una escena de ~30
+     unidades. Reducirlo (por ejemplo 60-80) → el depth map mapea más
+     precisión al rango útil → menos acne/bias y mejor calidad percibida
+     sin subir resolución. Ajustar bias/normalBias tras reducirlo.
+
+G) Materiales más baratos para el caminito
+   - Los escalones usan MeshStandardMaterial (PBR con fresnel, más
+     coste por fragmento). Para un estilo cel/Duolingo bastaría
+     MeshLambertMaterial (la mitad de coste) o MeshBasicMaterial +
+     lightmap manual. Las 10 tapas usan CanvasTexture (3 planes por
+     cap → coste textura alto si se filtra trilinear); bajar
+     texture.minFilter/magFilter a LinearFilter (sin mipmaps) o
+     generar mipmaps solo si se observa aliasing.
+
+H) Draw calls / instancias del decor
+   - buildDecor crea ~25 meshes independientes (blobs+rings+nubes).
+     Se pueden fusionar en 2-3 meshes con BufferGeometry (merge) o
+     usar InstancedMesh por tipo de forma con Material único
+     (per-instance color) → reduce draw calls casi a 0 en el decor.
+
+I) GPU memory y caches
+   - El CanvasTexture se crea 10 veces idéntico en formato (solo cambia
+     el número): conviene un solo atlas de números en una textura y
+     UVs compartidas, o reutilizar las 10 texturas en un mapa
+     atlas → menos cargas de textura y menos memory footprint.
+   - Dispose correcto: al returnToIslands(), llamar geometry/material
+     .dispose() de pathGroup/decorGroup (hoy solo scene.remove → la
+     GL in retiene memoria). Añadir un walker recursivo de dispose
+     evita fugas en varias entradas/salidas.
+
+J) Decor y cielo
+   - Los planos de las nubes/manchas son MeshBasicMaterial (+
+     depthWrite:false, transparente): es un buen patrón, pero conviene
+     ordenarlos por distances (renderOrder) para no estar re-orderando
+     el pase transparente cada frame.
+
+K) VSync / resize
+   - renderer.setPixelRatio(Math.min(devicePixelRatio, 2)) evita
+     supersample en monitores HiDPI que multiplica el coste del pase
+     de sombra tambis.
+
+RESUMEN DE ACCIÓN RECOMENDADA (quick wins):
+  1)  shadow map 2048 en islas / 1024 en caminito (constantes por
+      estado, sin cambiar la resolución dinámicamente).
+  2)  castShadow=false en decor, en pasos locked y en tapas numeradas.
+  3)  shadow camera far 250 → 70 y cheap bias ajustado.
+  4)  dispose() de geometrías/materiales al salir del caminito.
+  5)  MeshLambertMaterial para escalones (estilo plano, más rápido).
+  6)  decor con InstancedMesh o meshes mergeados.
+  7)  Pixel ratio cap 2.
+
+CONTRAPUNTOS / CARENCIAS:
+  - No se pudo validar visualmente en navegador (regla del usuario):
+    los valores de bias, resolución del shadow map y distancia de
+    encuadre podrían requerir micro-ajustes al verlo en pantalla.
+  - El Server http estático (python -m http.server 8123) quedó como
+    residuo posible; matar con pkill si molesta.
