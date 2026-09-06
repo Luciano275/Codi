@@ -43,7 +43,20 @@ export interface Course {
   region: string;
   xpReward: number;
   order: number;
+  islandId: string | null;
   modules: Module[];
+}
+
+export interface Island {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  modelPath: string;
+  available: boolean;
+  accent: string;
+  order: number;
+  courses: Course[];
 }
 
 export interface Module {
@@ -135,6 +148,10 @@ export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
 
 export async function fetchCourses(): Promise<Course[]> {
   return serverFetch<Course[]>('/api/courses');
+}
+
+export async function fetchIslands(): Promise<Island[]> {
+  return serverFetch<Island[]>('/api/courses/islands');
 }
 
 export async function fetchLesson(id: string): Promise<Lesson> {
