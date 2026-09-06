@@ -5,6 +5,9 @@ import { RedisService } from '../redis/redis.service';
 export const ADMIN_LESSONS_CACHE_KEY = 'admin:lessons:all';
 export const ADMIN_PROBLEMS_CACHE_KEY = 'admin:problems:all';
 export const ADMIN_COURSES_CACHE_KEY = 'admin:courses:all';
+export const ISLANDS_CACHE_KEY = 'islands:summary:v2';
+export const ISLAND_PATHS_CACHE_KEY = 'islands:paths:v2';
+export const COURSE_PATHS_CACHE_KEY = 'courses:paths:submodules:v2';
 export const CONTENT_CACHE_TTL_SECONDS = 60 * 60;
 
 @Injectable()
@@ -44,12 +47,21 @@ export class ContentCacheService {
     await this.delete([
       ADMIN_LESSONS_CACHE_KEY,
       `lessons:${lessonId}`,
+      `lessons:v2:${lessonId}`,
       ...this.courseKeys(courseIds),
     ]);
   }
 
   async invalidateCourseTree(courseIds: string[]) {
     await this.delete([ADMIN_LESSONS_CACHE_KEY, ...this.courseKeys(courseIds)]);
+  }
+
+  async invalidateUserProgress(userId: string) {
+    await this.delete([this.userProgressKey(userId)]);
+  }
+
+  userProgressKey(userId: string) {
+    return `progress:user:${userId}`;
   }
 
   async invalidateProblem(lessonId?: string, courseId?: string) {
@@ -66,6 +78,9 @@ export class ContentCacheService {
 
     return [
       'courses:all',
+      ISLANDS_CACHE_KEY,
+      ISLAND_PATHS_CACHE_KEY,
+      COURSE_PATHS_CACHE_KEY,
       ADMIN_COURSES_CACHE_KEY,
       ...validCourseIds.flatMap((courseId) => [
         `courses:${courseId}`,
