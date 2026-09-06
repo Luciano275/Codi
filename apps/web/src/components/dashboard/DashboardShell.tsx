@@ -17,6 +17,8 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const isIslandSelection = pathname === '/dashboard';
+  const isIslandPath = pathname.startsWith('/dashboard/islands/');
+  const isIslandExperience = isIslandSelection || isIslandPath;
 
   return (
     <div className="h-dvh overflow-hidden bg-gray-50">
@@ -24,7 +26,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
       <Menubar open={menuOpen} userRole={user.role} onClose={() => setMenuOpen(false)} />
       <main
         id="main-content"
-        className={`relative h-[calc(100dvh-4rem)] min-w-0 overflow-y-auto md:h-[calc(100dvh-5rem)] ${isIslandSelection ? 'overflow-hidden' : ''}`}
+        className={`relative h-dvh min-w-0 overflow-x-hidden overflow-y-auto ${isIslandSelection ? 'overflow-hidden' : ''} ${isIslandExperience ? '' : 'pt-16 md:pt-20'}`}
       >
         <PageTransition>
           {isIslandSelection ? (
