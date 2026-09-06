@@ -1,18 +1,8 @@
 import { Suspense } from 'react';
 import { serverFetch } from '@/lib/server-api';
 import { AdminListSkeleton } from '@/components/admin/skeleton';
+import type { AdminCourse } from '@/hooks/queries/useAdminCourses';
 import CoursesClient from './courses-client';
-
-interface AdminCourse {
-  id: string;
-  title: string;
-  slug: string;
-  level: number;
-  region: string;
-  xpReward: number;
-  order: number;
-  _count: { modules: number };
-}
 
 async function CoursesContent() {
   let courses: AdminCourse[] = [];

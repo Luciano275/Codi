@@ -12,7 +12,18 @@ export interface AdminCourse {
   region: string;
   xpReward: number;
   order: number;
+  islandId: string | null;
   _count?: { modules: number };
+}
+
+export interface CourseMutationData {
+  title: string;
+  slug: string;
+  level: number;
+  region: string;
+  xpReward: number;
+  order: number;
+  islandId?: string;
 }
 
 export function useAdminCoursesList() {
@@ -45,14 +56,7 @@ export function useCreateCourse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: {
-      title: string;
-      slug: string;
-      level: number;
-      region: string;
-      xpReward: number;
-      order: number;
-    }) =>
+    mutationFn: (data: CourseMutationData) =>
       adminFetch('/api/admin/courses', {
         method: 'POST',
         body: JSON.stringify(data),
@@ -69,17 +73,7 @@ export function useUpdateCourse() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      id,
-      ...data
-    }: { id: string } & Partial<{
-      title: string;
-      slug: string;
-      level: number;
-      region: string;
-      xpReward: number;
-      order: number;
-    }>) =>
+    mutationFn: ({ id, ...data }: { id: string } & Partial<CourseMutationData>) =>
       adminFetch(`/api/admin/courses/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(data),
