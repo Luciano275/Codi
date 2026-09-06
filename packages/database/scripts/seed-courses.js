@@ -172,8 +172,8 @@ async function main() {
     try {
       for (const course of courses) {
         const { rows: [courseRow] } = await client.query(
-          `INSERT INTO "codi_course" ("id", "title", "slug", "level", "region", "xpReward", "order", "createdAt", "updatedAt")
-           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, now(), now())
+          `INSERT INTO "codi_course" ("id", "title", "slug", "level", "region", "xpReward", "order", "islandId", "createdAt", "updatedAt")
+           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, 'island-programacion-competitiva', now(), now())
            RETURNING "id"`,
           [course.title, course.slug, course.level, course.region, course.xpReward, course.order]
         );

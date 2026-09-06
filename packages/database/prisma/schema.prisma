@@ -82,32 +82,32 @@ enum UserRewardStatus {
 // ─── Auth / Users ────────────────────────────────────────
 
 model User {
-  id           String        @id @default(uuid())
-  cmsUserId    Int
-  cmsSource    CmsUserSource
-  passwordHash String?
-  username     String        @unique
-  email        String?
-  displayName  String
+  id              String        @id @default(uuid())
+  cmsUserId       Int
+  cmsSource       CmsUserSource
+  passwordHash    String?
+  username        String        @unique
+  email           String?
+  displayName     String
   avatarObjectKey String?
-  profileBanner String       @default("BOSQUE")
-  role         Role          @default(STUDENT)
+  profileBanner   String        @default("BOSQUE")
+  role            Role          @default(STUDENT)
 
-  xp           Int      @default(0)
-  gems         Int      @default(0)
-  level        Int      @default(1)
-  streak       Int      @default(0)
+  xp           Int       @default(0)
+  gems         Int       @default(0)
+  level        Int       @default(1)
+  streak       Int       @default(0)
   lastActiveAt DateTime?
 
-  submissions        Submission[]
-  achievements       UserAchievement[]
-  weeklyRankings     WeeklyRanking[]
-  dailyMissions      DailyMission[]
-  examAttempts       ExamAttempt[]
-  notifications      Notification[]
-  lessonCompletions  LessonCompletion[]
-  rewardRedemptions  RewardRedemption[]
-  rewards            UserReward[]
+  submissions       Submission[]
+  achievements      UserAchievement[]
+  weeklyRankings    WeeklyRanking[]
+  dailyMissions     DailyMission[]
+  examAttempts      ExamAttempt[]
+  notifications     Notification[]
+  lessonCompletions LessonCompletion[]
+  rewardRedemptions RewardRedemption[]
+  rewards           UserReward[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -118,15 +118,34 @@ model User {
 
 // ─── Ruta de Aprendizaje ─────────────────────────────────
 
+model Island {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  description String
+  modelPath   String   @default("/islands/isla.glb")
+  available   Boolean  @default(true)
+  accent      String   @default("#58cc02")
+  order       Int
+  courses     Course[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("codi_island")
+}
+
 model Course {
-  id        String   @id @default(uuid())
-  title     String
-  slug      String   @unique
-  level     Int
-  region    String
-  xpReward  Int      @default(100)
-  order     Int
-  modules   Module[]
+  id       String   @id @default(uuid())
+  title    String
+  slug     String   @unique
+  level    Int
+  region   String
+  xpReward Int      @default(100)
+  order    Int
+  islandId String?
+  island   Island?  @relation(fields: [islandId], references: [id], onDelete: SetNull)
+  modules  Module[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -135,12 +154,12 @@ model Course {
 }
 
 model Module {
-  id        String   @id @default(uuid())
-  courseId   String
-  course    Course   @relation(fields: [courseId], references: [id])
-  title     String
-  order     Int
-  lessons   Lesson[]
+  id       String   @id @default(uuid())
+  courseId String
+  course   Course   @relation(fields: [courseId], references: [id])
+  title    String
+  order    Int
+  lessons  Lesson[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -149,24 +168,24 @@ model Module {
 }
 
 model Lesson {
-  id        String     @id @default(uuid())
-  moduleId   String
-  module    Module     @relation(fields: [moduleId], references: [id])
-  title     String
-  order     Int
-  type      LessonType
-  content   Json?
-  imageObjectKey String?
-  imageFileName  String?
+  id               String             @id @default(uuid())
+  moduleId         String
+  module           Module             @relation(fields: [moduleId], references: [id])
+  title            String
+  order            Int
+  type             LessonType
+  content          Json?
+  imageObjectKey   String?
+  imageFileName    String?
   imageContentType String?
-  pdfObjectKey String?
-  pdfFileName  String?
-  videoObjectKey String?
-  videoFileName  String?
+  pdfObjectKey     String?
+  pdfFileName      String?
+  videoObjectKey   String?
+  videoFileName    String?
   videoContentType String?
-  xpReward  Int        @default(50)
-  problems  Problem[]
-  completions LessonCompletion[]
+  xpReward         Int                @default(50)
+  problems         Problem[]
+  completions      LessonCompletion[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -177,14 +196,14 @@ model Lesson {
 // ─── Seguimiento de Lecciones ───────────────────────────
 
 model LessonCompletion {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  lessonId  String
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  id       String @id @default(uuid())
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId String
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
 
   completedAt DateTime @default(now())
-  xpAwarded  Int      @default(0)
+  xpAwarded   Int      @default(0)
 
   @@unique([userId, lessonId])
   @@map("codi_lesson_completion")
@@ -233,19 +252,19 @@ model RewardRedemption {
 }
 
 model UserReward {
-  id        String           @id @default(uuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rewardId  String
-  reward    Reward           @relation(fields: [rewardId], references: [id])
-  redemptionId String         @unique
+  id           String           @id @default(uuid())
+  userId       String
+  user         User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rewardId     String
+  reward       Reward           @relation(fields: [rewardId], references: [id])
+  redemptionId String           @unique
   redemption   RewardRedemption @relation(fields: [redemptionId], references: [id], onDelete: Cascade)
-  slotKey   String
-  status    UserRewardStatus
-  metadata  Json?
-  activatedAt DateTime?
-  expiresAt DateTime?
-  usedAt    DateTime?
+  slotKey      String
+  status       UserRewardStatus
+  metadata     Json?
+  activatedAt  DateTime?
+  expiresAt    DateTime?
+  usedAt       DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -266,9 +285,9 @@ model Problem {
   xpReward    Int        @default(50)
   gemsReward  Int        @default(0)
 
-  lessonId    String?
-  lesson      Lesson?    @relation(fields: [lessonId], references: [id])
-  order       Int        @default(0)
+  lessonId String?
+  lesson   Lesson? @relation(fields: [lessonId], references: [id])
+  order    Int     @default(0)
 
   content       Json?
   attachmentUrl String?
@@ -285,17 +304,17 @@ model Problem {
 // ─── Evaluaciones ────────────────────────────────────────
 
 model Submission {
-  id              String           @id @default(uuid())
-  userId          String
-  user            User             @relation(fields: [userId], references: [id])
-  problemId       String
-  problem         Problem          @relation(fields: [problemId], references: [id])
-  code            String
-  language        String           @default("python")
-  status          SubmissionStatus @default(PENDING)
-  score           Float?
+  id        String           @id @default(uuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id])
+  problemId String
+  problem   Problem          @relation(fields: [problemId], references: [id])
+  code      String
+  language  String           @default("python")
+  status    SubmissionStatus @default(PENDING)
+  score     Float?
 
-  cmsSubmissionId Int?   @unique
+  cmsSubmissionId Int?  @unique
   cmsResults      Json?
 
   submittedAt DateTime  @default(now())
@@ -309,12 +328,12 @@ model Submission {
 // ─── Gamificación ────────────────────────────────────────
 
 model Achievement {
-  id          String   @id @default(uuid())
-  code        String   @unique
+  id          String            @id @default(uuid())
+  code        String            @unique
   title       String
   description String
   iconUrl     String?
-  xpReward    Int      @default(0)
+  xpReward    Int               @default(0)
   users       UserAchievement[]
 
   @@map("codi_achievement")
@@ -332,12 +351,12 @@ model UserAchievement {
 }
 
 model League {
-  id        String     @id @default(uuid())
-  name      LeagueName @unique
-  minXp     Int        @default(0)
-  maxXp     Int?
-  order     Int
-  rankings  WeeklyRanking[]
+  id       String          @id @default(uuid())
+  name     LeagueName      @unique
+  minXp    Int             @default(0)
+  maxXp    Int?
+  order    Int
+  rankings WeeklyRanking[]
 
   @@map("codi_league")
 }
@@ -376,14 +395,14 @@ model DailyMission {
 // ─── Exámenes ────────────────────────────────────────────
 
 model Exam {
-  id          String   @id @default(uuid())
+  id          String        @id @default(uuid())
   title       String
   description String?
   courseId    String?
   duration    Int
   startAt     DateTime?
   endAt       DateTime?
-  xpReward    Int      @default(200)
+  xpReward    Int           @default(200)
   problems    ExamProblem[]
   attempts    ExamAttempt[]
 
@@ -395,10 +414,10 @@ model Exam {
 
 model ExamProblem {
   examId    String
-  exam      Exam     @relation(fields: [examId], references: [id])
+  exam      Exam    @relation(fields: [examId], references: [id])
   problemId String
-  problem   Problem  @relation(fields: [problemId], references: [id])
-  points    Int      @default(100)
+  problem   Problem @relation(fields: [problemId], references: [id])
+  points    Int     @default(100)
   order     Int
 
   @@id([examId, problemId])
@@ -406,15 +425,15 @@ model ExamProblem {
 }
 
 model ExamAttempt {
-  id        String   @id @default(uuid())
-  examId    String
-  exam      Exam     @relation(fields: [examId], references: [id])
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  startAt   DateTime @default(now())
-  endAt     DateTime?
-  score     Float?
-  answers   ExamAnswer[]
+  id      String       @id @default(uuid())
+  examId  String
+  exam    Exam         @relation(fields: [examId], references: [id])
+  userId  String
+  user    User         @relation(fields: [userId], references: [id])
+  startAt DateTime     @default(now())
+  endAt   DateTime?
+  score   Float?
+  answers ExamAnswer[]
 
   createdAt DateTime @default(now())
 
