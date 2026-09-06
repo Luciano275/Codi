@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, Min, MaxLength } from 'class-validator';
+import { IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
 export class CreateCourseDto {
   @IsString()
@@ -19,4 +19,9 @@ export class CreateCourseDto {
   @IsOptional() @IsInt() @Min(0) xpReward?: number;
 
   @IsInt() @Min(1) order!: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(255)
+  islandId?: string;
 }
