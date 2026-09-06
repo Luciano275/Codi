@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft, Menu } from 'lucide-react';
+import { X } from 'lucide-react';
 import SidebarIcon from '@/components/ui/SidebarIcon';
 import type { IconName } from '@/components/ui/SidebarIcon';
 
 interface MenubarProps {
+  open: boolean;
   userRole?: string;
+  onClose: () => void;
 }
 
 interface NavItem {
@@ -18,9 +19,8 @@ interface NavItem {
   href: string;
 }
 
-export default function Menubar({ userRole }: MenubarProps) {
+export default function Menubar({ open, userRole, onClose }: MenubarProps) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(true);
 
   const navItems: NavItem[] = [
     { id: 'ruta', label: 'Ruta de aprendizaje', icon: 'map', href: '/dashboard' },
@@ -35,7 +35,9 @@ export default function Menubar({ userRole }: MenubarProps) {
   ];
 
   const isActive = (href: string) => {
-    if (href === '/dashboard') return pathname === '/dashboard';
+    if (href === '/dashboard') {
+      return pathname === '/dashboard' || pathname.startsWith('/dashboard/islands/');
+    }
     return pathname.startsWith(href);
   };
 
@@ -44,35 +46,28 @@ export default function Menubar({ userRole }: MenubarProps) {
 
   return (
     <>
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="fixed left-3 top-[4.5rem] z-50 flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-md lg:hidden"
-        aria-label="Toggle menu"
-      >
-        <Menu className="h-5 w-5 text-gray-600" />
-      </button>
-
-      {!collapsed && (
-        <div
-          className="fixed inset-0 z-30 bg-black/20 lg:hidden"
-          onClick={() => setCollapsed(true)}
-        />
+      {open && (
+        <div className="fixed inset-0 z-60 bg-[#07111f]/55 backdrop-blur-[2px]" onClick={onClose} />
       )}
 
       <nav
-        className={`${
-          collapsed ? '-translate-x-full' : 'translate-x-0'
-        } fixed left-0 top-16 z-40 flex h-[calc(100vh-4rem)] w-64 flex-col border-r border-gray-200 bg-gray-50/95 p-3 backdrop-blur-sm transition-transform duration-300 md:top-20 md:h-[calc(100vh-5rem)] lg:static lg:translate-x-0`}
+        aria-hidden={!open}
+        inert={!open}
+        className={`${open ? 'translate-x-0' : '-translate-x-full'} fixed inset-y-0 left-0 z-70 flex w-[min(20rem,88vw)] flex-col border-r border-white/10 bg-[#f8fbf3] p-4 shadow-[18px_0_55px_rgba(4,19,34,0.28)] transition-transform duration-300 ease-out`}
       >
-        <div className="mb-2 flex items-center justify-between px-2 pb-2">
-          <span className="font-simply-olive text-xs font-bold uppercase tracking-widest text-gray-400">
-            Menú
-          </span>
+        <div className="mb-5 flex items-center justify-between border-b border-gray-200 px-2 pb-4 pt-1">
+          <div>
+            <span className="font-super-pandora text-xl text-gray-900">Menú de viaje</span>
+            <p className="font-simply-olive text-xs text-gray-400">
+              Explorá Codi sin perder tu progreso
+            </p>
+          </div>
           <button
-            onClick={() => setCollapsed(true)}
-            className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-200 hover:text-gray-600 lg:hidden"
+            onClick={onClose}
+            aria-label="Cerrar menú principal"
+            className="rounded-xl border border-gray-200 bg-white p-2 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-800"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <X className="h-5 w-5" />
           </button>
         </div>
 
@@ -83,7 +78,7 @@ export default function Menubar({ userRole }: MenubarProps) {
               <li key={item.id}>
                 <Link
                   href={item.href}
-                  onClick={() => setCollapsed(true)}
+                  onClick={onClose}
                   className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
                     active
                       ? 'bg-white text-gray-900 shadow-xs'
@@ -108,7 +103,7 @@ export default function Menubar({ userRole }: MenubarProps) {
             </p>
             <Link
               href="/dashboard/teaching/lessons"
-              onClick={() => setCollapsed(true)}
+              onClick={onClose}
               className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 isTeachingActive
                   ? 'bg-white text-gray-900 shadow-xs'
@@ -117,7 +112,9 @@ export default function Menubar({ userRole }: MenubarProps) {
             >
               <SidebarIcon name="badge" active={isTeachingActive} />
               <span>Lecciones</span>
-              {isTeachingActive && <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />}
+              {isTeachingActive && (
+                <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />
+              )}
             </Link>
           </div>
         )}
@@ -129,7 +126,7 @@ export default function Menubar({ userRole }: MenubarProps) {
             </p>
             <Link
               href="/dashboard/admin/courses"
-              onClick={() => setCollapsed(true)}
+              onClick={onClose}
               className={`group flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${
                 isAdminActive
                   ? 'bg-white text-gray-900 shadow-xs'
@@ -146,9 +143,7 @@ export default function Menubar({ userRole }: MenubarProps) {
         )}
 
         <div className="border-t border-gray-200 pt-3">
-          <p className="px-3 font-candy-beans text-xs text-gray-400">
-            v0.1.0
-          </p>
+          <p className="px-3 font-candy-beans text-xs text-gray-400">v0.1.0</p>
         </div>
       </nav>
     </>

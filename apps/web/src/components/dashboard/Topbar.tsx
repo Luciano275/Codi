@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Gem, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Gem, ChevronDown, LogOut, Menu, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { useCurrentUser, useSetCurrentUser } from '@/hooks/queries/useCurrentUser';
 import { XPBar } from '@/components/level-up/XPBar';
@@ -11,9 +11,11 @@ import StatChip from '@/components/ui/StatChip';
 
 interface TopbarProps {
   user: UserProfile;
+  islandMode?: boolean;
+  onMenuOpen: () => void;
 }
 
-export default function Topbar({ user }: TopbarProps) {
+export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: fetchedUser, refetch } = useCurrentUser();
@@ -47,6 +49,14 @@ export default function Topbar({ user }: TopbarProps) {
   return (
     <header className="relative z-50 flex h-16 items-center justify-between border-b border-gray-200/60 bg-white/90 px-3 shadow-xs backdrop-blur-md md:h-20 md:px-6">
       <div className="flex items-center gap-2 md:gap-3">
+        <button
+          type="button"
+          onClick={onMenuOpen}
+          aria-label="Abrir menú principal"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-gray-200 bg-white text-gray-600 transition-colors hover:bg-gray-50"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <Image
           src="/school_logo.png"
           alt="EET 3117"
@@ -80,9 +90,11 @@ export default function Topbar({ user }: TopbarProps) {
         </div>
         <div>
           <h2 className="font-super-pandora text-base leading-tight text-gray-900 drop-shadow-xs md:text-lg">
-            Programación Competitiva
+            {islandMode ? 'Bienvenido a Codi' : 'Programación Competitiva'}
           </h2>
-          <p className="font-simply-olive text-[10px] text-gray-500 md:text-xs">con Python</p>
+          <p className="font-simply-olive text-[10px] text-gray-500 md:text-xs">
+            {islandMode ? 'Elegí tu próxima aventura' : 'con Python'}
+          </p>
         </div>
       </div>
 
