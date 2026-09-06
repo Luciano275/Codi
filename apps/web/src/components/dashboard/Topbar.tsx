@@ -53,7 +53,7 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
           type="button"
           onClick={onMenuOpen}
           aria-label="Abrir menú principal"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#46a302] bg-[#58cc02] text-white shadow-[0_4px_0_#2b7d03] transition-all hover:-translate-y-0.5 hover:bg-[#65d90b] active:translate-y-1 active:shadow-none"
+          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-2 border-[#46a302] bg-[#58cc02] text-white shadow-[0_4px_0_#2b7d03] transition-all hover:-translate-y-0.5 hover:bg-[#65d90b] active:translate-y-1 active:shadow-none"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -113,7 +113,7 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
         <div className="relative z-50" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1.5 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white"
+            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1.5 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white"
           >
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-lagos-100 shadow-xs md:h-9 md:w-9">
               {clientUser.avatarUrl ? (
