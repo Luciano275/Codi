@@ -45,7 +45,7 @@ const actions: Action[] = [
 export default function QuickActions() {
   return (
     <>
-      <section className="fixed inset-x-0 bottom-0 z-40 border-t border-gray-200 bg-white/95 backdrop-blur-sm md:hidden">
+      <section className="fixed inset-x-0 bottom-0 z-40 bg-transparent md:hidden">
         <div className="flex items-center justify-between gap-1 px-2 py-1.5">
           {actions.map(({ label, icon: Icon, gradient }) => {
             const isLab = label === 'Laboratorio';
@@ -72,7 +72,7 @@ export default function QuickActions() {
         </div>
       </section>
 
-      <section className="fixed inset-x-0 bottom-0 z-40 hidden border-t border-gray-200 bg-white/95 px-4 py-3 shadow-sm backdrop-blur-sm md:block">
+      <section className="fixed inset-x-0 bottom-0 z-40 hidden bg-transparent px-4 py-3 md:block">
         <div className="mx-auto grid w-full max-w-6xl grid-cols-3 gap-2 md:gap-3 lg:grid-cols-5">
           {actions.map(({ label, desc, icon, gradient }) => (
             <BottomActionCard
