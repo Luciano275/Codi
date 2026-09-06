@@ -13,11 +13,11 @@ const COURSES_CACHE_TTL_SECONDS = 60 * 60;
 
 @Injectable()
 export class CoursesService {
-  private redis: RedisClientType
+  private redis: RedisClientType;
 
   constructor(
     private readonly prisma: PrismaService,
-    private readonly redisService: RedisService
+    private readonly redisService: RedisService,
   ) {
     this.redis = redisService.getClient();
   }
@@ -28,7 +28,7 @@ export class CoursesService {
       return JSON.parse(cached);
     }
 
-    const result =  this.prisma.course.findMany({
+    const result = this.prisma.course.findMany({
       orderBy: { order: 'asc' },
       include: {
         modules: {
@@ -56,11 +56,28 @@ export class CoursesService {
     await this.redis.set('courses:all', JSON.stringify(await result), {
       expiration: {
         type: 'EX',
-        value: COURSES_CACHE_TTL_SECONDS
-      }
+        value: COURSES_CACHE_TTL_SECONDS,
+      },
     });
 
     return result;
+  }
+
+  async findIslands() {
+    return this.prisma.island.findMany({
+      orderBy: { order: 'asc' },
+      include: {
+        courses: {
+          orderBy: { order: 'asc' },
+          include: {
+            modules: {
+              orderBy: { order: 'asc' },
+              include: { lessons: { orderBy: { order: 'asc' } } },
+            },
+          },
+        },
+      },
+    });
   }
 
   async findOne(id: string) {
@@ -98,8 +115,8 @@ export class CoursesService {
     await this.redis.set(`courses:${id}`, JSON.stringify(course), {
       expiration: {
         type: 'EX',
-        value: COURSES_CACHE_TTL_SECONDS
-      }
+        value: COURSES_CACHE_TTL_SECONDS,
+      },
     });
 
     return course;
