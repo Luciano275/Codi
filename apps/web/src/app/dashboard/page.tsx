@@ -8,12 +8,12 @@ import {
   fetchIslands,
   fetchProgress,
   UnauthorizedError,
-  type Island,
+  type IslandSummary,
   type ProgressData,
   type RankingUser,
 } from '@/lib/server-api';
 
-function calculateIslandProgress(island: Island, progress: ProgressData) {
+function calculateIslandProgress(island: IslandSummary, progress: ProgressData) {
   const courseIds = new Set(island.courses.map((course) => course.id));
   const islandProgress = progress.courses.filter((course) => courseIds.has(course.courseId));
   const completed = islandProgress.reduce((total, course) => total + course.completedLessons, 0);
@@ -21,7 +21,7 @@ function calculateIslandProgress(island: Island, progress: ProgressData) {
   return lessons > 0 ? Math.round((completed / lessons) * 100) : 0;
 }
 
-function toIslandViewModel(island: Island, progress: ProgressData): IslandViewModel {
+function toIslandViewModel(island: IslandSummary, progress: ProgressData): IslandViewModel {
   return {
     id: island.id,
     title: island.title,
@@ -31,14 +31,14 @@ function toIslandViewModel(island: Island, progress: ProgressData): IslandViewMo
     accent: island.accent,
     href: `/dashboard/islands/${island.slug}`,
     courseCount: island.courses.length,
-    moduleCount: island.courses.reduce((total, course) => total + course.modules.length, 0),
+    moduleCount: island.courses.reduce((total, course) => total + (course._count?.modules ?? 0), 0),
     progress: calculateIslandProgress(island, progress),
   };
 }
 
 async function DashboardContent() {
-  let islands: Island[] = [];
-  let progress: ProgressData = { totalLessons: 0, completedLessons: 0, courses: [] };
+  let islands: IslandSummary[] = [];
+  let progress: ProgressData = { totalLessons: 0, completedLessons: 0, completedLessonIds: [], courses: [] };
   let ranking: RankingUser[] = [];
 
   try {
