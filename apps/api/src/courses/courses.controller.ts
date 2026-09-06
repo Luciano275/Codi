@@ -20,6 +20,18 @@ export class CoursesController {
     return this.courses.findIslands();
   }
 
+  @Get('islands/:slug/path')
+  @UseGuards(JwtAuthGuard)
+  async findIslandPath(@Param('slug') slug: string) {
+    return this.courses.findIslandPath(slug);
+  }
+
+  @Get(':id/path')
+  @UseGuards(JwtAuthGuard)
+  async findCoursePath(@Param('id') id: string) {
+    return this.courses.findCoursePath(id);
+  }
+
   @Get('progress/me')
   @UseGuards(JwtAuthGuard)
   async myProgress(@CurrentUser() user: User) {

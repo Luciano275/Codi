@@ -8,8 +8,27 @@ import { PrismaService } from '@codi/database';
 import { updateUserExperience } from '../progression/update-user-experience';
 import { RedisService } from '../redis/redis.service';
 import { RedisClientType } from 'redis';
+import {
+  ContentCacheService,
+  COURSE_PATHS_CACHE_KEY,
+  ISLAND_PATHS_CACHE_KEY,
+  ISLANDS_CACHE_KEY,
+} from '../content-cache/content-cache.service';
 
 const COURSES_CACHE_TTL_SECONDS = 60 * 60;
+
+export interface UserProgressCache {
+  totalLessons: number;
+  completedLessons: number;
+  completedLessonIds: string[];
+  courses: {
+    courseId: string;
+    courseTitle: string;
+    completedLessons: number;
+    totalLessons: number;
+    completed: boolean;
+  }[];
+}
 
 @Injectable()
 export class CoursesService {
@@ -18,6 +37,7 @@ export class CoursesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
+    private readonly contentCache: ContentCacheService,
   ) {
     this.redis = redisService.getClient();
   }
@@ -64,20 +84,82 @@ export class CoursesService {
   }
 
   async findIslands() {
-    return this.prisma.island.findMany({
+    const cached = await this.contentCache.get<unknown[]>(ISLANDS_CACHE_KEY);
+    if (cached) return cached;
+
+    const islands = await this.prisma.island.findMany({
       orderBy: { order: 'asc' },
       include: {
         courses: {
           orderBy: { order: 'asc' },
+          select: { id: true, title: true, order: true, _count: { select: { modules: true } } },
+        },
+      },
+    });
+    await this.contentCache.set(ISLANDS_CACHE_KEY, islands);
+    return islands;
+  }
+
+  async findIslandPath(slug: string) {
+    const cachedPaths = await this.contentCache.get<Record<string, unknown>>(ISLAND_PATHS_CACHE_KEY);
+    const cachedPath = cachedPaths?.[slug];
+    if (cachedPath) return cachedPath;
+
+    const island = await this.prisma.island.findUnique({
+      where: { slug },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        available: true,
+        accent: true,
+        order: true,
+        courses: {
+          orderBy: { order: 'asc' },
+          select: {
+            id: true,
+            title: true,
+            order: true,
+            level: true,
+            region: true,
+            xpReward: true,
+            _count: { select: { modules: true } },
+          },
+        },
+      },
+    });
+    if (!island) throw new NotFoundException('Island not found');
+
+    const path = island;
+    await this.contentCache.set(ISLAND_PATHS_CACHE_KEY, { ...cachedPaths, [slug]: path });
+    return path;
+  }
+
+  async findCoursePath(courseId: string) {
+    const cachedPaths = await this.contentCache.get<Record<string, unknown>>(COURSE_PATHS_CACHE_KEY);
+    const cachedPath = cachedPaths?.[courseId];
+    if (cachedPath) return cachedPath;
+
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        island: { select: { slug: true, title: true } },
+        modules: {
+          orderBy: { order: 'asc' },
           include: {
-            modules: {
+            lessons: {
               orderBy: { order: 'asc' },
-              include: { lessons: { orderBy: { order: 'asc' } } },
+              select: { id: true, title: true, order: true, type: true, xpReward: true },
             },
           },
         },
       },
     });
+    if (!course) throw new NotFoundException('Course not found');
+
+    await this.contentCache.set(COURSE_PATHS_CACHE_KEY, { ...cachedPaths, [courseId]: course });
+    return course;
   }
 
   async findOne(id: string) {
@@ -123,6 +205,10 @@ export class CoursesService {
   }
 
   async getProgress(userId: string) {
+    const progressKey = this.contentCache.userProgressKey(userId);
+    const cached = await this.contentCache.get<UserProgressCache>(progressKey);
+    if (cached) return cached;
+
     const courses = await this.prisma.course.findMany({
       orderBy: { order: 'asc' },
       include: {
@@ -171,11 +257,14 @@ export class CoursesService {
 
     const completedOverall = courseProgress.reduce((s, c) => s + c.completedLessons, 0);
 
-    return {
+    const progress = {
       totalLessons,
       completedLessons: completedOverall,
+      completedLessonIds: [...completedLessonIds],
       courses: courseProgress,
     };
+    await this.contentCache.set(progressKey, progress);
+    return progress;
   }
 
   async completeLesson(userId: string, lessonId: string) {
@@ -224,6 +313,7 @@ export class CoursesService {
       return xpAward.xpAwarded;
     });
 
+    await this.contentCache.invalidateUserProgress(userId);
     return { completed: true, xpAwarded: award };
   }
 
@@ -246,6 +336,7 @@ export class CoursesService {
       await updateUserExperience(transaction, userId, -(existing.xpAwarded || lesson.xpReward));
     });
 
+    await this.contentCache.invalidateUserProgress(userId);
     return { completed: false, xpRefunded: existing.xpAwarded || lesson.xpReward };
   }
 
