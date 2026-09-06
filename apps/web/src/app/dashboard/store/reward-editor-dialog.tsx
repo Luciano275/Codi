@@ -196,7 +196,7 @@ export function RewardEditorDialog({
             Disponible en la tienda
           </label>
           <label className="sm:col-span-2">
-            <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase tracking-wide text-gray-500">
+            <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
               Descripción
             </span>
             <textarea
@@ -233,7 +233,7 @@ export function RewardEditorDialog({
 function Field({ label, ...props }: React.ComponentProps<'input'> & { label: string }) {
   return (
     <label>
-      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase tracking-wide text-gray-500">
+      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
         {label}
       </span>
       <input
@@ -254,7 +254,7 @@ function SelectField({
 }) {
   return (
     <label>
-      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase tracking-wide text-gray-500">
+      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
         {label}
       </span>
       <select

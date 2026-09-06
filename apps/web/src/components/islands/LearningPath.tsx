@@ -91,7 +91,7 @@ export default function LearningPath({
           <ArrowLeft className="h-4 w-4" />
           {backLabel}
         </Link>
-        <p className="font-simply-olive mt-12 text-xs font-bold uppercase tracking-[0.25em] text-green-700/55 md:mt-5">
+        <p className="font-simply-olive mt-12 text-xs font-bold uppercase text-green-700/55 md:mt-5">
           {eyebrow}
         </p>
         <h1 className="font-super-pandora mt-1 text-2xl text-[#244229] md:text-4xl">{title}</h1>
@@ -168,7 +168,7 @@ export default function LearningPath({
                   )}
                 </span>
                 <span className="mt-4 max-w-[11rem] rounded-xl border border-green-900/10 bg-white/90 px-3 py-2 text-center shadow-sm transition-transform group-hover:-translate-y-0.5">
-                  <span className="font-simply-olive block text-[9px] font-bold uppercase tracking-wider text-green-700/55">
+                  <span className="font-simply-olive block text-[9px] font-bold uppercase text-green-700/55">
                     {step.eyebrow}
                   </span>
                   <span className="font-super-pandora mt-0.5 block text-xs text-[#29482e]">

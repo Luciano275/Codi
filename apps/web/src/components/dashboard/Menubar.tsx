@@ -98,7 +98,7 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
 
         {(userRole === 'TEACHER' || userRole === 'ADMIN') && (
           <div className="border-t border-gray-200 pt-2">
-            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase text-gray-400">
               Docencia
             </p>
             <Link
@@ -121,7 +121,7 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
 
         {userRole === 'ADMIN' && (
           <div className="border-t border-gray-200 pt-2">
-            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase tracking-widest text-gray-400">
+            <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase text-gray-400">
               Administración
             </p>
             <Link

@@ -127,12 +127,12 @@ const RewardCard = memo(function RewardCard({
       <RewardIllustration visual={reward.visual} />
       <div className="mt-4 flex items-center justify-between gap-3">
         <span
-          className={`rounded-full px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase tracking-[.13em] ${theme.tag}`}
+          className={`rounded-full px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase ${theme.tag}`}
         >
           {category}
         </span>
         {reward.status === 'ACTIVE' && (
-          <span className="flex items-center gap-1 rounded-full bg-valle-50 px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase tracking-[.11em] text-valle-700">
+          <span className="flex items-center gap-1 rounded-full bg-valle-50 px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase text-valle-700">
             <Sparkles className="h-3 w-3" /> Activo
           </span>
         )}
@@ -312,7 +312,7 @@ export default function StoreClient({
               />
             </div>
             <div>
-              <p className="font-simply-olive text-xs font-bold uppercase tracking-[.18em] text-lagos-600">
+              <p className="font-simply-olive text-xs font-bold uppercase text-lagos-600">
                 Recompensas para avanzar
               </p>
               <h1 className="mt-1 font-super-pandora text-fluid-2xl text-gray-900">
@@ -326,7 +326,7 @@ export default function StoreClient({
           <div className="flex min-w-66 items-center justify-between gap-4 overflow-hidden rounded-[1.5rem] border border-lagos-100 bg-white px-4 py-3 shadow-sm">
             <div>
               <GemBalance gems={store.gems} />
-              <p className="mt-1 font-simply-olive text-xs font-bold uppercase tracking-[.12em] text-gray-500">
+              <p className="mt-1 font-simply-olive text-xs font-bold uppercase text-gray-500">
                 Gemas disponibles
               </p>
             </div>

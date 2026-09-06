@@ -79,7 +79,7 @@ export function OperationResultMascot({
               aria-hidden="true"
               className={`absolute inset-x-0 top-0 h-3 border-b-4 border-[#17324d] ${status === 'success' ? 'bg-[#24c9b4]' : 'bg-[#8da0b5]'}`}
             />
-            <p className="absolute left-5 top-7 z-30 font-simply-olive text-[9px] font-bold uppercase tracking-[0.24em] text-[#17324d]/65 sm:left-7 sm:text-[10px]">
+            <p className="absolute left-5 top-7 z-30 font-simply-olive text-[9px] font-bold uppercase text-[#17324d]/65 sm:left-7 sm:text-[10px]">
               Resultado de la misión
             </p>
             <button

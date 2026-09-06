@@ -66,7 +66,7 @@ export function LevelUpAnimation({ previousLevel, level, onComplete }: LevelUpAn
                 initial={{ opacity: 0, y: -8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: reducedMotion ? 0.2 : 0.38, delay: 0.12 }}
-                className="relative z-10 mb-5 flex items-center gap-3 font-simply-olive text-[9px] font-bold uppercase tracking-[0.32em] text-amber-100/80 sm:mb-7 sm:text-xs"
+                className="relative z-10 mb-5 flex items-center gap-3 font-simply-olive text-[9px] font-bold uppercase text-amber-100/80 sm:mb-7 sm:text-xs"
               >
                 <span className="h-px w-8 bg-amber-200/70 sm:w-14" />
                 Recompensa desbloqueada
@@ -85,7 +85,7 @@ export function LevelUpAnimation({ previousLevel, level, onComplete }: LevelUpAn
                   delay: reducedMotion ? 0.08 : 0.38,
                   ease: 'easeOut',
                 }}
-                className="relative z-10 font-super-pandora text-[clamp(3rem,10vw,8.5rem)] font-bold leading-[0.86] tracking-[-0.055em] text-amber-50 [text-shadow:0_0_10px_rgba(255,255,220,0.95),0_0_34px_rgba(251,191,36,0.88),0_5px_0_rgba(89,48,3,0.8),0_9px_0_rgba(42,24,3,0.7)]"
+                className="relative z-10 font-super-pandora text-[clamp(3rem,10vw,8.5rem)] font-bold leading-[0.86] text-amber-50 [text-shadow:0_0_10px_rgba(255,255,220,0.95),0_0_34px_rgba(251,191,36,0.88),0_5px_0_rgba(89,48,3,0.8),0_9px_0_rgba(42,24,3,0.7)]"
               >
                 ¡SUBISTE DE NIVEL!
               </motion.p>
@@ -107,7 +107,7 @@ export function LevelUpAnimation({ previousLevel, level, onComplete }: LevelUpAn
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 0.72, y: 0 }}
                 transition={{ delay: reducedMotion ? 0.3 : 1.18, duration: 0.35 }}
-                className="relative z-10 mt-7 rounded-full border border-amber-100/35 bg-amber-100/10 px-4 py-1.5 font-simply-olive text-[10px] font-bold uppercase tracking-[0.26em] text-amber-100 shadow-[inset_0_0_16px_rgba(251,191,36,0.12)] sm:text-xs"
+                className="relative z-10 mt-7 rounded-full border border-amber-100/35 bg-amber-100/10 px-4 py-1.5 font-simply-olive text-[10px] font-bold uppercase text-amber-100 shadow-[inset_0_0_16px_rgba(251,191,36,0.12)] sm:text-xs"
               >
                 Tu aventura continúa
               </motion.p>

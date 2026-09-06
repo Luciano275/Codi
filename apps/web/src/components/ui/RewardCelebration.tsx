@@ -69,7 +69,7 @@ function RewardAmount({
       initial={{ opacity: 0, y: 18, scale: 0.7 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ type: 'spring', stiffness: 340, damping: 16, delay: reducedMotion ? 0 : 0.46 }}
-      className="font-super-pandora text-4xl tracking-tight sm:text-5xl"
+      className="font-super-pandora text-4xl sm:text-5xl"
     >
       +{displayedAmount.toLocaleString('es-AR')}{' '}
       <span className="text-2xl sm:text-3xl">{suffix}</span>
@@ -154,7 +154,7 @@ function RewardCelebrationCard({
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: reducedMotion ? 0 : 0.2 }}
-          className={`relative mx-auto flex w-fit items-center gap-1.5 rounded-full border border-current/15 bg-white/75 px-3 py-1 font-simply-olive text-[10px] font-bold uppercase tracking-[0.16em] ${style.accent}`}
+          className={`relative mx-auto flex w-fit items-center gap-1.5 rounded-full border border-current/15 bg-white/75 px-3 py-1 font-simply-olive text-[10px] font-bold uppercase ${style.accent}`}
         >
           <Sparkles className="h-3.5 w-3.5" />
           Recompensa desbloqueada
@@ -183,7 +183,7 @@ function RewardCelebrationCard({
           transition={{ delay: reducedMotion ? 0 : 0.34 }}
           className={`relative mt-4 ${style.ink}`}
         >
-          <p className="font-simply-olive text-xs font-bold uppercase tracking-[0.13em] opacity-65">
+          <p className="font-simply-olive text-xs font-bold uppercase opacity-65">
             {style.label}
           </p>
           <RewardAmount

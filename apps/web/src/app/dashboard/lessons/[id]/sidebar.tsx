@@ -85,7 +85,7 @@ export default function LessonSidebar({
 
         {/* Lesson list */}
         <div className="flex-1 overflow-y-auto p-3">
-          <p className="mb-2 px-2 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <p className="mb-2 px-2 font-simply-olive text-xs font-semibold uppercase text-gray-400">
             Contenido del módulo
           </p>
           <ul className="space-y-0.5">

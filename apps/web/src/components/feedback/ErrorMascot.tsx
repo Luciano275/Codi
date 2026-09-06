@@ -54,7 +54,7 @@ export function ErrorMascot({ title, description, score, reducedMotion }: ErrorM
         }}
         className="relative z-20 -mt-4 text-center text-[#17324d]"
       >
-        <p className="font-super-pandora text-[clamp(3rem,10vw,5.4rem)] leading-none tracking-[-0.035em] [text-shadow:0_4px_0_#ffffff]">
+        <p className="font-super-pandora text-[clamp(3rem,10vw,5.4rem)] leading-none [text-shadow:0_4px_0_#ffffff]">
           {title}
         </p>
         <p className="mt-3 font-simply-olive text-sm font-semibold sm:text-base">{description}</p>

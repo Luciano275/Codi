@@ -37,7 +37,7 @@ export function OptionsPanel({
   return (
     <aside className="flex w-56 flex-shrink-0 flex-col border-r border-gray-200 bg-gray-50">
       <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
-        <span className="font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+        <span className="font-simply-olive text-xs font-semibold uppercase text-gray-400">
           Opciones
         </span>
         <button onClick={onClose} className="rounded p-0.5 text-gray-400 hover:text-gray-600">
@@ -46,7 +46,7 @@ export function OptionsPanel({
       </div>
 
       <div className="border-b border-gray-200 p-3">
-        <p className="mb-1.5 font-simply-olive text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        <p className="mb-1.5 font-simply-olive text-[10px] font-semibold uppercase text-gray-400">
           Lenguaje
         </p>
         <div className="space-y-1">
@@ -68,7 +68,7 @@ export function OptionsPanel({
       </div>
 
       <div className="border-b border-gray-200 p-3 space-y-3">
-        <p className="font-simply-olive text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        <p className="font-simply-olive text-[10px] font-semibold uppercase text-gray-400">
           Editor
         </p>
         <div>
@@ -117,7 +117,7 @@ export function OptionsPanel({
         </div>
       </div>
       <div className="p-3">
-        <p className="mb-1.5 font-simply-olive text-[10px] font-semibold uppercase tracking-wider text-gray-400">
+        <p className="mb-1.5 font-simply-olive text-[10px] font-semibold uppercase text-gray-400">
           Atajos
         </p>
         <div className="space-y-1 text-[10px] text-gray-500">

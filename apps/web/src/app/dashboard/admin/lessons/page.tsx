@@ -308,7 +308,7 @@ export default function AdminLessonsPage() {
                 <div className="border-t border-gray-50 px-5 py-4">
                   <div className="mb-3 grid gap-4 md:grid-cols-2">
                     <div className="md:col-span-2">
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase text-gray-400">
                         Descripción
                       </h5>
                       {(lesson.content?.description as string) ? (
@@ -318,7 +318,7 @@ export default function AdminLessonsPage() {
                       )}
                     </div>
                     <div className="md:col-span-2">
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase text-gray-400">
                         Imagen
                       </h5>
                       {lesson.resources?.image ? (
@@ -332,7 +332,7 @@ export default function AdminLessonsPage() {
                       )}
                     </div>
                     <div className="md:col-span-2">
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase text-gray-400">
                         PDF
                       </h5>
                       {lesson.resources?.pdf ? (
@@ -346,7 +346,7 @@ export default function AdminLessonsPage() {
                       )}
                     </div>
                     <div className="md:col-span-2">
-                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                      <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase text-gray-400">
                         Video
                       </h5>
                       {lesson.resources?.video ? (
@@ -361,7 +361,7 @@ export default function AdminLessonsPage() {
                     </div>
                   </div>
                   <div>
-                    <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+                    <h5 className="mb-1 font-simply-olive text-xs font-semibold uppercase text-gray-400">
                       Ejercicios ({lesson.problems.length})
                     </h5>
                     {lesson.problems.length === 0 ? (

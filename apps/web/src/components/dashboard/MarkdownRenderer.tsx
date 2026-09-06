@@ -174,7 +174,7 @@ const tableComponents: Components = {
     <tr className="even:bg-gray-50/50">{children}</tr>
   ),
   th: ({ children }) => (
-    <th className="px-3 py-2 text-left text-xs font-semibold uppercase tracking-wider text-lagos-800">
+    <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-lagos-800">
       {children}
     </th>
   ),

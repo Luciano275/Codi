@@ -41,7 +41,7 @@ function CombatStat({
       </div>
       <div>
         <p className={`${styles.themeInk} font-candy-beans text-2xl`}>{value}</p>
-        <p className="mt-0.5 font-simply-olive text-[11px] font-bold uppercase tracking-[.12em] text-slate-500">
+        <p className="mt-0.5 font-simply-olive text-[11px] font-bold uppercase text-slate-500">
           {label}
         </p>
       </div>
@@ -75,7 +75,7 @@ function CampaignRecord({ player }: { player: CompetitivePlayerProfile }) {
     <section className={`${styles.campaignRecord} border-2 bg-white`}>
       <div className={styles.recordHeading}>
         <p
-          className={`${styles.themeInk} font-simply-olive text-xs font-bold uppercase tracking-[.2em]`}
+          className={`${styles.themeInk} font-simply-olive text-xs font-bold uppercase`}
         >
           Registro de campaña
         </p>
@@ -131,7 +131,7 @@ export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlaye
             </div>
             <div className="min-w-0">
               <p
-                className={`font-simply-olive text-xs font-bold uppercase tracking-[.25em] ${banner.ornamentClass}`}
+                className={`font-simply-olive text-xs font-bold uppercase ${banner.ornamentClass}`}
               >
                 {rankTitle}
               </p>

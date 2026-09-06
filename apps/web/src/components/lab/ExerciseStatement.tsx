@@ -49,7 +49,7 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-lagos-500" />
-          <span className="font-simply-olive text-xs font-semibold uppercase tracking-wider text-gray-400">
+          <span className="font-simply-olive text-xs font-semibold uppercase text-gray-400">
             Enunciado
           </span>
         </div>
@@ -97,7 +97,7 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
 
         <div className="border-t border-gray-200 bg-white">
           <details className="group" open={submissions.length > 0}>
-            <summary className="flex cursor-pointer items-center gap-2 border-b border-gray-100 px-4 py-2.5 text-xs font-semibold uppercase tracking-wider text-gray-400 transition-colors hover:bg-gray-50">
+            <summary className="flex cursor-pointer items-center gap-2 border-b border-gray-100 px-4 py-2.5 text-xs font-semibold uppercase text-gray-400 transition-colors hover:bg-gray-50">
               <CheckCircle2 className="h-3.5 w-3.5" />
               Envíos
               {submissions.length > 0 && (

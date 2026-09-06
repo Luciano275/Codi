@@ -35,10 +35,10 @@ export default function FullScreenWallpaper() {
             className="w-full max-w-15 h-auto rounded-xl object-contain"
           />
           <div>
-            <p className="text-white text-[16px] font-bold uppercase tracking-widest drop-shadow-sm">
+            <p className="text-white text-[16px] font-bold uppercase drop-shadow-sm">
               Escuela de Educación Técnica Nº 3117
             </p>
-            <p className="text-white/70 text-[13px] font-bold uppercase tracking-widest drop-shadow-sm">
+            <p className="text-white/70 text-[13px] font-bold uppercase drop-shadow-sm">
               Maestro Daniel Óscar Reyes
             </p>
           </div>

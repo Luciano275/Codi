@@ -55,7 +55,7 @@ export function SuccessMascot({ title, description, score, reducedMotion }: Succ
         }}
         className="relative z-20 -mt-4 text-center text-[#17324d]"
       >
-        <p className="font-super-pandora text-[clamp(3rem,10vw,5.8rem)] leading-[0.9] tracking-[-0.04em] [text-shadow:0_4px_0_#ffffff]">
+        <p className="font-super-pandora text-[clamp(3rem,10vw,5.8rem)] leading-[0.9] [text-shadow:0_4px_0_#ffffff]">
           {title}
         </p>
         <p className="mt-3 font-simply-olive text-sm font-bold sm:text-base">{description}</p>

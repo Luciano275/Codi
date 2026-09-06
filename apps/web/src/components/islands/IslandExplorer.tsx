@@ -66,7 +66,7 @@ export default function IslandExplorer({
         className={`pointer-events-none absolute inset-0 z-30 bg-white transition-opacity duration-500 ${showFlash ? 'opacity-100' : 'opacity-0'}`}
       />
       <header className="pointer-events-none absolute inset-x-0 top-4 z-10 px-4 text-center md:top-7">
-        <p className="font-simply-olive mb-1 text-[10px] font-bold uppercase tracking-[0.32em] text-sky-200/75 md:text-xs">
+        <p className="font-simply-olive mb-1 text-[10px] font-bold uppercase text-sky-200/75 md:text-xs">
           Mapa de mundos
         </p>
         <h1 className="font-super-pandora mx-auto max-w-3xl text-2xl leading-tight text-white drop-shadow-[0_4px_0_#2b7d03] md:text-4xl">

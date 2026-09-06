@@ -41,7 +41,7 @@ export const XPBar = memo(function XPBar({ totalXp, className = '' }: XPBarProps
         className={`min-w-32 rounded-xl border border-amber-200/80 bg-amber-50/90 px-2.5 py-1.5 shadow-xs md:min-w-44 md:px-3 ${className}`}
         title={`${totalXp.toLocaleString('es-AR')} XP acumulados`}
       >
-        <div className="mb-1 flex items-center justify-between gap-3 font-simply-olive text-[9px] font-bold uppercase tracking-[0.08em] text-amber-800 md:text-[10px]">
+        <div className="mb-1 flex items-center justify-between gap-3 font-simply-olive text-[9px] font-bold uppercase text-amber-800 md:text-[10px]">
           <span className="flex items-center gap-1">
             <Zap aria-hidden="true" className="h-3 w-3 fill-amber-400 text-amber-500" />
             Nivel {shownLevel}
