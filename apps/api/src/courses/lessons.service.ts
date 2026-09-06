@@ -35,7 +35,7 @@ export class LessonsService {
   }
 
   private async findCachedLesson(lessonId: string) {
-    const cacheKey = `lessons:${lessonId}`;
+    const cacheKey = `lessons:v2:${lessonId}`;
     const cachedLesson = await this.redis.get(cacheKey);
 
     if (cachedLesson) {
@@ -60,7 +60,14 @@ export class LessonsService {
       include: {
         module: {
           include: {
-            course: { select: { id: true, title: true, slug: true } },
+            course: {
+              select: {
+                id: true,
+                title: true,
+                slug: true,
+                island: { select: { slug: true, title: true } },
+              },
+            },
             lessons: {
               orderBy: { order: 'asc' },
               select: { id: true, title: true, order: true, type: true },

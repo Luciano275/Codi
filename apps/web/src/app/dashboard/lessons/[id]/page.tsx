@@ -55,6 +55,10 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson =
     currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+  const islandSlug = lesson.module.course.island?.slug;
+  const lessonPathHref = islandSlug
+    ? `/dashboard/islands/${islandSlug}/courses/${lesson.module.course.id}`
+    : `/dashboard/courses/${lesson.module.course.id}`;
 
   const description = lesson.content?.description as string | undefined;
 
@@ -62,6 +66,8 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
     <div className="flex h-full -m-6">
       {/* Sidebar */}
       <LessonSidebar
+        backHref={lessonPathHref}
+        backLabel="Volver a las lecciones"
         courseTitle={lesson.module.course.title}
         courseSlug={lesson.module.course.slug}
         moduleTitle={lesson.module.title}
@@ -75,7 +81,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-2 text-sm text-gray-400">
             <Link
-              href={`/dashboard/courses/${lesson.module.course.id}`}
+              href={lessonPathHref}
               className="transition-colors hover:text-lagos-600"
             >
               {lesson.module.course.title}

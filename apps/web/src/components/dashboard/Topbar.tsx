@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Gem, ChevronDown, LogOut, User, Settings } from 'lucide-react';
+import { Gem, ChevronDown, LogOut, Menu, User, Settings } from 'lucide-react';
 import type { UserProfile } from '@/lib/auth';
 import { useCurrentUser, useSetCurrentUser } from '@/hooks/queries/useCurrentUser';
 import { XPBar } from '@/components/level-up/XPBar';
@@ -11,9 +11,11 @@ import StatChip from '@/components/ui/StatChip';
 
 interface TopbarProps {
   user: UserProfile;
+  islandMode?: boolean;
+  onMenuOpen: () => void;
 }
 
-export default function Topbar({ user }: TopbarProps) {
+export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarProps) {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { data: fetchedUser, refetch } = useCurrentUser();
@@ -45,46 +47,58 @@ export default function Topbar({ user }: TopbarProps) {
   }, []);
 
   return (
-    <header className="relative z-50 flex h-16 items-center justify-between border-b border-gray-200/60 bg-white/90 px-3 shadow-xs backdrop-blur-md md:h-20 md:px-6">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between bg-transparent px-3 md:h-20 md:px-6">
       <div className="flex items-center gap-2 md:gap-3">
-        <Image
-          src="/school_logo.png"
-          alt="EET 3117"
-          width={44}
-          height={44}
-          priority
-          className="h-10 w-auto object-contain md:h-13"
-        />
-        <div className="hidden md:block">
-          <h1 className="font-super-pandora text-xs leading-tight text-gray-900 md:text-sm">
-            Escuela de Educación
-            <br />
-            Técnica Nº 3117
-          </h1>
-          <p className="font-simply-olive text-[10px] text-gray-500 md:text-[11px]">
-            Maestro Daniel Óscar Reyes
-          </p>
+        <button
+          type="button"
+          onClick={onMenuOpen}
+          aria-label="Abrir menú principal"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border-2 border-[#46a302] bg-[#58cc02] text-white shadow-[0_4px_0_#2b7d03] transition-all hover:-translate-y-0.5 hover:bg-[#65d90b] active:translate-y-1 active:shadow-none"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <div className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1 shadow-sm backdrop-blur-md md:gap-3">
+          <Image
+            src="/school_logo.png"
+            alt="EET 3117"
+            width={44}
+            height={44}
+            priority
+            className="h-10 w-auto object-contain md:h-13"
+          />
+          <div className="hidden md:block">
+            <h1 className="font-super-pandora text-xs leading-tight text-gray-900 md:text-sm">
+              Escuela de Educación
+              <br />
+              Técnica Nº 3117
+            </h1>
+            <p className="font-simply-olive text-[10px] text-gray-500 md:text-[11px]">
+              Maestro Daniel Óscar Reyes
+            </p>
+          </div>
         </div>
       </div>
 
-      <div className="absolute left-1/2 hidden -translate-x-1/2 w-full max-w-[300px] items-center gap-3 md:flex">
-        <div className="relative h-12 w-12 shrink-0 overflow-hidden md:h-15 md:w-15">
-          <Image
-            src="/logo.png?v=2"
-            alt="Codi"
-            fill
-            priority
-            sizes="(max-width: 768px) 48px, 60px"
-            className="object-contain drop-shadow-xs"
-          />
+      {!islandMode ? (
+        <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-white/70 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-md md:flex">
+          <div className="relative h-12 w-12 shrink-0 overflow-hidden md:h-15 md:w-15">
+            <Image
+              src="/logo.png?v=2"
+              alt="Codi"
+              fill
+              priority
+              sizes="(max-width: 768px) 48px, 60px"
+              className="object-contain drop-shadow-xs"
+            />
+          </div>
+          <div>
+            <h2 className="font-super-pandora text-base leading-tight text-gray-900 drop-shadow-xs md:text-lg">
+              Programación Competitiva
+            </h2>
+            <p className="font-simply-olive text-[10px] text-gray-500 md:text-xs">con Python</p>
+          </div>
         </div>
-        <div>
-          <h2 className="font-super-pandora text-base leading-tight text-gray-900 drop-shadow-xs md:text-lg">
-            Programación Competitiva
-          </h2>
-          <p className="font-simply-olive text-[10px] text-gray-500 md:text-xs">con Python</p>
-        </div>
-      </div>
+      ) : null}
 
       <div className="flex items-center gap-1.5 md:gap-3">
         <XPBar totalXp={clientUser.xp} />
@@ -99,7 +113,7 @@ export default function Topbar({ user }: TopbarProps) {
         <div className="relative z-50" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex items-center gap-2 rounded-xl px-2 py-1.5 transition-all duration-200 hover:bg-gray-100"
+            className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1.5 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white"
           >
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-lagos-100 shadow-xs md:h-9 md:w-9">
               {clientUser.avatarUrl ? (

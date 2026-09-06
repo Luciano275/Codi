@@ -43,7 +43,63 @@ export interface Course {
   region: string;
   xpReward: number;
   order: number;
+  islandId: string | null;
   modules: Module[];
+}
+
+export interface IslandSummary {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  modelPath: string;
+  available: boolean;
+  accent: string;
+  order: number;
+  courses: {
+    id: string;
+    title: string;
+    order: number;
+    _count: { modules: number };
+  }[];
+}
+
+export interface IslandPath {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  available: boolean;
+  accent: string;
+  order: number;
+  courses: {
+    id: string;
+    title: string;
+    order: number;
+    level: number;
+    region: string;
+    xpReward: number;
+    _count: { modules: number };
+  }[];
+}
+
+export interface CoursePath {
+  id: string;
+  title: string;
+  order: number;
+  island: { slug: string; title: string } | null;
+  modules: {
+    id: string;
+    title: string;
+    order: number;
+    lessons: {
+      id: string;
+      title: string;
+      order: number;
+      type: string;
+      xpReward: number;
+    }[];
+  }[];
 }
 
 export interface Module {
@@ -70,7 +126,12 @@ export interface Lesson {
   module: {
     id: string;
     title: string;
-    course: { id: string; title: string; slug: string };
+    course: {
+      id: string;
+      title: string;
+      slug: string;
+      island: { slug: string; title: string } | null;
+    };
     lessons: { id: string; title: string; order: number; type: string }[];
   };
 }
@@ -94,6 +155,7 @@ export interface Problem {
 export interface ProgressData {
   totalLessons: number;
   completedLessons: number;
+  completedLessonIds: string[];
   courses: {
     courseId: string;
     courseTitle: string;
@@ -136,6 +198,19 @@ export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
 export async function fetchCourses(): Promise<Course[]> {
   return serverFetch<Course[]>('/api/courses');
 }
+
+export async function fetchIslands(): Promise<IslandSummary[]> {
+  return serverFetch<IslandSummary[]>('/api/courses/islands');
+}
+
+export async function fetchIslandPath(slug: string): Promise<IslandPath> {
+  return serverFetch<IslandPath>(`/api/courses/islands/${slug}/path`);
+}
+
+export async function fetchCoursePath(id: string): Promise<CoursePath> {
+  return serverFetch<CoursePath>(`/api/courses/${id}/path`);
+}
+
 
 export async function fetchLesson(id: string): Promise<Lesson> {
   return serverFetch<Lesson>(`/api/lessons/${id}`);
