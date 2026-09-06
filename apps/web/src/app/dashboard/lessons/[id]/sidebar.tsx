@@ -25,6 +25,8 @@ interface LessonItem {
 }
 
 interface LessonSidebarProps {
+  backHref: string;
+  backLabel: string;
   courseTitle: string;
   courseSlug: string;
   moduleTitle: string;
@@ -33,6 +35,8 @@ interface LessonSidebarProps {
 }
 
 export default function LessonSidebar({
+  backHref,
+  backLabel,
   courseTitle,
   moduleTitle,
   lessons,
@@ -65,11 +69,11 @@ export default function LessonSidebar({
         {/* Header */}
         <div className="border-b border-gray-100 p-4">
           <button
-            onClick={() => router.push('/dashboard')}
+            onClick={() => router.push(backHref)}
             className="mb-2 flex items-center gap-1 text-xs font-medium text-gray-400 transition-colors hover:text-lagos-600"
           >
             <ChevronLeft className="h-3.5 w-3.5" />
-            Volver al dashboard
+            {backLabel}
           </button>
           <h3 className="font-super-pandora text-sm text-gray-800">
             {courseTitle}
