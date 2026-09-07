@@ -4,6 +4,12 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {
+  applyAnimeMaterials,
+  configureAnimeRenderer,
+  createAnimeLighting,
+  createToonGradient,
+} from './anime-rendering';
 import type { IslandViewModel } from './types';
 
 interface IslandWorldProps {
@@ -23,19 +29,29 @@ function easeInQuart(t: number) {
 }
 
 function makeUnavailable(root: THREE.Object3D) {
+  const unavailableMaterials = new Map<THREE.Material, THREE.MeshStandardMaterial>();
+
   root.traverse((child) => {
     if (!(child instanceof THREE.Mesh)) return;
-    const source = Array.isArray(child.material) ? child.material[0] : child.material;
-    const color =
-      source && 'color' in source ? (source.color as THREE.Color) : new THREE.Color(0x888888);
-    const luminance = color.r * 0.21 + color.g * 0.72 + color.b * 0.07;
-    child.material = new THREE.MeshStandardMaterial({
-      color: new THREE.Color().setHSL(0, 0, Math.min(0.62, Math.max(0.22, luminance))),
-      roughness: 0.9,
-      metalness: 0,
-      transparent: true,
-      opacity: 0.78,
+    const sources = Array.isArray(child.material) ? child.material : [child.material];
+    const materials = sources.map((source) => {
+      const cached = unavailableMaterials.get(source);
+      if (cached) return cached;
+      const color =
+        'color' in source ? (source.color as THREE.Color) : new THREE.Color(0x888888);
+      const luminance = color.r * 0.21 + color.g * 0.72 + color.b * 0.07;
+      const unavailable = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(0, 0, Math.min(0.68, Math.max(0.32, luminance))),
+        roughness: 0.9,
+        metalness: 0,
+        transparent: true,
+        opacity: 0.78,
+      });
+      unavailableMaterials.set(source, unavailable);
+      source.dispose();
+      return unavailable;
     });
+    child.material = Array.isArray(child.material) ? materials : materials[0];
   });
 }
 
@@ -44,6 +60,7 @@ function prepareIsland(
   island: IslandViewModel,
   index: number,
   count: number,
+  toonGradient: THREE.DataTexture,
 ) {
   const initialBox = new THREE.Box3().setFromObject(root);
   const size = initialBox.getSize(new THREE.Vector3());
@@ -67,6 +84,7 @@ function prepareIsland(
       child.receiveShadow = true;
     }
   });
+  if (island.available) applyAnimeMaterials(root, toonGradient);
   if (!island.available) makeUnavailable(root);
 
   const ring = new THREE.Mesh(
@@ -113,12 +131,7 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
     camera.position.set(0, 7.5, 18);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
-    renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.3;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    configureAnimeRenderer(renderer);
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -131,20 +144,8 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
     controls.maxPolarAngle = Math.PI * 0.47;
     controls.target.set(0, 0, 0);
 
-    scene.add(new THREE.HemisphereLight(0x9fc4ff, 0x3a322a, 1.15));
-    const sun = new THREE.DirectionalLight(0xffdbad, 4);
-    sun.position.set(-23, 25, 8);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    sun.shadow.camera.near = 1;
-    sun.shadow.camera.far = 70;
-    sun.shadow.camera.left = -20;
-    sun.shadow.camera.right = 20;
-    sun.shadow.camera.top = 14;
-    sun.shadow.camera.bottom = -10;
-    sun.shadow.bias = -0.0005;
-    sun.shadow.normalBias = 0.02;
-    scene.add(sun);
+    scene.add(createAnimeLighting());
+    const toonGradient = createToonGradient();
 
     const islandRoots: THREE.Object3D[] = [];
     const raycaster = new THREE.Raycaster();
@@ -171,7 +172,7 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
         }
         models.forEach((model, index) => {
           const island = islands[index];
-          const root = prepareIsland(model.scene, island, index, islands.length);
+          const root = prepareIsland(model.scene, island, index, islands.length, toonGradient);
           const selectedClip = THREE.AnimationClip.findByName(model.animations, 'Island_Selected');
           if (island.available && selectedClip) {
             const mixer = new THREE.AnimationMixer(root);
@@ -320,11 +321,17 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
       startEnterRef.current = null;
       notifyHover(null);
       controls.dispose();
+      islandRoots.forEach((root) => {
+        const mixer = root.userData.mixer as THREE.AnimationMixer | undefined;
+        mixer?.stopAllAction();
+        mixer?.uncacheRoot(root);
+      });
       renderer.domElement.removeEventListener('pointermove', handlePointerMove);
       renderer.domElement.removeEventListener('pointerdown', handlePointerDown);
       renderer.domElement.removeEventListener('pointerup', handlePointerUp);
       renderer.domElement.removeEventListener('pointerleave', handlePointerLeave);
       disposeObject(scene);
+      toonGradient.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
