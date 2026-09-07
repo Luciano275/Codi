@@ -120,7 +120,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
               <img
                 src={lesson.resources.image.url}
                 alt={`Imagen de la lección: ${lesson.title}`}
-                className="h-auto w-full"
+                className="h-auto max-w-full w-full object-contain"
               />
             </div>
           )}

@@ -1,13 +1,13 @@
 import * as THREE from 'three';
 
 export const ANIME_RENDERING = {
-  exposure: 1.12,
+  exposure: 1.08,
   maxPixelRatio: 2,
-  key: { color: 0xffd4a3, intensity: 4, position: [-28, 17.7, 4] as const },
-  fill: { color: 0x8ba7c4, intensity: 0.2 },
-  shadowMapSize: 1024,
+  key: { color: 0xfff1d0, intensity: 4.5, position: [-28, 20, 1] as const },
+  fill: { color: 0xb8d4f0, intensity: 0.15 },
+  shadowMapSize: 4096,
   shadowBias: -0.00035,
-  shadowNormalBias: 0.025,
+  shadowNormalBias: 0.015,
   saturation: 1.12,
   toonSteps: [62, 154, 255] as const,
 };

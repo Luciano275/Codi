@@ -23,7 +23,7 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
   const pathname = usePathname();
 
   const navItems: NavItem[] = [
-    { id: 'ruta', label: 'Ruta de aprendizaje', icon: 'map', href: '/dashboard' },
+    { id: 'ruta', label: 'Mapa de Mundos', icon: 'map', href: '/dashboard' },
     { id: 'ejercicios', label: 'Ejercicios', icon: 'code', href: '#' },
     { id: 'retos', label: 'Retos', icon: 'trophy', href: '#' },
     { id: 'tienda', label: 'Tienda de canjes', icon: 'store', href: '/dashboard/store' },
