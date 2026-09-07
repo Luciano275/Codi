@@ -9,6 +9,7 @@ import type {
   RewardEditorInput,
   RewardType,
   RewardVisual,
+  RewardIcon,
 } from '@codi/types';
 
 const categories: Array<{ value: RewardCategory; label: string }> = [
@@ -30,6 +31,15 @@ const visuals: Array<{ value: RewardVisual; label: string }> = [
   { value: 'double-xp', label: 'XP turquesa' },
 ];
 
+const icons: Array<{ value: RewardIcon; label: string }> = [
+  { value: 'badge-check', label: 'Insignia aprobada' },
+  { value: 'book-open-check', label: 'Libro de estudio' },
+  { value: 'calendar-check', label: 'Calendario aprobado' },
+  { value: 'circle-gauge', label: 'Indicador de progreso' },
+  { value: 'clipboard-check', label: 'Lista de tareas' },
+  { value: 'timer-reset', label: 'Temporizador' },
+];
+
 const emptyReward: RewardEditorInput = {
   slug: '',
   name: '',
@@ -39,6 +49,8 @@ const emptyReward: RewardEditorInput = {
   type: 'SMART_HINT',
   isActive: true,
   visual: 'hint',
+  color: '#4f46e5',
+  icon: 'badge-check',
 };
 
 function toEditorInput(reward: AdminReward | null): RewardEditorInput {
@@ -98,6 +110,8 @@ export function RewardEditorDialog({
       type: formData.get('type') as RewardType,
       isActive: formData.get('isActive') === 'on',
       visual: formData.get('visual') as RewardVisual,
+      color: String(formData.get('color') ?? ''),
+      icon: formData.get('icon') as RewardIcon,
       durationHours: type === 'DOUBLE_XP' ? Number(formData.get('durationHours')) : undefined,
     });
   }
@@ -175,6 +189,21 @@ export function RewardEditorDialog({
             defaultValue={initial.visual}
             options={visuals}
           />
+          <label>
+            <span className="mb-1.5 block font-simply-olive text-xs font-bold text-gray-500">
+              Color de la recompensa
+            </span>
+            <input
+              defaultValue={initial.color}
+              name="color"
+              type="color"
+              className="h-11 w-full cursor-pointer rounded-xl border border-gray-200 bg-white p-1"
+            />
+            <span className="mt-1 block font-simply-olive text-xs text-gray-500">
+              Se aplica como degradado automáticamente.
+            </span>
+          </label>
+          <SelectField label="Icono" name="icon" defaultValue={initial.icon} options={icons} />
           {type === 'DOUBLE_XP' && (
             <Field
               label="Duración (horas)"
@@ -196,7 +225,7 @@ export function RewardEditorDialog({
             Disponible en la tienda
           </label>
           <label className="sm:col-span-2">
-            <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
+            <span className="mb-1.5 block font-simply-olive text-xs font-bold text-gray-500">
               Descripción
             </span>
             <textarea
@@ -233,7 +262,7 @@ export function RewardEditorDialog({
 function Field({ label, ...props }: React.ComponentProps<'input'> & { label: string }) {
   return (
     <label>
-      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
+      <span className="mb-1.5 block font-simply-olive text-xs font-bold text-gray-500">
         {label}
       </span>
       <input
@@ -254,7 +283,7 @@ function SelectField({
 }) {
   return (
     <label>
-      <span className="mb-1.5 block font-simply-olive text-xs font-bold uppercase text-gray-500">
+      <span className="mb-1.5 block font-simply-olive text-xs font-bold text-gray-500">
         {label}
       </span>
       <select

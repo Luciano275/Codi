@@ -1,27 +1,26 @@
 'use client';
 
 import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import {
   BookOpenCheck,
+  CircleGauge,
   CircleCheck,
+  ClipboardCheck,
   Clock3,
   Code2,
   Gem,
   Grid2X2,
   HelpCircle,
   LockKeyhole,
-  Sparkles,
-  Star,
-  Trophy,
+  ReceiptText,
 } from 'lucide-react';
 import type { AdminReward, RecentReward, RewardsStoreData, StoreReward } from '@codi/types';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
-import diamondChestImage from '@/assets/diamonds_chest.png';
-import shopImage from '@/assets/shop.png';
-import shopWallpaperImage from '@/assets/shop_wallpaper.png';
+import diamondChestImage from '@/assets/diamonds_chest.webp';
+import shopImage from '@/assets/shop.webp';
+import shopWallpaperImage from '@/assets/shop_wallpaper.webp';
 import { redeemReward } from './actions';
 import { RewardIllustration } from './store-illustrations';
 
@@ -45,6 +44,14 @@ const rewardCategories = {
   PRACTICE: 'Práctica',
   ADVANTAGES: 'Ventajas',
   SPECIALS: 'Especiales',
+} as const;
+
+const categoryIcons = {
+  ALL: Grid2X2,
+  EXAMS: BookOpenCheck,
+  PRACTICE: Code2,
+  ADVANTAGES: CircleGauge,
+  SPECIALS: ClipboardCheck,
 } as const;
 
 const rewardThemes = {
@@ -116,24 +123,31 @@ const RewardCard = memo(function RewardCard({
   const actionClass = canOpen
     ? `bg-linear-to-r ${theme.action} text-white`
     : 'border border-gray-700 bg-gray-900 text-white';
+  const cardStyle = {
+    background: `linear-gradient(160deg, color-mix(in srgb, ${reward.color} 13%, white), white 48%, color-mix(in srgb, ${reward.color} 7%, white))`,
+    borderColor: `color-mix(in srgb, ${reward.color} 25%, white)`,
+  };
 
   return (
     <article
-      className={`relative flex min-h-[390px] flex-col overflow-hidden rounded-[1.8rem] border-2 bg-linear-to-b p-4 shadow-md transition-transform duration-200 [contain-intrinsic-size:auto_390px] [content-visibility:auto] hover:-translate-y-1 ${theme.card}`}
+      className="relative flex min-h-[410px] flex-col overflow-hidden rounded-[1.8rem] border-2 p-4 shadow-md transition-transform duration-200 hover:-translate-y-1"
+      style={cardStyle}
     >
-      <span aria-hidden className="absolute right-4 top-3 font-candy-beans text-xl text-white">
-        ✦
-      </span>
-      <RewardIllustration visual={reward.visual} />
+      <RewardIllustration
+        color={reward.color}
+        icon={reward.icon}
+        imageUrl={reward.imageUrl}
+        name={reward.name}
+      />
       <div className="mt-4 flex items-center justify-between gap-3">
         <span
-          className={`rounded-full px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase ${theme.tag}`}
+          className={`rounded-full px-2.5 py-1 font-simply-olive text-[10px] font-bold ${theme.tag}`}
         >
           {category}
         </span>
         {reward.status === 'ACTIVE' && (
-          <span className="flex items-center gap-1 rounded-full bg-valle-50 px-2.5 py-1 font-simply-olive text-[10px] font-bold uppercase text-valle-700">
-            <Sparkles className="h-3 w-3" /> Activo
+          <span className="flex items-center gap-1 rounded-full bg-valle-50 px-2.5 py-1 font-simply-olive text-[10px] font-bold text-valle-700">
+            <Clock3 className="h-3 w-3" /> Activo
           </span>
         )}
       </div>
@@ -179,16 +193,7 @@ function GemBalance({ gems }: { gems: number }) {
 }
 
 function CategoryIcon({ category }: { category: Category }) {
-  const Icon =
-    category === 'ALL'
-      ? Grid2X2
-      : category === 'EXAMS'
-        ? BookOpenCheck
-        : category === 'PRACTICE'
-          ? Code2
-          : category === 'ADVANTAGES'
-            ? Sparkles
-            : Star;
+  const Icon = categoryIcons[category];
   return <Icon className="h-4 w-4" />;
 }
 
@@ -205,7 +210,7 @@ function RecentRewardItem({ item }: { item: RecentReward }) {
   return (
     <li className="flex items-center gap-3 rounded-2xl bg-gray-50 px-3 py-2.5">
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white text-lagos-500 shadow-xs">
-        <Trophy className="h-4 w-4" />
+        <ReceiptText className="h-4 w-4" />
       </span>
       <div className="min-w-0">
         <p className="truncate font-super-pandora text-sm text-gray-800">{item.name}</p>
@@ -239,20 +244,12 @@ export default function StoreClient({
 }: StoreClientProps) {
   const [store, setStore] = useState(initialStore);
   const [isRedeeming, startRedeemTransition] = useTransition();
-  const reducedMotion = useReducedMotion();
   const [category, setCategory] = useState<Category>('ALL');
   const [selectedReward, setSelectedReward] = useState<StoreReward | null>(null);
   const [trimester, setTrimester] = useState<number | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [celebratedReward, setCelebratedReward] = useState<string | null>(null);
-  const modalFadeTransition = reducedMotion
-    ? { duration: 0 }
-    : { duration: 0.16, ease: 'easeOut' as const };
-  const modalDialogTransition = reducedMotion
-    ? { duration: 0 }
-    : { type: 'spring' as const, stiffness: 400, damping: 32, mass: 0.75 };
-
   useEffect(() => {
     if (!celebratedReward) return;
     const timeout = window.setTimeout(() => setCelebratedReward(null), 1900);
@@ -302,17 +299,10 @@ export default function StoreClient({
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-4">
             <div className="relative h-17 w-17 shrink-0 overflow-hidden rounded-[1.35rem] bg-bosque-100 shadow-inner">
-              <Image
-                src={shopImage}
-                alt=""
-                fill
-                priority
-                sizes="68px"
-                className="object-cover"
-              />
+              <Image src={shopImage} alt="" fill priority sizes="68px" className="object-cover" />
             </div>
             <div>
-              <p className="font-simply-olive text-xs font-bold uppercase text-lagos-600">
+              <p className="font-simply-olive text-xs font-bold text-lagos-600">
                 Recompensas para avanzar
               </p>
               <h1 className="mt-1 font-super-pandora text-fluid-2xl text-gray-900">
@@ -326,13 +316,12 @@ export default function StoreClient({
           <div className="flex min-w-66 items-center justify-between gap-4 overflow-hidden rounded-[1.5rem] border border-lagos-100 bg-white px-4 py-3 shadow-sm">
             <div>
               <GemBalance gems={store.gems} />
-              <p className="mt-1 font-simply-olive text-xs font-bold uppercase text-gray-500">
+              <p className="mt-1 font-simply-olive text-xs font-bold text-gray-500">
                 Gemas disponibles
               </p>
             </div>
-            <motion.div
-              className="relative -my-3 -mr-3 h-25 w-25 shrink-0 sm:h-31 sm:w-31"
-              animate={celebratedReward ? { rotate: [0, -5, 5, 0], scale: [1, 1.08, 1] } : {}}
+            <div
+              className={`relative -my-3 -mr-3 h-25 w-25 shrink-0 sm:h-31 sm:w-31 ${celebratedReward ? 'animate-[pulse_700ms_ease-in-out_2]' : ''}`}
             >
               <Image
                 src={diamondChestImage}
@@ -341,7 +330,7 @@ export default function StoreClient({
                 sizes="(max-width: 640px) 100px, 124px"
                 className="object-contain"
               />
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
@@ -394,7 +383,7 @@ export default function StoreClient({
       <section className="relative rounded-[1.7rem] border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
         <div className="flex items-center gap-3">
           <span className="grid h-10 w-10 place-items-center rounded-2xl bg-linear-to-br from-bosque-400 to-bosque-600 text-white shadow-sm">
-            <Trophy className="h-5 w-5" />
+            <ReceiptText className="h-5 w-5" />
           </span>
           <div>
             <h2 className="font-super-pandora text-xl text-gray-900">Mis recompensas</h2>
@@ -450,82 +439,60 @@ export default function StoreClient({
           onConfirm={confirmRedeem}
         />
       )}
-      <AnimatePresence>
-        {celebratedReward && (
-          <motion.div
-            aria-live="polite"
-            className="pointer-events-none fixed inset-0 z-[105] grid place-items-center"
-            initial={reducedMotion ? false : { opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.08 }}
+      {celebratedReward && (
+        <div
+          aria-live="polite"
+          className="pointer-events-none fixed inset-0 z-[105] grid place-items-center"
+        >
+          <div className="relative rounded-[2rem] border border-valle-200 bg-white px-7 py-6 text-center shadow-2xl">
+            <CircleCheck className="mx-auto h-9 w-9 text-valle-500" />
+            <p className="mt-2 font-super-pandora text-xl text-gray-900">¡Canje realizado!</p>
+            <p className="mt-1 font-simply-olive text-sm text-gray-600">{celebratedReward}</p>
+            <Gem className="absolute -right-3 -top-3 h-8 w-8 fill-valle-300 text-valle-500" />
+          </div>
+        </div>
+      )}
+      {message && (
+        <div
+          role="status"
+          className="fixed bottom-5 right-5 z-[110] flex max-w-sm items-center gap-3 rounded-2xl bg-gray-900 px-4 py-3 text-white shadow-xl"
+        >
+          <CircleCheck className="h-5 w-5 shrink-0 text-valle-300" />
+          <p className="font-simply-olive text-sm">{message}</p>
+          <button
+            onClick={() => setMessage(null)}
+            className="ml-1 text-xs text-white/70 hover:text-white"
           >
-            <div className="relative rounded-[2rem] border border-valle-200 bg-white px-7 py-6 text-center shadow-2xl">
-              <Sparkles className="mx-auto h-9 w-9 text-castillo-400" />
-              <p className="mt-2 font-super-pandora text-xl text-gray-900">¡Canje realizado!</p>
-              <p className="mt-1 font-simply-olive text-sm text-gray-600">{celebratedReward}</p>
-              <Gem className="absolute -right-3 -top-3 h-8 w-8 fill-valle-300 text-valle-500" />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {message && (
-          <motion.div
-            role="status"
-            initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            className="fixed bottom-5 right-5 z-[110] flex max-w-sm items-center gap-3 rounded-2xl bg-gray-900 px-4 py-3 text-white shadow-xl"
+            Cerrar
+          </button>
+        </div>
+      )}
+      {guideOpen && (
+        <div
+          className="fixed inset-0 z-[100] grid place-items-center bg-gray-950/30 p-4"
+          onMouseDown={() => setGuideOpen(false)}
+        >
+          <section
+            role="dialog"
+            aria-modal="true"
+            onMouseDown={(event) => event.stopPropagation()}
+            className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-xl"
           >
-            <CircleCheck className="h-5 w-5 shrink-0 text-valle-300" />
-            <p className="font-simply-olive text-sm">{message}</p>
+            <HelpCircle className="h-8 w-8 text-pradera-500" />
+            <h2 className="mt-3 font-super-pandora text-2xl text-gray-900">Cómo conseguir gemas</h2>
+            <p className="mt-2 font-simply-olive text-sm leading-6 text-gray-600">
+              Completá ejercicios, resolvé problemas por primera vez y participá de las actividades
+              propuestas por tu curso. Cada avance te acerca a una nueva recompensa.
+            </p>
             <button
-              onClick={() => setMessage(null)}
-              className="ml-1 text-xs text-white/70 hover:text-white"
+              onClick={() => setGuideOpen(false)}
+              className="mt-5 rounded-xl bg-gray-900 px-4 py-2.5 font-super-pandora text-sm text-white"
             >
-              Cerrar
+              Entendido
             </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <AnimatePresence>
-        {guideOpen && (
-          <motion.div
-            className="fixed inset-0 z-[100] grid place-items-center bg-gray-950/30 p-4"
-            initial={reducedMotion ? false : { opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={reducedMotion ? {} : { opacity: 0 }}
-            transition={modalFadeTransition}
-            onMouseDown={() => setGuideOpen(false)}
-          >
-            <motion.section
-              role="dialog"
-              aria-modal="true"
-              onMouseDown={(event) => event.stopPropagation()}
-              initial={reducedMotion ? false : { opacity: 0, scale: 0.98, y: 12 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={reducedMotion ? {} : { opacity: 0, scale: 0.985, y: 8 }}
-              transition={modalDialogTransition}
-              className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-xl"
-            >
-              <HelpCircle className="h-8 w-8 text-pradera-500" />
-              <h2 className="mt-3 font-super-pandora text-2xl text-gray-900">
-                Cómo conseguir gemas
-              </h2>
-              <p className="mt-2 font-simply-olive text-sm leading-6 text-gray-600">
-                Completá ejercicios, resolvé problemas por primera vez y participá de las
-                actividades propuestas por tu curso. Cada avance te acerca a una nueva recompensa.
-              </p>
-              <button
-                onClick={() => setGuideOpen(false)}
-                className="mt-5 rounded-xl bg-gray-900 px-4 py-2.5 font-super-pandora text-sm text-white"
-              >
-                Entendido
-              </button>
-            </motion.section>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </section>
+        </div>
+      )}
     </div>
   );
 }

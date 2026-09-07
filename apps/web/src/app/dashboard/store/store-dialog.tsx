@@ -83,7 +83,7 @@ export function StoreDialog({
               >
                 <X className="h-4 w-4" />
               </button>
-              <p className="font-simply-olive text-xs font-bold uppercase text-lagos-600">
+              <p className="font-simply-olive text-xs font-bold text-lagos-600">
                 Confirmar canje
               </p>
               <h2
