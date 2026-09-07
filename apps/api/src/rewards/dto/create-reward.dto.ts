@@ -43,6 +43,25 @@ export class CreateRewardDto {
   @IsIn(['exam', 'hint', 'double-xp'])
   visual!: 'exam' | 'hint' | 'double-xp';
 
+  @Matches(/^#[0-9A-Fa-f]{6}$/)
+  color!: string;
+
+  @IsIn([
+    'badge-check',
+    'book-open-check',
+    'calendar-check',
+    'circle-gauge',
+    'clipboard-check',
+    'timer-reset',
+  ])
+  icon!:
+    | 'badge-check'
+    | 'book-open-check'
+    | 'calendar-check'
+    | 'circle-gauge'
+    | 'clipboard-check'
+    | 'timer-reset';
+
   @IsOptional()
   @IsInt()
   @Min(1)

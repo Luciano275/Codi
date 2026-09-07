@@ -12,6 +12,7 @@ import {
   type Reward,
   type UserReward,
 } from '@codi/database';
+import { S3Service } from '../s3/s3.service';
 import { ConsumeRewardDto } from './dto/consume-reward.dto';
 import { CreateRewardDto } from './dto/create-reward.dto';
 import { RedeemRewardDto } from './dto/redeem-reward.dto';
@@ -34,7 +35,10 @@ function getTrimester(value: unknown): number | undefined {
 
 @Injectable()
 export class RewardsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly s3: S3Service,
+  ) {}
 
   async getCatalog() {
     const rewards = await this.prisma.reward.findMany({
@@ -75,7 +79,10 @@ export class RewardsService {
         cost: dto.cost,
         type: dto.type,
         isActive: dto.isActive,
-        metadata: this.editorMetadata(dto) as Prisma.InputJsonValue,
+        metadata: this.editorMetadata(
+          dto,
+          this.imageObjectKey(getMetadata(existing.metadata)),
+        ) as Prisma.InputJsonValue,
       },
       include: { _count: { select: { redemptions: true } } },
     });
@@ -128,7 +135,9 @@ export class RewardsService {
 
     return {
       gems: user.gems,
-      rewards: rewards.map((reward) => this.toStoreReward(reward, entitlements, user.gems, now)),
+      rewards: await Promise.all(
+        rewards.map((reward) => this.toStoreReward(reward, entitlements, user.gems, now)),
+      ),
       recentRewards: redemptions.map((redemption) => {
         const entitlement = redemption.entitlement;
         return {
@@ -233,7 +242,7 @@ export class RewardsService {
     return { consumed: true, entitlementId };
   }
 
-  private toStoreReward(
+  private async toStoreReward(
     reward: Reward,
     entitlements: Array<UserReward & { reward: { type: RewardType } }>,
     gems: number,
@@ -272,6 +281,10 @@ export class RewardsService {
           : 'AVAILABLE';
     const entitlement = activeEntitlement ?? availableEntitlement ?? rewardEntitlements[0];
 
+    const imageObjectKey = this.imageObjectKey(metadata);
+    const image = imageObjectKey
+      ? await this.s3.signedResource(imageObjectKey, null, 'image/webp')
+      : null;
     return {
       id: reward.id,
       slug: reward.slug,
@@ -281,6 +294,9 @@ export class RewardsService {
       cost: reward.cost,
       type: reward.type,
       visual: metadata.visual ?? 'hint',
+      color: this.rewardColor(metadata),
+      icon: this.rewardIcon(metadata),
+      imageUrl: image?.url,
       canRedeem: !unavailable && missingGems === 0,
       missingGems,
       status,
@@ -465,8 +481,13 @@ export class RewardsService {
     return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034';
   }
 
-  private editorMetadata(dto: CreateRewardDto | UpdateRewardDto) {
-    const metadata: RewardMetadata = { visual: dto.visual };
+  private editorMetadata(dto: CreateRewardDto | UpdateRewardDto, imageObjectKey?: string) {
+    const metadata: RewardMetadata = {
+      visual: dto.visual,
+      color: dto.color,
+      icon: dto.icon,
+      ...(imageObjectKey ? { imageObjectKey } : {}),
+    };
     if (dto.type === RewardType.EXAM_BONUS_POINT) metadata.allowedTrimesters = [1, 2, 3];
     if (dto.type === RewardType.SMART_HINT) metadata.maxAvailable = 1;
     if (dto.type === RewardType.DOUBLE_XP) {
@@ -489,11 +510,36 @@ export class RewardsService {
       type: reward.type,
       isActive: reward.isActive,
       visual: visual === 'exam' || visual === 'hint' || visual === 'double-xp' ? visual : 'hint',
+      color: this.rewardColor(metadata),
+      icon: this.rewardIcon(metadata),
+      imageObjectKey: this.imageObjectKey(metadata),
       durationHours:
         typeof metadata.durationHours === 'number' ? metadata.durationHours : undefined,
       createdAt: reward.createdAt,
       updatedAt: reward.updatedAt,
       redemptionCount: reward._count.redemptions,
     };
+  }
+
+  private rewardColor(metadata: RewardMetadata) {
+    const color = metadata.color;
+    return typeof color === 'string' && /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#4f46e5';
+  }
+
+  private rewardIcon(metadata: RewardMetadata) {
+    const icon = metadata.icon;
+    return icon === 'badge-check' ||
+      icon === 'book-open-check' ||
+      icon === 'calendar-check' ||
+      icon === 'circle-gauge' ||
+      icon === 'clipboard-check' ||
+      icon === 'timer-reset'
+      ? icon
+      : 'badge-check';
+  }
+
+  private imageObjectKey(metadata: RewardMetadata) {
+    const imageObjectKey = metadata.imageObjectKey;
+    return typeof imageObjectKey === 'string' ? imageObjectKey : undefined;
   }
 }

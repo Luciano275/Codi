@@ -54,6 +54,13 @@ export interface LeagueInfo {
 export type RewardCategory = 'EXAMS' | 'PRACTICE' | 'ADVANTAGES' | 'SPECIALS';
 export type RewardType = 'EXAM_BONUS_POINT' | 'SMART_HINT' | 'DOUBLE_XP';
 export type UserRewardStatus = 'AVAILABLE' | 'ACTIVE' | 'USED' | 'EXPIRED';
+export type RewardIcon =
+  | 'badge-check'
+  | 'book-open-check'
+  | 'calendar-check'
+  | 'circle-gauge'
+  | 'clipboard-check'
+  | 'timer-reset';
 
 export interface StoreReward {
   id: string;
@@ -64,6 +71,9 @@ export interface StoreReward {
   cost: number;
   type: RewardType;
   visual: 'exam' | 'hint' | 'double-xp';
+  color: string;
+  icon: RewardIcon;
+  imageUrl?: string;
   canRedeem: boolean;
   missingGems: number;
   status: 'AVAILABLE' | 'INSUFFICIENT_GEMS' | 'ACQUIRED' | 'ACTIVE';
@@ -103,6 +113,9 @@ export interface RewardEditorInput {
   type: RewardType;
   isActive: boolean;
   visual: RewardVisual;
+  color: string;
+  icon: RewardIcon;
+  imageObjectKey?: string;
   durationHours?: number;
 }
 
