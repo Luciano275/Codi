@@ -30,6 +30,7 @@ interface Lesson {
   type: LessonType;
   order: number;
   xpReward: number;
+  gemsReward: number;
   content: Record<string, unknown>;
   resources?: {
     image: { url: string; fileName: string | null; contentType: string | null } | null;
@@ -81,6 +82,7 @@ export function LessonForm({
   const [moduleId, setModuleId] = useState(lesson?.module.id ?? initialModuleId ?? '');
   const [order, setOrder] = useState(lesson?.order ?? 1);
   const [xpReward, setXpReward] = useState(lesson?.xpReward ?? 50);
+  const [gemsReward, setGemsReward] = useState(lesson?.gemsReward ?? 0);
   const [description, setDescription] = useState((lesson?.content?.description as string) ?? '');
   const [imageUploadKey, setImageUploadKey] = useState<string | null>(null);
   const [pdfUploadKey, setPdfUploadKey] = useState<string | null>(null);
@@ -129,6 +131,7 @@ export function LessonForm({
         moduleId,
         order,
         xpReward,
+        gemsReward,
         content: {
           description: description.trim(),
           instructions: instructions.trim(),
@@ -244,6 +247,20 @@ export function LessonForm({
             value={xpReward}
             onChange={(e) => setXpReward(parseInt(e.target.value) || 0)}
             min={0}
+            className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-lagos-400 focus:ring-2 focus:ring-lagos-100"
+          />
+        </div>
+
+        <div>
+          <label className="mb-1 block font-simply-olive text-sm font-medium text-gray-700">
+            Gemas Recompensa
+          </label>
+          <input
+            type="number"
+            value={gemsReward}
+            onChange={(event) => setGemsReward(Number.parseInt(event.target.value, 10) || 0)}
+            min={0}
+            step={1}
             className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-lagos-400 focus:ring-2 focus:ring-lagos-100"
           />
         </div>

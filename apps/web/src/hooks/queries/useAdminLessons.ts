@@ -29,6 +29,7 @@ export interface AdminLesson {
   type: LessonType;
   order: number;
   xpReward: number;
+  gemsReward: number;
   content: Record<string, unknown>;
   resources: {
     image: { url: string; fileName: string | null; contentType: string | null } | null;

@@ -18,7 +18,8 @@ export default async function CourseSubmodulePathPage({
   const currentLessonId = lessons.find((lesson) => !completedLessonIds.has(lesson.id))?.id;
   const steps: LearningPathStep[] = course.modules.flatMap((module) => {
     const completed =
-      module.lessons.length > 0 && module.lessons.every((lesson) => completedLessonIds.has(lesson.id));
+      module.lessons.length > 0 &&
+      module.lessons.every((lesson) => completedLessonIds.has(lesson.id));
     const current = module.lessons.some((lesson) => lesson.id === currentLessonId);
     const locked = !completed && !current;
     const submoduleStep: LearningPathStep = {
@@ -38,7 +39,10 @@ export default async function CourseSubmodulePathPage({
         id: lesson.id,
         title: lesson.title,
         eyebrow: `Lección ${lesson.order} · ${lesson.type}`,
-        detail: `${lesson.xpReward} XP`,
+        detail:
+          lesson.gemsReward > 0
+            ? `${lesson.xpReward} XP · ${lesson.gemsReward} 💎`
+            : `${lesson.xpReward} XP`,
         href: `/dashboard/lessons/${lesson.id}`,
         completed: lessonCompleted,
         current: lessonCurrent,
