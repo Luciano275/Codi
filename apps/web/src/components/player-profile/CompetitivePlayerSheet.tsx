@@ -1,14 +1,4 @@
-import {
-  Crown,
-  Flame,
-  Gem,
-  ShieldCheck,
-  Sparkles,
-  Swords,
-  Target,
-  Trophy,
-  Zap,
-} from 'lucide-react';
+import { Crown, Flame, Gem, ShieldCheck, Swords, Target, Trophy, Zap } from 'lucide-react';
 import type { CompetitivePlayerProfile } from '@/lib/server-api';
 import { getPlayerBanner } from './player-banner';
 import { PlayerAvatar } from './PlayerAvatar';
@@ -64,7 +54,7 @@ function CampaignRecord({ player }: { player: CompetitivePlayerProfile }) {
       tone: 'text-pradera-700',
     },
     {
-      icon: Sparkles,
+      icon: Target,
       label: 'Intentos registrados',
       value: player.totalSubmissions,
       tone: 'text-castillo-700',
@@ -74,9 +64,7 @@ function CampaignRecord({ player }: { player: CompetitivePlayerProfile }) {
   return (
     <section className={`${styles.campaignRecord} border-2 bg-white`}>
       <div className={styles.recordHeading}>
-        <p
-          className={`${styles.themeInk} font-simply-olive text-xs font-bold uppercase`}
-        >
+        <p className={`${styles.themeInk} font-simply-olive text-xs font-bold uppercase`}>
           Registro de campaña
         </p>
       </div>

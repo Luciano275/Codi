@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Gem, Sparkles, X, Zap } from 'lucide-react';
+import { Gem, X, Zap } from 'lucide-react';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import { RewardBurst } from './RewardBurst';
 
@@ -156,7 +156,7 @@ function RewardCelebrationCard({
           transition={{ delay: reducedMotion ? 0 : 0.2 }}
           className={`relative mx-auto flex w-fit items-center gap-1.5 rounded-full border border-current/15 bg-white/75 px-3 py-1 font-simply-olive text-[10px] font-bold uppercase ${style.accent}`}
         >
-          <Sparkles className="h-3.5 w-3.5" />
+          <Gem className="h-3.5 w-3.5" />
           Recompensa desbloqueada
         </motion.div>
 
@@ -183,9 +183,7 @@ function RewardCelebrationCard({
           transition={{ delay: reducedMotion ? 0 : 0.34 }}
           className={`relative mt-4 ${style.ink}`}
         >
-          <p className="font-simply-olive text-xs font-bold uppercase opacity-65">
-            {style.label}
-          </p>
+          <p className="font-simply-olive text-xs font-bold uppercase opacity-65">{style.label}</p>
           <RewardAmount
             amount={reward.amount}
             suffix={style.suffix}

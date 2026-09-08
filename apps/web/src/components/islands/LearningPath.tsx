@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Check, LockKeyhole, Play, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, Files, LockKeyhole, Play } from 'lucide-react';
 
 const STEP_POSITIONS = [18, 36, 58, 74, 62, 42, 20, 33, 54, 72];
 const STEP_GAP = 176;
@@ -99,7 +99,7 @@ export default function LearningPath({
           {description}
         </p>
         <div className="absolute right-10 top-8 hidden items-center gap-2 rounded-2xl border border-green-900/5 bg-white/85 px-4 py-3 text-sm text-green-900 shadow-sm md:flex">
-          <Sparkles className="h-5 w-5 text-pradera-500" />
+          <Files className="h-5 w-5 text-pradera-500" />
           <span className="font-super-pandora">
             {steps.length} {itemLabel}
           </span>
@@ -128,10 +128,10 @@ export default function LearningPath({
                   ? 'border-[#5eadd0] bg-[#9bdaf0] shadow-[#5295b3]'
                   : 'border-[#b0c8d2] bg-[#d7e5ea] shadow-[#a4b9c2]'
               : step.completed
-              ? 'border-[#46a302] bg-[#58cc02] shadow-[#2b7d03]'
-              : step.current
-                ? 'border-[#7ac92e] bg-[#9be84a] shadow-[#6dae2a]'
-                : 'border-[#b8cbb1] bg-[#d8e4d4] shadow-[#aebaa9]';
+                ? 'border-[#46a302] bg-[#58cc02] shadow-[#2b7d03]'
+                : step.current
+                  ? 'border-[#7ac92e] bg-[#9be84a] shadow-[#6dae2a]'
+                  : 'border-[#b8cbb1] bg-[#d8e4d4] shadow-[#aebaa9]';
             const capClass = isSubmodule
               ? step.completed
                 ? 'bg-[#9bdcf0] text-[#1f5670]'
@@ -139,10 +139,10 @@ export default function LearningPath({
                   ? 'bg-[#c4edf8] text-[#28627c]'
                   : 'bg-[#eaf2f4] text-[#7f969e]'
               : step.completed
-              ? 'bg-[#65d90b] text-white'
-              : step.current
-                ? 'bg-[#a9ed66] text-[#28591b]'
-                : 'bg-[#e7eee4] text-[#80927a]';
+                ? 'bg-[#65d90b] text-white'
+                : step.current
+                  ? 'bg-[#a9ed66] text-[#28591b]'
+                  : 'bg-[#e7eee4] text-[#80927a]';
 
             const className = `group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ${step.locked ? 'cursor-not-allowed opacity-45 saturate-50' : ''}`;
             const content = (
@@ -150,7 +150,9 @@ export default function LearningPath({
                 <span
                   className={`relative flex h-20 w-20 items-center justify-center rounded-full border-[5px] shadow-[0_9px_0] transition-transform duration-200 group-hover:-translate-y-1 group-hover:scale-105 md:h-24 md:w-24 ${stateClass} ${step.current ? 'animate-pulse' : ''}`}
                 >
-                  <span className={`font-super-pandora flex h-[72%] w-[72%] items-center justify-center rounded-full text-xl shadow-inner md:text-2xl ${capClass}`}>
+                  <span
+                    className={`font-super-pandora flex h-[72%] w-[72%] items-center justify-center rounded-full text-xl shadow-inner md:text-2xl ${capClass}`}
+                  >
                     {index + 1}
                   </span>
                   {step.completed ? (
