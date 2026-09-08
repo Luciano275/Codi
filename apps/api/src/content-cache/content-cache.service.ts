@@ -2,12 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import type { RedisClientType } from 'redis';
 import { RedisService } from '../redis/redis.service';
 
-export const ADMIN_LESSONS_CACHE_KEY = 'admin:lessons:all';
+export const ADMIN_LESSONS_CACHE_KEY = 'admin:lessons:all:v2';
 export const ADMIN_PROBLEMS_CACHE_KEY = 'admin:problems:all';
 export const ADMIN_COURSES_CACHE_KEY = 'admin:courses:all';
-export const ISLANDS_CACHE_KEY = 'islands:summary:v2';
-export const ISLAND_PATHS_CACHE_KEY = 'islands:paths:v2';
-export const COURSE_PATHS_CACHE_KEY = 'courses:paths:submodules:v2';
+export const ISLANDS_CACHE_KEY = 'islands:summary:v3';
+export const ISLAND_PATHS_CACHE_KEY = 'islands:paths:v3';
+export const COURSE_PATHS_CACHE_KEY = 'courses:paths:submodules:v3';
 export const CONTENT_CACHE_TTL_SECONDS = 60 * 60;
 
 @Injectable()
@@ -31,12 +31,12 @@ export class ContentCacheService {
     }
   }
 
-  async set(key: string, value: unknown) {
+  async set(key: string, value: unknown, ttlSeconds = CONTENT_CACHE_TTL_SECONDS) {
     if (!this.redisService.isReady()) return;
 
     try {
       await this.redis.set(key, JSON.stringify(value), {
-        expiration: { type: 'EX', value: CONTENT_CACHE_TTL_SECONDS },
+        expiration: { type: 'EX', value: ttlSeconds },
       });
     } catch (error) {
       this.logger.warn(`No se pudo escribir la caché ${key}: ${String(error)}`);
@@ -48,12 +48,23 @@ export class ContentCacheService {
       ADMIN_LESSONS_CACHE_KEY,
       `lessons:${lessonId}`,
       `lessons:v2:${lessonId}`,
+      `lessons:v3:${lessonId}`,
       ...this.courseKeys(courseIds),
     ]);
   }
 
   async invalidateCourseTree(courseIds: string[]) {
     await this.delete([ADMIN_LESSONS_CACHE_KEY, ...this.courseKeys(courseIds)]);
+  }
+
+  async invalidateIslands() {
+    await this.delete([
+      ISLANDS_CACHE_KEY,
+      ISLAND_PATHS_CACHE_KEY,
+      COURSE_PATHS_CACHE_KEY,
+      ADMIN_COURSES_CACHE_KEY,
+      'courses:all',
+    ]);
   }
 
   async invalidateUserProgress(userId: string) {
@@ -82,10 +93,7 @@ export class ContentCacheService {
       ISLAND_PATHS_CACHE_KEY,
       COURSE_PATHS_CACHE_KEY,
       ADMIN_COURSES_CACHE_KEY,
-      ...validCourseIds.flatMap((courseId) => [
-        `courses:${courseId}`,
-        `admin:courses:${courseId}`,
-      ]),
+      ...validCourseIds.flatMap((courseId) => [`courses:${courseId}`, `admin:courses:${courseId}`]),
     ];
   }
 

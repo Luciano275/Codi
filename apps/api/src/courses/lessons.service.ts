@@ -35,7 +35,7 @@ export class LessonsService {
   }
 
   private async findCachedLesson(lessonId: string) {
-    const cacheKey = `lessons:v2:${lessonId}`;
+    const cacheKey = `lessons:v3:${lessonId}`;
     const cachedLesson = await this.redis.get(cacheKey);
 
     if (cachedLesson) {
