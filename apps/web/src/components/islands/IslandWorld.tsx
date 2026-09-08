@@ -15,6 +15,7 @@ import type { IslandViewModel } from './types';
 interface IslandWorldProps {
   islands: IslandViewModel[];
   departingId: string | null;
+  focusedIslandId: string | null;
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
 }
@@ -37,8 +38,7 @@ function makeUnavailable(root: THREE.Object3D) {
     const materials = sources.map((source) => {
       const cached = unavailableMaterials.get(source);
       if (cached) return cached;
-      const color =
-        'color' in source ? (source.color as THREE.Color) : new THREE.Color(0x888888);
+      const color = 'color' in source ? (source.color as THREE.Color) : new THREE.Color(0x888888);
       const luminance = color.r * 0.21 + color.g * 0.72 + color.b * 0.07;
       const unavailable = new THREE.MeshStandardMaterial({
         color: new THREE.Color().setHSL(0, 0, Math.min(0.68, Math.max(0.32, luminance))),
@@ -113,12 +113,19 @@ function disposeObject(root: THREE.Object3D) {
   });
 }
 
-export default function IslandWorld({ islands, departingId, onHover, onSelect }: IslandWorldProps) {
+export default function IslandWorld({
+  islands,
+  departingId,
+  focusedIslandId,
+  onHover,
+  onSelect,
+}: IslandWorldProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [loadError, setLoadError] = useState(false);
   const notifyHover = useEffectEvent(onHover);
   const notifySelect = useEffectEvent(onSelect);
   const startEnterRef = useRef<((id: string) => void) | null>(null);
+  const focusIslandRef = useRef<((id: string) => void) | null>(null);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -163,6 +170,8 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
     const enterTargetPos = new THREE.Vector3();
     let enterIsland: THREE.Object3D | undefined;
     let enterT = 0;
+    const focusCameraPosition = new THREE.Vector3();
+    const focusTargetPosition = new THREE.Vector3();
 
     Promise.all(islands.map((island) => loader.loadAsync(island.modelPath)))
       .then((models) => {
@@ -184,6 +193,7 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
           islandRoots.push(root);
           scene.add(root);
         });
+        if (focusedIslandId) focusIslandRef.current?.(focusedIslandId);
       })
       .catch(() => {
         if (!disposed) setLoadError(true);
@@ -270,6 +280,14 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
     };
     startEnterRef.current = startEnter;
 
+    const focusIsland = (id: string) => {
+      const island = islandRoots.find((root) => root.userData.islandId === id);
+      if (!island || state !== 'islands') return;
+      island.getWorldPosition(focusTargetPosition);
+      focusCameraPosition.set(focusTargetPosition.x, 7.5, 18);
+    };
+    focusIslandRef.current = focusIsland;
+
     renderer.domElement.addEventListener('pointermove', handlePointerMove);
     renderer.domElement.addEventListener('pointerdown', handlePointerDown);
     renderer.domElement.addEventListener('pointerup', handlePointerUp);
@@ -307,6 +325,10 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
         controls.target.lerpVectors(enterFromTarget, enterWorldPos, eased);
         camera.lookAt(controls.target);
       } else {
+        if (focusCameraPosition.lengthSq() > 0) {
+          camera.position.lerp(focusCameraPosition, smooth);
+          controls.target.lerp(focusTargetPosition, smooth);
+        }
         controls.update();
       }
       renderer.render(scene, camera);
@@ -319,6 +341,7 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
       cancelAnimationFrame(frameId);
       observer.disconnect();
       startEnterRef.current = null;
+      focusIslandRef.current = null;
       notifyHover(null);
       controls.dispose();
       islandRoots.forEach((root) => {
@@ -341,6 +364,10 @@ export default function IslandWorld({ islands, departingId, onHover, onSelect }:
     if (!departingId) return;
     startEnterRef.current?.(departingId);
   }, [departingId]);
+
+  useEffect(() => {
+    if (focusedIslandId) focusIslandRef.current?.(focusedIslandId);
+  }, [focusedIslandId]);
 
   return (
     <div

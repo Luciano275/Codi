@@ -1,9 +1,16 @@
 'use client';
 
 import dynamic from 'next/dynamic';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@bprogress/next';
-import { LockKeyhole, Map, Sparkles, Trophy } from 'lucide-react';
+import {
+  ChevronLeft,
+  ChevronRight,
+  LockKeyhole,
+  Map as MapIcon,
+  TreePalm,
+  Trophy,
+} from 'lucide-react';
 import type { RankingUser } from '@/lib/server-api';
 import type { IslandViewModel } from './types';
 
@@ -28,6 +35,10 @@ export default function IslandExplorer({
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [departingId, setDepartingId] = useState<string | null>(null);
   const [showFlash, setShowFlash] = useState(false);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const [focusedIslandId, setFocusedIslandId] = useState<string | null>(islands[0]?.id ?? null);
+  const islandCarouselRef = useRef<HTMLDivElement>(null);
+  const islandCardRefs = useRef(new Map<string, HTMLAnchorElement | HTMLDivElement>());
   const router = useRouter();
   const hoveredIsland = islands.find((island) => island.id === hoveredId);
 
@@ -50,11 +61,26 @@ export default function IslandExplorer({
     setDepartingId(island.id);
   }
 
+  function moveIslandCarousel(direction: -1 | 1) {
+    if (!islands.length) return;
+    const nextIndex = (carouselIndex + direction + islands.length) % islands.length;
+    const nextIsland = islands[nextIndex];
+    islandCardRefs.current.get(nextIsland.id)?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center',
+    });
+    setCarouselIndex(nextIndex);
+    setFocusedIslandId(nextIsland.id);
+    setHoveredId(nextIsland.id);
+  }
+
   return (
     <section className="relative h-full overflow-hidden bg-[#22344e] text-white">
       <IslandWorld
         islands={islands}
         departingId={departingId}
+        focusedIslandId={focusedIslandId}
         onHover={setHoveredId}
         onSelect={(islandId) => {
           const island = islands.find((candidate) => candidate.id === islandId);
@@ -66,7 +92,7 @@ export default function IslandExplorer({
         className={`pointer-events-none absolute inset-0 z-30 bg-white transition-opacity duration-500 ${showFlash ? 'opacity-100' : 'opacity-0'}`}
       />
       <header className="pointer-events-none absolute inset-x-0 top-4 z-10 px-4 text-center md:top-7">
-        <p className="font-simply-olive mb-1 text-[10px] font-bold uppercase text-sky-200/75 md:text-xs">
+        <p className="font-simply-olive mb-1 text-xs font-semibold text-sky-200/75">
           Mapa de mundos
         </p>
         <h1 className="font-super-pandora mx-auto max-w-3xl text-2xl leading-tight text-white drop-shadow-[0_4px_0_#2b7d03] md:text-4xl">
@@ -80,7 +106,7 @@ export default function IslandExplorer({
 
       <aside className="absolute left-3 top-28 z-10 hidden w-48 rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-md lg:block">
         <div className="flex items-center gap-2 text-gray-800">
-          <Map className="h-4 w-4 text-pradera-300" />
+          <MapIcon className="h-4 w-4 text-pradera-300" />
           <span className="font-super-pandora text-sm">Tu expedición</span>
         </div>
         <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
@@ -108,62 +134,88 @@ export default function IslandExplorer({
         ))}
       </aside>
 
-      <div className="absolute inset-x-0 bottom-16 z-10 flex justify-center gap-2 px-3 md:bottom-28 md:gap-3">
-        {islands.map((island) => {
-          const content = (
-            <>
-              <span
-                className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${island.available ? 'bg-pradera-100 text-pradera-700' : 'bg-gray-100 text-gray-400'}`}
-              >
-                {island.available ? (
-                  <Sparkles className="h-4 w-4" />
-                ) : (
-                  <LockKeyhole className="h-4 w-4" />
-                )}
-              </span>
-              <span className="min-w-0 text-left">
-                <span className="font-super-pandora block truncate text-xs text-gray-800 md:text-sm">
-                  {island.title}
-                </span>
-                <span className="font-simply-olive block text-[10px] text-gray-500 md:text-xs">
-                  {island.available ? `${island.moduleCount} módulos` : 'Próximamente'}
-                </span>
-              </span>
-            </>
-          );
+      <div className="absolute inset-x-0 bottom-16 z-10 px-3 md:bottom-28">
+        <button
+          type="button"
+          onClick={() => moveIslandCarousel(-1)}
+          aria-label="Ver islas anteriores"
+          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
+        >
+          <ChevronLeft className="h-10 w-10" strokeWidth={3} />
+        </button>
+        <button
+          type="button"
+          onClick={() => moveIslandCarousel(1)}
+          aria-label="Ver más islas"
+          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
+        >
+          <ChevronRight className="h-10 w-10" strokeWidth={3} />
+        </button>
+        <div ref={islandCarouselRef} className="overflow-x-auto scroll-smooth px-12 pb-2">
+          <div className="flex min-w-max justify-center gap-2 md:gap-3">
+            {islands.map((island) => {
+              const content = (
+                <>
+                  <span
+                    className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${island.available ? 'bg-pradera-100 text-pradera-700' : 'bg-gray-100 text-gray-400'}`}
+                  >
+                    {island.available ? (
+                      <TreePalm className="h-4 w-4" />
+                    ) : (
+                      <LockKeyhole className="h-4 w-4" />
+                    )}
+                  </span>
+                  <span className="min-w-0 text-left">
+                    <span className="font-super-pandora block truncate text-xs text-gray-800 md:text-sm">
+                      {island.title}
+                    </span>
+                    <span className="font-simply-olive block text-[10px] text-gray-500 md:text-xs">
+                      {island.available ? `${island.moduleCount} módulos` : 'Próximamente'}
+                    </span>
+                  </span>
+                </>
+              );
 
-          const className = `flex min-w-0 max-w-56 flex-1 items-center gap-2 rounded-2xl border bg-white/95 px-2.5 py-2 shadow-md transition-all duration-300 md:px-3 ${
-            island.available
-              ? 'border-gray-200 hover:-translate-y-1 hover:border-pradera-300'
-              : 'cursor-not-allowed border-gray-200 opacity-75 grayscale'
-          }`;
+              const className = `flex w-48 shrink-0 items-center gap-2 rounded-2xl border bg-white/95 px-2.5 py-2 shadow-md transition-all duration-300 md:w-56 md:px-3 ${
+                island.available
+                  ? 'border-gray-200 hover:-translate-y-1 hover:border-pradera-300'
+                  : 'cursor-not-allowed border-gray-200 opacity-75 grayscale'
+              }`;
 
-          return island.available ? (
-            <a
-              key={island.id}
-              href={island.href}
-              className={className}
-              onClick={(event) => {
-                event.preventDefault();
-                enterIsland(island);
-              }}
-              onMouseEnter={() => setHoveredId(island.id)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              {content}
-            </a>
-          ) : (
-            <div
-              key={island.id}
-              className={className}
-              aria-disabled="true"
-              onMouseEnter={() => setHoveredId(island.id)}
-              onMouseLeave={() => setHoveredId(null)}
-            >
-              {content}
-            </div>
-          );
-        })}
+              return island.available ? (
+                <a
+                  key={island.id}
+                  ref={(element) => {
+                    if (element) islandCardRefs.current.set(island.id, element);
+                  }}
+                  href={island.href}
+                  className={className}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    enterIsland(island);
+                  }}
+                  onMouseEnter={() => setHoveredId(island.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  {content}
+                </a>
+              ) : (
+                <div
+                  key={island.id}
+                  ref={(element) => {
+                    if (element) islandCardRefs.current.set(island.id, element);
+                  }}
+                  className={className}
+                  aria-disabled="true"
+                  onMouseEnter={() => setHoveredId(island.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                >
+                  {content}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </section>
   );
