@@ -4,7 +4,7 @@ import {
   ConflictException,
   ForbiddenException,
 } from '@nestjs/common';
-import { PrismaService } from '@codi/database';
+import { Prisma, PrismaService } from '@codi/database';
 import { updateUserExperience } from '../progression/update-user-experience';
 import { RedisService } from '../redis/redis.service';
 import { RedisClientType } from 'redis';
@@ -163,7 +163,14 @@ export class CoursesService {
           include: {
             lessons: {
               orderBy: { order: 'asc' },
-              select: { id: true, title: true, order: true, type: true, xpReward: true },
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                type: true,
+                xpReward: true,
+                gemsReward: true,
+              },
             },
           },
         },
@@ -283,7 +290,7 @@ export class CoursesService {
   async completeLesson(userId: string, lessonId: string) {
     const lesson = await this.prisma.lesson.findUnique({
       where: { id: lessonId },
-      select: { id: true, xpReward: true },
+      select: { id: true, xpReward: true, gemsReward: true },
     });
     if (!lesson) throw new NotFoundException('Lesson not found');
 
@@ -318,16 +325,34 @@ export class CoursesService {
       }
     }
 
-    const award = await this.prisma.$transaction(async (transaction) => {
-      const xpAward = await updateUserExperience(transaction, userId, lesson.xpReward);
-      await transaction.lessonCompletion.create({
-        data: { userId, lessonId, xpAwarded: xpAward.xpAwarded },
+    let award: { xpAwarded: number; gemsAwarded: number };
+    try {
+      award = await this.runSerializableTransaction(async (transaction) => {
+        await transaction.lessonCompletion.create({
+          data: { userId, lessonId, gemsAwarded: lesson.gemsReward },
+        });
+        const xpAward = await updateUserExperience(transaction, userId, lesson.xpReward);
+        if (lesson.gemsReward > 0) {
+          await transaction.user.update({
+            where: { id: userId },
+            data: { gems: { increment: lesson.gemsReward } },
+          });
+        }
+        await transaction.lessonCompletion.update({
+          where: { userId_lessonId: { userId, lessonId } },
+          data: { xpAwarded: xpAward.xpAwarded },
+        });
+        return { xpAwarded: xpAward.xpAwarded, gemsAwarded: lesson.gemsReward };
       });
-      return xpAward.xpAwarded;
-    });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+        throw new ConflictException('Lesson already completed');
+      }
+      throw error;
+    }
 
     await this.contentCache.invalidateUserProgress(userId);
-    return { completed: true, xpAwarded: award };
+    return { completed: true, ...award };
   }
 
   async uncompleteLesson(userId: string, lessonId: string) {
@@ -342,15 +367,20 @@ export class CoursesService {
     });
     if (!existing) throw new NotFoundException('Lesson not completed');
 
-    await this.prisma.$transaction(async (transaction) => {
+    await this.runSerializableTransaction(async (transaction) => {
       await transaction.lessonCompletion.delete({
         where: { userId_lessonId: { userId, lessonId } },
       });
       await updateUserExperience(transaction, userId, -(existing.xpAwarded || lesson.xpReward));
+      await this.removeAwardedGems(transaction, userId, existing.gemsAwarded);
     });
 
     await this.contentCache.invalidateUserProgress(userId);
-    return { completed: false, xpRefunded: existing.xpAwarded || lesson.xpReward };
+    return {
+      completed: false,
+      xpRefunded: existing.xpAwarded || lesson.xpReward,
+      gemsRefunded: existing.gemsAwarded,
+    };
   }
 
   async getLessonStatus(userId: string, lessonId: string) {
@@ -364,5 +394,38 @@ export class CoursesService {
     const { modelObjectKey, ...publicIsland } = island;
     const model = await this.s3.signedResource(modelObjectKey, null, 'model/gltf-binary');
     return { ...publicIsland, modelPath: model?.url ?? '/islands/isla.glb' };
+  }
+
+  private async removeAwardedGems(
+    transaction: Prisma.TransactionClient,
+    userId: string,
+    gemsAwarded: number,
+  ) {
+    if (gemsAwarded <= 0) return;
+    const result = await transaction.user.updateMany({
+      where: { id: userId, gems: { gte: gemsAwarded } },
+      data: { gems: { decrement: gemsAwarded } },
+    });
+    if (result.count === 0) {
+      await transaction.user.update({ where: { id: userId }, data: { gems: 0 } });
+    }
+  }
+
+  private async runSerializableTransaction<T>(
+    operation: (transaction: Prisma.TransactionClient) => Promise<T>,
+  ): Promise<T> {
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        return await this.prisma.$transaction(operation, {
+          isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+        });
+      } catch (error) {
+        const isRetryable =
+          error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2034';
+        if (!isRetryable || attempt === maxAttempts) throw error;
+      }
+    }
+    throw new Error('No se pudo completar la transacción');
   }
 }

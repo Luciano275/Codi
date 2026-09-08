@@ -36,6 +36,11 @@ export class CreateLessonDto {
   xpReward?: number;
 
   @IsOptional()
+  @IsInt()
+  @Min(0)
+  gemsReward?: number;
+
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   problemIds?: string[];
