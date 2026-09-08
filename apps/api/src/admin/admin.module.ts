@@ -9,6 +9,9 @@ import { AdminModulesService } from './admin-modules.service';
 import { S3Module } from '../s3/s3.module';
 import { ContentCacheModule } from '../content-cache/content-cache.module';
 import { AdminProblemsService } from './admin-problems.service';
+import { AdminIslandsController } from './islands/islands.controller';
+import { AdminIslandsService } from './islands/islands.service';
+import { IslandModelService } from './islands/island-model.service';
 
 @Module({
   imports: [S3Module, ContentCacheModule],
@@ -17,7 +20,15 @@ import { AdminProblemsService } from './admin-problems.service';
     AdminProblemsController,
     AdminCoursesController,
     AdminModulesController,
+    AdminIslandsController,
   ],
-  providers: [AdminLessonsService, AdminCoursesService, AdminModulesService, AdminProblemsService],
+  providers: [
+    AdminLessonsService,
+    AdminCoursesService,
+    AdminModulesService,
+    AdminProblemsService,
+    AdminIslandsService,
+    IslandModelService,
+  ],
 })
 export class AdminModule {}
