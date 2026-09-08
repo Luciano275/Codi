@@ -6,6 +6,7 @@ import { Eye, EyeOff, Gem, Pencil, Plus, Trash2 } from 'lucide-react';
 import type { AdminReward, RewardEditorInput } from '@codi/types';
 import { createReward, deleteReward, updateReward } from './actions';
 import { RewardEditorDialog } from './reward-editor-dialog';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface RewardAdminPanelProps {
   initialCatalog: AdminReward[];
@@ -15,6 +16,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
   const [catalog, setCatalog] = useState(initialCatalog);
   const [editingReward, setEditingReward] = useState<AdminReward | null | undefined>(undefined);
   const [notice, setNotice] = useState<string | null>(null);
+  const [rewardToDelete, setRewardToDelete] = useState<AdminReward | null>(null);
   const [isPending, startTransition] = useTransition();
 
   function saveReward(input: RewardEditorInput) {
@@ -48,12 +50,13 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
     });
   }
 
-  function removeReward(reward: AdminReward) {
-    if (!window.confirm(`¿Eliminar “${reward.name}”? Esta acción no se puede deshacer.`)) return;
+  function removeReward() {
+    if (!rewardToDelete) return;
     startTransition(async () => {
       try {
-        await deleteReward(reward.id);
-        setCatalog((current) => current.filter((item) => item.id !== reward.id));
+        await deleteReward(rewardToDelete.id);
+        setCatalog((current) => current.filter((item) => item.id !== rewardToDelete.id));
+        setRewardToDelete(null);
         setNotice('Recompensa eliminada.');
       } catch (error) {
         setNotice(error instanceof Error ? error.message : 'No se pudo eliminar la recompensa.');
@@ -126,7 +129,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
                 title={
                   reward.redemptionCount ? 'No se puede eliminar: ya tiene canjes' : 'Eliminar'
                 }
-                onClick={() => removeReward(reward)}
+                onClick={() => setRewardToDelete(reward)}
                 className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-35 hover:cursor-pointer"
               >
                 <Trash2 className="h-4 w-4" />
@@ -145,6 +148,14 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
           />
         )}
       </AnimatePresence>
+      <ConfirmDialog
+        open={Boolean(rewardToDelete)}
+        title="¿Eliminar esta recompensa?"
+        description={`Eliminarás ${rewardToDelete?.name ?? 'esta recompensa'} del catálogo. Esta acción no se puede deshacer.`}
+        isPending={isPending}
+        onCancel={() => setRewardToDelete(null)}
+        onConfirm={removeReward}
+      />
     </section>
   );
 }
