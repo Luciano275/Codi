@@ -15,6 +15,13 @@ export const queryKeys = {
       byId: (id: string) => ['courses', 'admin', id] as const,
     },
   },
+  islands: {
+    all: ['islands'] as const,
+    admin: {
+      all: ['islands', 'admin', 'list'] as const,
+      byId: (id: string) => ['islands', 'admin', id] as const,
+    },
+  },
   problems: {
     detail: (id: string) => ['problems', id] as const,
     template: (id: string, lang: string) => ['problems', id, 'template', lang] as const,

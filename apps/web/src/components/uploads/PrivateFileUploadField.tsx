@@ -17,6 +17,7 @@ interface PrivateFileUploadFieldProps {
   currentFileUrl?: string | null;
   preview?: LessonAssetPreviewType;
   onUploadKey: (uploadKey: string) => void;
+  onFileSelected?: (file: File) => void;
   onUploadStateChange?: (isUploading: boolean) => void;
   onRemove?: () => void;
 }
@@ -30,6 +31,7 @@ export function PrivateFileUploadField({
   currentFileUrl,
   preview,
   onUploadKey,
+  onFileSelected,
   onUploadStateChange,
   onRemove,
 }: PrivateFileUploadFieldProps) {
@@ -48,6 +50,7 @@ export function PrivateFileUploadField({
   );
 
   const selectFile = async (file: File) => {
+    onFileSelected?.(file);
     setError(null);
     setIsRemoved(false);
     if (preview) {
@@ -122,14 +125,16 @@ export function PrivateFileUploadField({
             >
               Cambiar
             </button>
-            <button
-              type="button"
-              onClick={removeFile}
-              className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
-              aria-label={`Quitar ${label}`}
-            >
-              <Trash2 className="h-4 w-4" />
-            </button>
+            {onRemove && (
+              <button
+                type="button"
+                onClick={removeFile}
+                className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                aria-label={`Quitar ${label}`}
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            )}
           </div>
         ) : (
           <button

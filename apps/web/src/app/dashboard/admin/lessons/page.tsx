@@ -23,6 +23,7 @@ import { useSearchParams } from 'next/navigation';
 import { adminFetch } from '@/lib/admin-api';
 import { queryKeys } from '@/lib/query-keys';
 import { LessonForm } from '@/components/admin/LessonForm';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   useAdminLessons,
   useAdminCourses,
@@ -50,17 +51,26 @@ const DIFFICULTY_COLORS: Record<string, string> = {
   EXPERT: 'bg-bosque-100 text-bosque-700',
 };
 
-export default function AdminLessonsPage() {
+interface LessonManagementContext {
+  islandId?: string;
+  islandTitle?: string;
+  courseId?: string;
+  moduleId?: string;
+}
+
+export default function AdminLessonsPage({ context }: { context?: LessonManagementContext }) {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
-  const filterModuleId = searchParams.get('moduleId') || '';
-  const filterCourseId = searchParams.get('courseId') || '';
+  const islandId = context?.islandId ?? searchParams.get('islandId') ?? '';
+  const filterModuleId = context?.moduleId ?? searchParams.get('moduleId') ?? '';
+  const filterCourseId = context?.courseId ?? searchParams.get('courseId') ?? '';
 
   const [editingLesson, setEditingLesson] = useState<AdminLesson | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [initialFormCourseId, setInitialFormCourseId] = useState('');
   const [initialFormModuleId, setInitialFormModuleId] = useState('');
+  const [lessonToDelete, setLessonToDelete] = useState<string | null>(null);
 
   const lessonsQuery = useAdminLessons();
   const coursesQuery = useAdminCourses();
@@ -88,9 +98,10 @@ export default function AdminLessonsPage() {
     lessonsQuery.refetch();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('¿Eliminar esta lección? Esta acción no se puede deshacer.')) return;
-    await deleteLessonMutation.mutateAsync(id);
+  const handleDelete = async () => {
+    if (!lessonToDelete) return;
+    await deleteLessonMutation.mutateAsync(lessonToDelete);
+    setLessonToDelete(null);
   };
 
   const updateProblem = async (problemId: string, updates: Partial<AdminProblem>) => {
@@ -128,12 +139,23 @@ export default function AdminLessonsPage() {
     <div className="mx-auto max-w-5xl">
       {filterCourse && (
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
-          <Link href="/dashboard/admin/courses" className="transition-colors hover:text-lagos-600">
-            Cursos
-          </Link>
-          <ChevronRight className="h-3.5 w-3.5" />
+          {islandId && (
+            <>
+              <Link
+                href={`/dashboard/admin/islands/${islandId}`}
+                className="transition-colors hover:text-lagos-600"
+              >
+                {context?.islandTitle ?? 'Isla'}
+              </Link>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </>
+          )}
           <Link
-            href={`/dashboard/admin/courses/${filterCourse.id}`}
+            href={
+              islandId
+                ? `/dashboard/admin/islands/${islandId}/courses/${filterCourse.id}`
+                : `/dashboard/admin/lessons?courseId=${filterCourse.id}`
+            }
             className="transition-colors hover:text-lagos-600"
           >
             {filterCourse.title}
@@ -289,7 +311,7 @@ export default function AdminLessonsPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      handleDelete(lesson.id);
+                      setLessonToDelete(lesson.id);
                     }}
                     className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-500"
                     title="Eliminar"
@@ -390,6 +412,14 @@ export default function AdminLessonsPage() {
           ))
         )}
       </div>
+      <ConfirmDialog
+        open={Boolean(lessonToDelete)}
+        title="¿Eliminar esta lección?"
+        description={`Eliminarás ${lessons.find((lesson) => lesson.id === lessonToDelete)?.title ?? 'esta lección'} de forma permanente. Esta acción no se puede deshacer.`}
+        isPending={deleteLessonMutation.isPending}
+        onCancel={() => setLessonToDelete(null)}
+        onConfirm={() => void handleDelete()}
+      />
     </div>
   );
 }

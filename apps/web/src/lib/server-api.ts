@@ -98,6 +98,7 @@ export interface CoursePath {
       order: number;
       type: string;
       xpReward: number;
+      gemsReward: number;
     }[];
   }[];
 }
@@ -115,6 +116,7 @@ export interface Lesson {
   order: number;
   type: string;
   xpReward: number;
+  gemsReward: number;
   content: Record<string, unknown>;
   resources: {
     image: SignedResource | null;
@@ -195,6 +197,48 @@ export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
   }[];
 }
 
+export interface AdminIslandCourse {
+  id: string;
+  title: string;
+  slug: string;
+  level: number;
+  region: string;
+  xpReward: number;
+  order: number;
+  modules: {
+    id: string;
+    title: string;
+    order: number;
+    _count: { lessons: number };
+  }[];
+}
+
+export interface AdminIsland {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  accent: string;
+  order: number;
+  available: boolean;
+  hasCustomModel: boolean;
+  modelPath: string;
+  createdAt: string;
+  updatedAt: string;
+  _count: { courses: number };
+  courses?: AdminIslandCourse[];
+}
+
+export interface AdminIslandMutationData {
+  title: string;
+  description: string;
+  accent: string;
+  order: number;
+  available: boolean;
+  slug?: string;
+  modelUploadKey?: string;
+}
+
 export async function fetchCourses(): Promise<Course[]> {
   return serverFetch<Course[]>('/api/courses');
 }
@@ -211,7 +255,6 @@ export async function fetchCoursePath(id: string): Promise<CoursePath> {
   return serverFetch<CoursePath>(`/api/courses/${id}/path`);
 }
 
-
 export async function fetchLesson(id: string): Promise<Lesson> {
   return serverFetch<Lesson>(`/api/lessons/${id}`);
 }
@@ -226,4 +269,33 @@ export async function fetchGlobalRanking(limit = 10): Promise<RankingUser[]> {
 
 export async function fetchCompetitivePlayer(id: string): Promise<CompetitivePlayerProfile> {
   return serverFetch<CompetitivePlayerProfile>(`/api/ranking/players/${id}`);
+}
+
+export async function fetchAdminIslands(): Promise<AdminIsland[]> {
+  return serverFetch<AdminIsland[]>('/api/admin/islands');
+}
+
+export async function fetchAdminIsland(id: string): Promise<AdminIsland> {
+  return serverFetch<AdminIsland>(`/api/admin/islands/${id}`);
+}
+
+export async function createAdminIsland(data: AdminIslandMutationData): Promise<AdminIsland> {
+  return serverFetch<AdminIsland>('/api/admin/islands', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function updateAdminIsland(
+  id: string,
+  data: Partial<AdminIslandMutationData>,
+): Promise<AdminIsland> {
+  return serverFetch<AdminIsland>(`/api/admin/islands/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  });
+}
+
+export async function deleteAdminIsland(id: string): Promise<{ deleted: true }> {
+  return serverFetch<{ deleted: true }>(`/api/admin/islands/${id}`, { method: 'DELETE' });
 }

@@ -1,4 +1,9 @@
-export type UploadAssetType = 'avatar' | 'lesson-image' | 'lesson-pdf' | 'lesson-video';
+export type UploadAssetType =
+  | 'avatar'
+  | 'lesson-image'
+  | 'lesson-pdf'
+  | 'lesson-video'
+  | 'island-model';
 
 interface UploadResponse {
   uploadKey: string;
@@ -12,13 +17,18 @@ export function uploadFileThroughApi(
   file: File,
   onProgress?: (progress: number) => void,
 ) {
-  const endpoint = assetType === 'avatar' ? '/api/uploads/avatar' : '/api/uploads/lesson-asset';
+  const endpoint =
+    assetType === 'avatar'
+      ? '/api/uploads/avatar'
+      : assetType === 'island-model'
+        ? '/api/uploads/island-model'
+        : '/api/uploads/lesson-asset';
   const token = localStorage.getItem('codi_token');
 
   return new Promise<string>((resolve, reject) => {
     const formData = new FormData();
     formData.append('file', file);
-    if (assetType !== 'avatar') formData.append('assetType', assetType);
+    if (assetType.startsWith('lesson-')) formData.append('assetType', assetType);
 
     const request = new XMLHttpRequest();
     request.open('POST', `${API_URL}${endpoint}`);

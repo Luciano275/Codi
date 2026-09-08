@@ -65,6 +65,8 @@ export function useCreateCourse() {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }
@@ -83,6 +85,8 @@ export function useUpdateCourse() {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.byId(variables.id) });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }
@@ -96,6 +100,8 @@ export function useDeleteCourse() {
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.admin.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }

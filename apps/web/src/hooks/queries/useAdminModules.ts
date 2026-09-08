@@ -19,6 +19,8 @@ export function useCreateModule() {
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }
@@ -38,6 +40,8 @@ export function useUpdateModule() {
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }
@@ -54,6 +58,8 @@ export function useDeleteModule() {
       });
       queryClient.invalidateQueries({ queryKey: queryKeys.courses.all });
       queryClient.invalidateQueries({ queryKey: queryKeys.lessons.admin.all });
+      queryClient.invalidateQueries({ queryKey: ['islands', 'admin'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.islands.all });
     },
   });
 }

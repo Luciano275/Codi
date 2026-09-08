@@ -26,7 +26,7 @@ function toIslandViewModel(island: IslandSummary, progress: ProgressData): Islan
     id: island.id,
     title: island.title,
     description: island.description,
-    modelPath: island.modelPath,
+    modelPath: `/api/island-model/${island.slug}`,
     available: island.available,
     accent: island.accent,
     href: `/dashboard/islands/${island.slug}`,
@@ -38,7 +38,12 @@ function toIslandViewModel(island: IslandSummary, progress: ProgressData): Islan
 
 async function DashboardContent() {
   let islands: IslandSummary[] = [];
-  let progress: ProgressData = { totalLessons: 0, completedLessons: 0, completedLessonIds: [], courses: [] };
+  let progress: ProgressData = {
+    totalLessons: 0,
+    completedLessons: 0,
+    completedLessonIds: [],
+    courses: [],
+  };
   let ranking: RankingUser[] = [];
 
   try {
