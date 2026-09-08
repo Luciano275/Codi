@@ -26,6 +26,10 @@ const lessonFilePipe = new ParseFilePipeBuilder()
   .addMaxSizeValidator({ maxSize: 500 * 1024 * 1024 })
   .build();
 
+const islandModelFilePipe = new ParseFilePipeBuilder()
+  .addMaxSizeValidator({ maxSize: 60 * 1024 * 1024 })
+  .build();
+
 @Controller('uploads')
 @UseGuards(JwtAuthGuard)
 export class UploadsController {
@@ -50,5 +54,16 @@ export class UploadsController {
       throw new BadRequestException('Tipo de carga inválido');
     }
     return this.s3.uploadPending(user.id, dto.assetType, file);
+  }
+
+  @Post('island-model')
+  @UseGuards(RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  @UseInterceptors(FileInterceptor('file'))
+  createIslandModelUpload(
+    @CurrentUser() user: User,
+    @UploadedFile(islandModelFilePipe) file: StoredUpload,
+  ) {
+    return this.s3.uploadPending(user.id, 'island-model', file);
   }
 }

@@ -14,6 +14,7 @@ import {
   ISLAND_PATHS_CACHE_KEY,
   ISLANDS_CACHE_KEY,
 } from '../content-cache/content-cache.service';
+import { S3Service } from '../s3/s3.service';
 
 const COURSES_CACHE_TTL_SECONDS = 60 * 60;
 
@@ -38,6 +39,7 @@ export class CoursesService {
     private readonly prisma: PrismaService,
     private readonly redisService: RedisService,
     private readonly contentCache: ContentCacheService,
+    private readonly s3: S3Service,
   ) {
     this.redis = redisService.getClient();
   }
@@ -84,12 +86,21 @@ export class CoursesService {
   }
 
   async findIslands() {
-    const cached = await this.contentCache.get<unknown[]>(ISLANDS_CACHE_KEY);
-    if (cached) return cached;
+    const cached =
+      await this.contentCache.get<Array<{ modelObjectKey: string | null }>>(ISLANDS_CACHE_KEY);
+    if (cached) return Promise.all(cached.map((island) => this.withResolvedIslandModel(island)));
 
     const islands = await this.prisma.island.findMany({
-      orderBy: { order: 'asc' },
-      include: {
+      orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        modelObjectKey: true,
+        available: true,
+        accent: true,
+        order: true,
         courses: {
           orderBy: { order: 'asc' },
           select: { id: true, title: true, order: true, _count: { select: { modules: true } } },
@@ -97,13 +108,14 @@ export class CoursesService {
       },
     });
     await this.contentCache.set(ISLANDS_CACHE_KEY, islands);
-    return islands;
+    return Promise.all(islands.map((island) => this.withResolvedIslandModel(island)));
   }
 
   async findIslandPath(slug: string) {
-    const cachedPaths = await this.contentCache.get<Record<string, unknown>>(ISLAND_PATHS_CACHE_KEY);
-    const cachedPath = cachedPaths?.[slug];
-    if (cachedPath) return cachedPath;
+    const cachedPaths =
+      await this.contentCache.get<Record<string, unknown>>(ISLAND_PATHS_CACHE_KEY);
+    const cachedPath = cachedPaths?.[slug] as { modelObjectKey: string | null } | undefined;
+    if (cachedPath) return this.withResolvedIslandModel(cachedPath);
 
     const island = await this.prisma.island.findUnique({
       where: { slug },
@@ -115,6 +127,7 @@ export class CoursesService {
         available: true,
         accent: true,
         order: true,
+        modelObjectKey: true,
         courses: {
           orderBy: { order: 'asc' },
           select: {
@@ -131,13 +144,13 @@ export class CoursesService {
     });
     if (!island) throw new NotFoundException('Island not found');
 
-    const path = island;
-    await this.contentCache.set(ISLAND_PATHS_CACHE_KEY, { ...cachedPaths, [slug]: path });
-    return path;
+    await this.contentCache.set(ISLAND_PATHS_CACHE_KEY, { ...cachedPaths, [slug]: island });
+    return this.withResolvedIslandModel(island);
   }
 
   async findCoursePath(courseId: string) {
-    const cachedPaths = await this.contentCache.get<Record<string, unknown>>(COURSE_PATHS_CACHE_KEY);
+    const cachedPaths =
+      await this.contentCache.get<Record<string, unknown>>(COURSE_PATHS_CACHE_KEY);
     const cachedPath = cachedPaths?.[courseId];
     if (cachedPath) return cachedPath;
 
@@ -345,5 +358,11 @@ export class CoursesService {
       where: { userId_lessonId: { userId, lessonId } },
     });
     return { completed: !!completion, completedAt: completion?.completedAt ?? null };
+  }
+
+  private async withResolvedIslandModel<T extends { modelObjectKey: string | null }>(island: T) {
+    const { modelObjectKey, ...publicIsland } = island;
+    const model = await this.s3.signedResource(modelObjectKey, null, 'model/gltf-binary');
+    return { ...publicIsland, modelPath: model?.url ?? '/islands/isla.glb' };
   }
 }

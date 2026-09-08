@@ -3,7 +3,12 @@ export const S3_CLIENT = Symbol('S3_CLIENT');
 export const S3_READ_URL_TTL_SECONDS = 60 * 60 * 24;
 export const S3_BROWSER_CACHE_TTL_SECONDS = 60 * 60 * 23;
 
-export type UploadAssetType = 'avatar' | 'lesson-image' | 'lesson-pdf' | 'lesson-video';
+export type UploadAssetType =
+  | 'avatar'
+  | 'lesson-image'
+  | 'lesson-pdf'
+  | 'lesson-video'
+  | 'island-model';
 
 export interface UploadPolicy {
   contentTypes: readonly string[];
@@ -31,5 +36,10 @@ export const UPLOAD_POLICIES: Record<UploadAssetType, UploadPolicy> = {
     contentTypes: ['video/mp4', 'video/webm'],
     maxBytes: 500 * 1024 * 1024,
     prefix: 'lessons',
+  },
+  'island-model': {
+    contentTypes: ['model/gltf-binary', 'model/gltf+json', 'application/octet-stream'],
+    maxBytes: 60 * 1024 * 1024,
+    prefix: 'islands',
   },
 };

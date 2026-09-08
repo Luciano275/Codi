@@ -60,17 +60,19 @@ export class S3Service {
     assetType: UploadAssetType,
     file: UploadedFile,
   ): Promise<PendingUpload> {
-    this.validateUploadInput(assetType, file.originalname, file.mimetype, file.size);
-    const uploadKey = `pending/${userId}/${randomUUID()}/${this.safeFileName(file.originalname)}`;
     try {
-      await this.client.send(new PutObjectCommand({
-        Bucket: this.bucket,
-        Key: uploadKey,
-        Body: createReadStream(file.path),
-        ContentType: file.mimetype,
-        CacheControl: `private, max-age=${S3_BROWSER_CACHE_TTL_SECONDS}, immutable`,
-        Metadata: { 'owner-id': userId, 'asset-type': assetType },
-      }));
+      this.validateUploadInput(assetType, file.originalname, file.mimetype, file.size);
+      const uploadKey = `pending/${userId}/${randomUUID()}/${this.safeFileName(file.originalname)}`;
+      await this.client.send(
+        new PutObjectCommand({
+          Bucket: this.bucket,
+          Key: uploadKey,
+          Body: createReadStream(file.path),
+          ContentType: file.mimetype,
+          CacheControl: `private, max-age=${S3_BROWSER_CACHE_TTL_SECONDS}, immutable`,
+          Metadata: { 'owner-id': userId, 'asset-type': assetType },
+        }),
+      );
       return { uploadKey };
     } finally {
       await unlink(file.path).catch(() => undefined);
@@ -85,10 +87,19 @@ export class S3Service {
   ) {
     const policy = UPLOAD_POLICIES[assetType];
     this.assertOwnedPendingKey(userId, uploadKey);
-    const object = await this.client.send(new HeadObjectCommand({ Bucket: this.bucket, Key: uploadKey }));
+    const object = await this.client.send(
+      new HeadObjectCommand({ Bucket: this.bucket, Key: uploadKey }),
+    );
     this.assertObjectMatchesPolicy(object, userId, assetType, policy.maxBytes);
 
-    const destinationKey = `${policy.prefix}/${destinationId}/${randomUUID()}${this.safeExtension(uploadKey)}`;
+    const extension = this.safeExtension(uploadKey);
+    if (assetType === 'island-model' && extension !== '.glb') {
+      throw new BadRequestException('El modelo de isla debe tener extensión .glb');
+    }
+    const destinationKey =
+      assetType === 'island-model'
+        ? `${policy.prefix}/${randomUUID()}.glb`
+        : `${policy.prefix}/${destinationId}/${randomUUID()}${extension}`;
     await this.client.send(
       new CopyObjectCommand({
         Bucket: this.bucket,
@@ -135,7 +146,10 @@ export class S3Service {
       await this.client.send(new DeleteObjectCommand({ Bucket: this.bucket, Key: objectKey }));
       await this.deleteCachedSignedResource(objectKey);
     } catch (error) {
-      this.logger.error(`No se pudo eliminar el objeto S3 ${objectKey}`, error instanceof Error ? error.stack : undefined);
+      this.logger.error(
+        `No se pudo eliminar el objeto S3 ${objectKey}`,
+        error instanceof Error ? error.stack : undefined,
+      );
     }
   }
 
@@ -153,6 +167,9 @@ export class S3Service {
       throw new BadRequestException('El tamaño del archivo no está permitido');
     }
     if (!fileName.trim()) throw new BadRequestException('El archivo necesita un nombre');
+    if (assetType === 'island-model' && extname(fileName).toLowerCase() !== '.glb') {
+      throw new BadRequestException('El modelo de isla debe tener extensión .glb');
+    }
     return policy;
   }
 
@@ -200,7 +217,9 @@ export class S3Service {
     if (!this.redisService.isReady()) return null;
     try {
       const cached = await this.redis.get(this.signedResourceCacheKey(objectKey));
-      return cached ? JSON.parse(cached) as Omit<SignedResource, 'fileName' | 'contentType'> : null;
+      return cached
+        ? (JSON.parse(cached) as Omit<SignedResource, 'fileName' | 'contentType'>)
+        : null;
     } catch (error) {
       this.logger.warn(`No se pudo leer la caché de avatar ${objectKey}: ${String(error)}`);
       return null;
