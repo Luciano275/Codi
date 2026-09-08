@@ -119,15 +119,16 @@ model User {
 // ─── Ruta de Aprendizaje ─────────────────────────────────
 
 model Island {
-  id          String   @id @default(uuid())
-  title       String
-  slug        String   @unique
-  description String
-  modelPath   String   @default("/islands/isla.glb")
-  available   Boolean  @default(true)
-  accent      String   @default("#58cc02")
-  order       Int
-  courses     Course[]
+  id             String   @id @default(uuid())
+  title          String
+  slug           String   @unique
+  description    String
+  modelPath      String   @default("/islands/isla.glb")
+  modelObjectKey String?
+  available      Boolean  @default(true)
+  accent         String   @default("#58cc02")
+  order          Int
+  courses        Course[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -184,6 +185,7 @@ model Lesson {
   videoFileName    String?
   videoContentType String?
   xpReward         Int                @default(50)
+  gemsReward       Int                @default(0)
   problems         Problem[]
   completions      LessonCompletion[]
 
@@ -204,6 +206,7 @@ model LessonCompletion {
 
   completedAt DateTime @default(now())
   xpAwarded   Int      @default(0)
+  gemsAwarded Int      @default(0)
 
   @@unique([userId, lessonId])
   @@map("codi_lesson_completion")
