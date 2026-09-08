@@ -15,22 +15,26 @@ import { ProblemsModule } from './problems/problems.module';
 import { RedisModule } from './redis/redis.module';
 import { RewardsModule } from './rewards/rewards.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { SandboxModule } from './sandbox/sandbox.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: resolve(process.cwd(), '../../.env'),
-      load: [() => config]
+      load: [() => config],
     }),
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 60,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 60,
+      },
+    ]),
     RedisModule,
     UploadsModule,
     RewardsModule,
     PrismaModule,
+    SandboxModule,
     AuthModule,
     SubmissionsModule,
     CoursesModule,
@@ -40,8 +44,6 @@ import { UploadsModule } from './uploads/uploads.module';
     ProblemsModule,
   ],
   controllers: [],
-  providers: [
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
-  ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}
