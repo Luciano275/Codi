@@ -325,6 +325,12 @@ model Submission {
   gemsAwarded Boolean   @default(false)
   xpAwarded   Int       @default(0)
 
+  evaluationAttempts  Int       @default(0)
+  evaluationLeaseUntil DateTime?
+  evaluationWorkerId   String?
+  evaluationStartedAt  DateTime?
+
+  @@index([status, evaluationLeaseUntil, submittedAt])
   @@map("codi_submission")
 }
 
