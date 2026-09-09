@@ -98,7 +98,7 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
             <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase text-gray-400">
               Docencia
             </p>
-            {[{ href: '/dashboard/admin/islands', label: 'Islas', icon: 'map' as const }].map(
+            {[{ href: '/dashboard/admin/islands', label: 'Administración de Islas', icon: 'map' as const }].map(
               (item) => {
                 const active = pathname.startsWith(item.href);
                 return (
