@@ -4,11 +4,15 @@ import { useEffect, useEffectEvent, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { clone as cloneSkinnedModel } from 'three/addons/utils/SkeletonUtils.js';
 import {
   applyAnimeMaterials,
+  createAnimeAtmosphere,
   configureAnimeRenderer,
   createAnimeLighting,
+  createAnimeSkyTexture,
   createToonGradient,
+  updateAnimeAtmosphere,
 } from './anime-rendering';
 import type { IslandViewModel } from './types';
 
@@ -64,12 +68,12 @@ function prepareIsland(
 ) {
   const initialBox = new THREE.Box3().setFromObject(root);
   const size = initialBox.getSize(new THREE.Vector3());
-  const modelScale = 9.5 / Math.max(size.x, size.y, size.z);
+  const modelScale = 10.2 / Math.max(size.x, size.y, size.z);
   root.scale.setScalar(modelScale);
   const box = new THREE.Box3().setFromObject(root);
   const center = box.getCenter(new THREE.Vector3());
   root.position.sub(center);
-  root.position.x += (index - (count - 1) / 2) * 10.5;
+  root.position.x += (index - (count - 1) / 2) * 11.2;
   root.position.y += 0.4;
   root.userData.baseY = root.position.y;
   root.userData.islandId = island.id;
@@ -113,6 +117,17 @@ function disposeObject(root: THREE.Object3D) {
   });
 }
 
+function cloneIslandModel(source: THREE.Object3D) {
+  const clone = cloneSkinnedModel(source);
+  clone.traverse((child) => {
+    if (!(child instanceof THREE.Mesh)) return;
+    const materials = Array.isArray(child.material) ? child.material : [child.material];
+    const clonedMaterials = materials.map((material) => material.clone());
+    child.material = Array.isArray(child.material) ? clonedMaterials : clonedMaterials[0];
+  });
+  return clone;
+}
+
 export default function IslandWorld({
   islands,
   departingId,
@@ -132,11 +147,12 @@ export default function IslandWorld({
     if (!container || islands.length === 0) return;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x22344e);
-    scene.fog = new THREE.FogExp2(0x22344e, 0.012);
+    const skyTexture = createAnimeSkyTexture();
+    scene.background = skyTexture;
+    scene.fog = new THREE.FogExp2(0x365f80, 0.009);
 
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
-    camera.position.set(0, 7.5, 18);
+    camera.position.set(0, 8.0, 15);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     configureAnimeRenderer(renderer);
     container.appendChild(renderer.domElement);
@@ -145,20 +161,24 @@ export default function IslandWorld({
     controls.enablePan = false;
     controls.enableDamping = true;
     controls.dampingFactor = 0.06;
-    controls.minDistance = 10;
-    controls.maxDistance = 28;
+    controls.minDistance = 8;
+    controls.maxDistance = 20;
     controls.minPolarAngle = Math.PI * 0.2;
     controls.maxPolarAngle = Math.PI * 0.47;
     controls.target.set(0, 0, 0);
 
     scene.add(createAnimeLighting());
     const toonGradient = createToonGradient();
+    const atmosphere = createAnimeAtmosphere();
+    scene.add(atmosphere.root);
 
     const islandRoots: THREE.Object3D[] = [];
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();
     const loader = new GLTFLoader();
+    const modelRequests = new Map<string, ReturnType<GLTFLoader['loadAsync']>>();
     const clock = new THREE.Clock();
+    let elapsed = 0;
     let frameId = 0;
     let disposed = false;
     let state: 'islands' | 'entering' = 'islands';
@@ -173,15 +193,33 @@ export default function IslandWorld({
     const focusCameraPosition = new THREE.Vector3();
     const focusTargetPosition = new THREE.Vector3();
 
-    Promise.all(islands.map((island) => loader.loadAsync(island.modelPath)))
-      .then((models) => {
+    const loadIslandModel = (island: IslandViewModel) => {
+      const existingRequest = modelRequests.get(island.modelCacheKey);
+      if (existingRequest) return existingRequest;
+      const request = loader.loadAsync(island.modelPath);
+      modelRequests.set(island.modelCacheKey, request);
+      return request;
+    };
+
+    Promise.allSettled(islands.map(loadIslandModel))
+      .then((results) => {
         if (disposed) {
-          models.forEach((model) => disposeObject(model.scene));
+          results.forEach((result) => {
+            if (result.status === 'fulfilled') disposeObject(result.value.scene);
+          });
           return;
         }
-        models.forEach((model, index) => {
+        results.forEach((result, index) => {
+          if (result.status !== 'fulfilled') return;
+          const model = result.value;
           const island = islands[index];
-          const root = prepareIsland(model.scene, island, index, islands.length, toonGradient);
+          const root = prepareIsland(
+            cloneIslandModel(model.scene),
+            island,
+            index,
+            islands.length,
+            toonGradient,
+          );
           const selectedClip = THREE.AnimationClip.findByName(model.animations, 'Island_Selected');
           if (island.available && selectedClip) {
             const mixer = new THREE.AnimationMixer(root);
@@ -193,11 +231,10 @@ export default function IslandWorld({
           islandRoots.push(root);
           scene.add(root);
         });
+        if (results.some((result) => result.status === 'rejected')) setLoadError(true);
         if (focusedIslandId) focusIslandRef.current?.(focusedIslandId);
       })
-      .catch(() => {
-        if (!disposed) setLoadError(true);
-      });
+      .catch(() => undefined);
 
     const resize = () => {
       const { clientWidth, clientHeight } = container;
@@ -284,7 +321,7 @@ export default function IslandWorld({
       const island = islandRoots.find((root) => root.userData.islandId === id);
       if (!island || state !== 'islands') return;
       island.getWorldPosition(focusTargetPosition);
-      focusCameraPosition.set(focusTargetPosition.x, 7.5, 18);
+      focusCameraPosition.set(focusTargetPosition.x, 8.0, 15);
     };
     focusIslandRef.current = focusIsland;
 
@@ -298,6 +335,8 @@ export default function IslandWorld({
 
     const animate = () => {
       const delta = clock.getDelta();
+      elapsed += delta;
+      updateAnimeAtmosphere(atmosphere, elapsed);
       const smooth = 1 - Math.pow(0.001, delta);
       islandRoots.forEach((root) => {
         const mixer = root.userData.mixer as THREE.AnimationMixer | undefined;
@@ -355,6 +394,8 @@ export default function IslandWorld({
       renderer.domElement.removeEventListener('pointerleave', handlePointerLeave);
       disposeObject(scene);
       toonGradient.dispose();
+      atmosphere.cloudTexture.dispose();
+      skyTexture.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
@@ -376,8 +417,8 @@ export default function IslandWorld({
       aria-label="Mapa 3D de islas de aprendizaje"
     >
       {loadError ? (
-        <div className="absolute inset-0 z-20 flex items-center justify-center bg-[#14253b] px-6 text-center text-sm text-sky-100/70">
-          No pudimos cargar el mapa 3D. Podés ingresar a una isla desde las tarjetas inferiores.
+        <div className="pointer-events-none absolute inset-x-0 bottom-36 z-20 mx-auto w-fit max-w-md rounded-xl border border-sky-100/25 bg-[#102a45]/80 px-4 py-2 text-center text-xs text-sky-50 shadow-lg backdrop-blur-sm">
+          No pudimos cargar una o más islas. Podés reintentar desde las tarjetas inferiores.
         </div>
       ) : null}
     </div>

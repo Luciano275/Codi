@@ -4,6 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {
+  applyAnimeMaterials,
+  configureAnimeRenderer,
+  createAnimeLighting,
+  createToonGradient,
+} from '@/components/islands/anime-rendering';
 
 interface IslandModelPreviewProps {
   sourceUrl: string;
@@ -24,9 +30,7 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     camera.position.set(3.8, 2.8, 5.2);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    configureAnimeRenderer(renderer);
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -35,11 +39,8 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     controls.minDistance = 2;
     controls.maxDistance = 12;
 
-    scene.add(new THREE.HemisphereLight(0xffffff, 0x5f7655, 2.4));
-    const keyLight = new THREE.DirectionalLight(0xffffff, 2.8);
-    keyLight.position.set(5, 7, 4);
-    keyLight.castShadow = true;
-    scene.add(keyLight);
+    scene.add(createAnimeLighting());
+    const toonGradient = createToonGradient();
 
     const ground = new THREE.Mesh(
       new THREE.CircleGeometry(3.5, 48),
@@ -66,6 +67,7 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
       .then((gltf) => {
         if (disposed) return disposeModel(gltf.scene);
         model = centerModel(gltf.scene);
+        applyAnimeMaterials(model, toonGradient);
         scene.add(model);
         setError(false);
       })
@@ -90,6 +92,7 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
       if (model) disposeModel(model);
       ground.geometry.dispose();
       (ground.material as THREE.Material).dispose();
+      toonGradient.dispose();
       renderer.dispose();
       renderer.domElement.remove();
     };
