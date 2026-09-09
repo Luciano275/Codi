@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
-import Image from 'next/image';
 import { apiPost } from '@/lib/api-client';
 
 interface LoginResponse {
@@ -85,13 +84,10 @@ export default function LoginForm() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
           >
-            <Image
-              src="/logo.png?v=2"
+            <img
+              src="/logo.png?v=3"
               alt="Codi"
-              fill
-              priority
-              sizes="(max-width: 768px) 144px, 160px"
-              className="object-contain drop-shadow-lg"
+              className="h-full w-full object-contain drop-shadow-lg"
             />
           </motion.div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">

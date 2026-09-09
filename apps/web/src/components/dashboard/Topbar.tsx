@@ -82,13 +82,10 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
       {!islandMode ? (
         <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-white/70 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-md md:flex">
           <div className="relative h-12 w-12 shrink-0 overflow-hidden md:h-15 md:w-15">
-            <Image
-              src="/logo.png?v=2"
+            <img
+              src="/logo.png?v=3"
               alt="Codi"
-              fill
-              priority
-              sizes="(max-width: 768px) 48px, 60px"
-              className="object-contain drop-shadow-xs"
+              className="h-full w-full object-contain drop-shadow-xs"
             />
           </div>
           <div>

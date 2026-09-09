@@ -72,7 +72,7 @@ export default function RootLayout({
     '@type': 'Organization',
     name: 'Codi',
     url: config.frontendUrl,
-    logo: `${config.frontendUrl}/logo.png?v=2`,
+    logo: `${config.frontendUrl}/logo.png?v=3`,
     description:
       'Plataforma educativa de programación. Aprendé lógica, estructuras de datos y algoritmos de forma interactiva.',
   };
