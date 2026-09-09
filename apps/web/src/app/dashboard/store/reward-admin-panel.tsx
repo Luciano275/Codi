@@ -68,7 +68,6 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
     <section className="rounded-[1.7rem] border border-lagos-100 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="font-candy-beans text-sm text-lagos-600">Acceso docente</p>
           <h2 className="font-super-pandora text-xl text-gray-900">Administrar recompensas</h2>
           <p className="font-simply-olive text-sm text-gray-500">
             Creá, editá, activá o retirá recompensas del catálogo.
@@ -76,7 +75,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
         </div>
         <button
           onClick={() => setEditingReward(null)}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-lagos-600 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:bg-lagos-700 hover:cursor-pointer"
+          className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-pradera-500 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:bg-pradera-600"
         >
           <Plus className="h-4 w-4" />
           Nueva recompensa
@@ -112,7 +111,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
                 disabled={isPending}
                 title={reward.isActive ? 'Desactivar' : 'Activar'}
                 onClick={() => toggleReward(reward)}
-                className="rounded-lg p-2 text-gray-500 transition hover:bg-white hover:text-lagos-700 disabled:opacity-50 hover:cursor-pointer"
+                className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-white hover:text-lagos-700 disabled:opacity-50"
               >
                 {reward.isActive ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
@@ -120,7 +119,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
                 disabled={isPending}
                 title="Editar"
                 onClick={() => setEditingReward(reward)}
-                className="rounded-lg p-2 text-gray-500 transition hover:bg-white hover:text-lagos-700 disabled:opacity-50 hover:cursor-pointer"
+                className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-white hover:text-lagos-700 disabled:opacity-50"
               >
                 <Pencil className="h-4 w-4" />
               </button>
@@ -130,7 +129,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
                   reward.redemptionCount ? 'No se puede eliminar: ya tiene canjes' : 'Eliminar'
                 }
                 onClick={() => setRewardToDelete(reward)}
-                className="rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-35 hover:cursor-pointer"
+                className="cursor-pointer rounded-lg p-2 text-gray-500 transition hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-35"
               >
                 <Trash2 className="h-4 w-4" />
               </button>

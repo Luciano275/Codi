@@ -145,7 +145,7 @@ export function RewardEditorDialog({
           </div>
           <button
             aria-label="Cerrar"
-            className="rounded-xl p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+            className="cursor-pointer rounded-xl p-2 text-gray-400 hover:bg-gray-100 hover:text-gray-700"
             onClick={requestClose}
             disabled={submitting}
           >
@@ -242,13 +242,13 @@ export function RewardEditorDialog({
               type="button"
               onClick={requestClose}
               disabled={submitting}
-              className="rounded-xl px-4 py-2.5 font-super-pandora text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
+              className="cursor-pointer rounded-xl px-4 py-2.5 font-super-pandora text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50"
             >
               Cancelar
             </button>
             <button
               disabled={submitting}
-              className="rounded-xl bg-lagos-600 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:bg-lagos-700 disabled:opacity-60"
+              className="cursor-pointer rounded-xl bg-pradera-500 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:bg-pradera-600 disabled:opacity-60"
             >
               {submitting ? 'Guardando…' : reward ? 'Guardar cambios' : 'Crear recompensa'}
             </button>

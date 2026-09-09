@@ -177,7 +177,7 @@ const RewardCard = memo(function RewardCard({
           <button
             onClick={() => onRedeem(reward)}
             disabled={!canOpen}
-            className={`min-h-9 rounded-xl px-3 py-2 text-center font-super-pandora text-[11px] leading-tight shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-100 ${actionClass}`}
+            className={`min-h-9 cursor-pointer rounded-xl px-3 py-2 text-center font-super-pandora text-[11px] leading-tight shadow-sm transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-100 ${actionClass}`}
           >
             {buttonLabel}
           </button>
@@ -302,10 +302,7 @@ export default function StoreClient({
               <Image src={shopImage} alt="" fill priority sizes="68px" className="object-cover" />
             </div>
             <div>
-              <p className="font-simply-olive text-xs font-bold text-lagos-600">
-                Recompensas para avanzar
-              </p>
-              <h1 className="mt-1 font-super-pandora text-fluid-2xl text-gray-900">
+              <h1 className="font-super-pandora text-fluid-2xl text-gray-900">
                 Tienda de canjes
               </h1>
               <p className="mt-1 max-w-xl font-simply-olive text-fluid-base text-gray-600">
@@ -343,7 +340,7 @@ export default function StoreClient({
           <button
             key={value}
             onClick={() => setCategory(value)}
-            className={`flex shrink-0 items-center gap-2 rounded-2xl px-4 py-2.5 font-simply-olive text-sm font-bold transition ${category === value ? 'bg-linear-to-r from-lagos-500 to-lagos-600 text-white shadow-md' : 'border border-gray-100 bg-white text-gray-600 shadow-xs hover:-translate-y-0.5 hover:text-lagos-700'} hover:cursor-pointer`}
+            className={`flex shrink-0 cursor-pointer items-center gap-2 rounded-2xl px-4 py-2.5 font-simply-olive text-sm font-bold transition ${category === value ? 'bg-linear-to-r from-pradera-500 to-pradera-600 text-white shadow-md' : 'border border-gray-100 bg-white text-gray-600 shadow-xs hover:-translate-y-0.5 hover:text-pradera-700'}`}
           >
             <CategoryIcon category={value} />
             {label}
@@ -399,7 +396,7 @@ export default function StoreClient({
         </ul>
       </section>
 
-      <section className="relative overflow-hidden rounded-[1.8rem] bg-[#172f91] px-5 py-6 text-white shadow-md sm:px-7">
+      <section className="relative overflow-hidden rounded-[1.8rem] bg-linear-to-br from-lagos-600 via-bosque-700 to-bosque-800 px-5 py-6 text-white shadow-md sm:px-7">
         <Image
           src={shopWallpaperImage}
           alt=""
@@ -407,7 +404,7 @@ export default function StoreClient({
           sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1200px"
           className="object-cover object-bottom"
         />
-        <div aria-hidden className="absolute inset-0 bg-[#172f91]/35" />
+        <div aria-hidden className="absolute inset-0 bg-bosque-900/30" />
         <div className="relative max-w-2xl">
           <p className="font-candy-beans text-lg text-castillo-200">
             Subí de nivel con cada desafío
@@ -421,7 +418,7 @@ export default function StoreClient({
           </p>
           <button
             onClick={() => setGuideOpen(true)}
-            className="mt-4 rounded-xl border border-white/25 bg-white/15 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-bosque-700"
+            className="mt-4 cursor-pointer rounded-xl border border-white/25 bg-white/15 px-4 py-2.5 font-super-pandora text-sm text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-white hover:text-bosque-700"
           >
             ¿Cómo conseguir gemas?
           </button>
@@ -461,7 +458,7 @@ export default function StoreClient({
           <p className="font-simply-olive text-sm">{message}</p>
           <button
             onClick={() => setMessage(null)}
-            className="ml-1 text-xs text-white/70 hover:text-white"
+            className="ml-1 cursor-pointer text-xs text-white/70 hover:text-white"
           >
             Cerrar
           </button>
@@ -486,7 +483,7 @@ export default function StoreClient({
             </p>
             <button
               onClick={() => setGuideOpen(false)}
-              className="mt-5 rounded-xl bg-gray-900 px-4 py-2.5 font-super-pandora text-sm text-white"
+              className="mt-5 cursor-pointer rounded-xl bg-gray-900 px-4 py-2.5 font-super-pandora text-sm text-white"
             >
               Entendido
             </button>

@@ -78,7 +78,7 @@ export function StoreDialog({
               <button
                 onClick={requestClose}
                 disabled={submitting}
-                className="absolute right-4 top-4 rounded-full p-2 text-gray-400 transition hover:bg-white hover:text-gray-700 disabled:opacity-50"
+                className="absolute right-4 top-4 cursor-pointer rounded-full p-2 text-gray-400 transition hover:bg-white hover:text-gray-700 disabled:opacity-50"
                 aria-label="Cerrar"
               >
                 <X className="h-4 w-4" />
@@ -110,7 +110,7 @@ export function StoreDialog({
                         key={item}
                         type="button"
                         onClick={() => onSelectTrimester(item)}
-                        className={`rounded-xl border px-2 py-3 font-candy-beans text-lg transition ${trimester === item ? 'border-desierto-400 bg-desierto-50 text-desierto-700 ring-2 ring-desierto-200' : 'border-gray-200 text-gray-600 hover:border-desierto-200 hover:bg-desierto-50/50'}`}
+                        className={`cursor-pointer rounded-xl border px-2 py-3 font-candy-beans text-lg transition ${trimester === item ? 'border-desierto-400 bg-desierto-50 text-desierto-700 ring-2 ring-desierto-200' : 'border-gray-200 text-gray-600 hover:border-desierto-200 hover:bg-desierto-50/50'}`}
                       >
                         {item}.º
                       </button>
@@ -130,7 +130,7 @@ export function StoreDialog({
                   type="button"
                   onClick={requestClose}
                   disabled={submitting}
-                  className="rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
+                  className="cursor-pointer rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-600 transition hover:bg-gray-100 disabled:opacity-50"
                 >
                   Cancelar
                 </button>
@@ -138,7 +138,7 @@ export function StoreDialog({
                   type="button"
                   onClick={onConfirm}
                   disabled={!canConfirm || submitting}
-                  className="rounded-xl bg-linear-to-r from-lagos-500 to-valle-500 px-4 py-2.5 font-super-pandora text-sm text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-45"
+                  className="cursor-pointer rounded-xl bg-linear-to-r from-pradera-500 to-valle-500 px-4 py-2.5 font-super-pandora text-sm text-white shadow-md transition hover:-translate-y-0.5 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   {submitting ? 'Canjeando…' : 'Confirmar canje'}
                 </button>
