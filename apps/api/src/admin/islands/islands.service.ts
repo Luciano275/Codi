@@ -28,6 +28,7 @@ export class AdminIslandsService {
         available: true,
         createdAt: true,
         updatedAt: true,
+        modelPath: true,
         modelObjectKey: true,
         _count: { select: { courses: true } },
       },
@@ -48,6 +49,7 @@ export class AdminIslandsService {
         available: true,
         createdAt: true,
         updatedAt: true,
+        modelPath: true,
         modelObjectKey: true,
         courses: {
           orderBy: { order: 'asc' },
@@ -102,6 +104,7 @@ export class AdminIslandsService {
           available: true,
           createdAt: true,
           updatedAt: true,
+          modelPath: true,
           modelObjectKey: true,
           _count: { select: { courses: true } },
         },

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { S3Service } from '../../s3/s3.service';
 
-const LEGACY_ISLAND_MODEL_PATH = '/islands/isla.glb';
 const ISLAND_MODEL_KEY_PATTERN = /^islands\/[0-9a-f-]{36}\.glb$/;
 
 @Injectable()
@@ -22,13 +21,13 @@ export class IslandModelService {
     return this.s3.deleteObject(objectKey);
   }
 
-  async resolve<T extends { modelObjectKey: string | null }>(island: T) {
-    const { modelObjectKey, ...publicIsland } = island;
+  async resolve<T extends { modelObjectKey: string | null; modelPath: string }>(island: T) {
+    const { modelObjectKey, modelPath, ...publicIsland } = island;
     const model = await this.s3.signedResource(modelObjectKey, null, 'model/gltf-binary');
     return {
       ...publicIsland,
       hasCustomModel: Boolean(modelObjectKey),
-      modelPath: model?.url ?? LEGACY_ISLAND_MODEL_PATH,
+      modelPath: model?.url ?? modelPath,
     };
   }
 }

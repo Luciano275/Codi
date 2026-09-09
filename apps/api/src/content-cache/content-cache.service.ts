@@ -5,8 +5,8 @@ import { RedisService } from '../redis/redis.service';
 export const ADMIN_LESSONS_CACHE_KEY = 'admin:lessons:all:v2';
 export const ADMIN_PROBLEMS_CACHE_KEY = 'admin:problems:all';
 export const ADMIN_COURSES_CACHE_KEY = 'admin:courses:all';
-export const ISLANDS_CACHE_KEY = 'islands:summary:v3';
-export const ISLAND_PATHS_CACHE_KEY = 'islands:paths:v3';
+export const ISLANDS_CACHE_KEY = 'islands:summary:v4';
+export const ISLAND_PATHS_CACHE_KEY = 'islands:paths:v4';
 export const COURSE_PATHS_CACHE_KEY = 'courses:paths:submodules:v3';
 export const CONTENT_CACHE_TTL_SECONDS = 60 * 60;
 

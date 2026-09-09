@@ -17,6 +17,7 @@ import {
 import { S3Service } from '../s3/s3.service';
 
 const COURSES_CACHE_TTL_SECONDS = 60 * 60;
+const DEFAULT_ISLAND_MODEL_PATH = '/islands/isla.glb';
 
 export interface UserProgressCache {
   totalLessons: number;
@@ -29,6 +30,11 @@ export interface UserProgressCache {
     totalLessons: number;
     completed: boolean;
   }[];
+}
+
+export interface IslandModelCacheEntry {
+  modelObjectKey: string | null;
+  modelPath: string;
 }
 
 @Injectable()
@@ -86,8 +92,7 @@ export class CoursesService {
   }
 
   async findIslands() {
-    const cached =
-      await this.contentCache.get<Array<{ modelObjectKey: string | null }>>(ISLANDS_CACHE_KEY);
+    const cached = await this.contentCache.get<IslandModelCacheEntry[]>(ISLANDS_CACHE_KEY);
     if (cached) return Promise.all(cached.map((island) => this.withResolvedIslandModel(island)));
 
     const islands = await this.prisma.island.findMany({
@@ -98,6 +103,7 @@ export class CoursesService {
         slug: true,
         description: true,
         modelObjectKey: true,
+        modelPath: true,
         available: true,
         accent: true,
         order: true,
@@ -114,7 +120,7 @@ export class CoursesService {
   async findIslandPath(slug: string) {
     const cachedPaths =
       await this.contentCache.get<Record<string, unknown>>(ISLAND_PATHS_CACHE_KEY);
-    const cachedPath = cachedPaths?.[slug] as { modelObjectKey: string | null } | undefined;
+    const cachedPath = cachedPaths?.[slug] as IslandModelCacheEntry | undefined;
     if (cachedPath) return this.withResolvedIslandModel(cachedPath);
 
     const island = await this.prisma.island.findUnique({
@@ -128,6 +134,7 @@ export class CoursesService {
         accent: true,
         order: true,
         modelObjectKey: true,
+        modelPath: true,
         courses: {
           orderBy: { order: 'asc' },
           select: {
@@ -390,10 +397,12 @@ export class CoursesService {
     return { completed: !!completion, completedAt: completion?.completedAt ?? null };
   }
 
-  private async withResolvedIslandModel<T extends { modelObjectKey: string | null }>(island: T) {
-    const { modelObjectKey, ...publicIsland } = island;
+  private async withResolvedIslandModel<
+    T extends { modelObjectKey: string | null; modelPath: string },
+  >(island: T) {
+    const { modelObjectKey, modelPath, ...publicIsland } = island;
     const model = await this.s3.signedResource(modelObjectKey, null, 'model/gltf-binary');
-    return { ...publicIsland, modelPath: model?.url ?? '/islands/isla.glb' };
+    return { ...publicIsland, modelPath: model?.url ?? modelPath ?? DEFAULT_ISLAND_MODEL_PATH };
   }
 
   private async removeAwardedGems(

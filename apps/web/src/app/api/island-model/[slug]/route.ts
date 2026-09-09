@@ -29,10 +29,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     return NextResponse.json({ message: 'No se encontró la isla.' }, { status: 404 });
   }
 
-  const modelUrl = island.modelPath.startsWith('/')
-    ? new URL(island.modelPath, request.url).toString()
-    : island.modelPath;
-  const modelResponse = await fetch(modelUrl, { cache: 'no-store' });
+  const modelPath = island.modelPath || '/islands/isla.glb';
+  const modelUrl = modelPath.startsWith('/')
+    ? new URL(modelPath, request.url).toString()
+    : modelPath;
+  const range = request.headers.get('range');
+  const modelResponse = await fetch(modelUrl, {
+    headers: range ? { Range: range } : {},
+    cache: 'no-store',
+  });
   if (!modelResponse.ok || !modelResponse.body) {
     return NextResponse.json(
       { message: 'No se pudo cargar el modelo de la isla.' },
@@ -40,10 +45,17 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     );
   }
 
+  const responseHeaders = new Headers({
+    'Content-Type': modelResponse.headers.get('content-type') || 'model/gltf-binary',
+    'Cache-Control': 'private, max-age=3600',
+  });
+  ['accept-ranges', 'content-length', 'content-range', 'etag', 'last-modified'].forEach((header) => {
+    const value = modelResponse.headers.get(header);
+    if (value) responseHeaders.set(header, value);
+  });
+
   return new Response(modelResponse.body, {
-    headers: {
-      'Content-Type': modelResponse.headers.get('content-type') || 'model/gltf-binary',
-      'Cache-Control': 'private, max-age=300',
-    },
+    status: modelResponse.status,
+    headers: responseHeaders,
   });
 }
