@@ -111,7 +111,10 @@ export default function LoginForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu_usuario"
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00D2D3]/50 focus:border-[#00D2D3]/50 transition-all duration-200"
+                style={{
+                  outline: 'none'
+                }}
+                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
                 aria-required="true"
                 autoComplete="email"
@@ -131,7 +134,10 @@ export default function LoginForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#00D2D3]/50 focus:border-[#00D2D3]/50 transition-all duration-200"
+                style={{
+                  outline: 'none'
+                }}
+                className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
                 aria-required="true"
                 autoComplete="current-password"
@@ -148,7 +154,7 @@ export default function LoginForm() {
           </div>
 
           <div className="flex items-center justify-between">
-            <a href="/forgot-password" className="text-sm font-semibold text-[#00D2D3] hover:text-[#00E8E9] transition-colors">
+            <a href="/forgot-password" className="text-sm font-semibold text-[#55C703] hover:text-[#6aff00] transition-colors">
               ¿Olvidaste tu contraseña?
             </a>
           </div>
@@ -167,7 +173,7 @@ export default function LoginForm() {
             <motion.button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 text-white font-bold text-base rounded-xl bg-linear-to-r from-[#00A3FF] to-[#00D2D3] shadow-lg shadow-[#00D2D3]/30 hover:shadow-xl hover:shadow-[#00D2D3]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group"
+              className="w-full py-3.5 text-white font-bold text-base rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] shadow-lg shadow-[#00D2D3]/30 hover:shadow-xl hover:shadow-[#73CE09]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group hover:cursor-pointer"
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
@@ -181,7 +187,7 @@ export default function LoginForm() {
                   'Iniciar sesión'
                 )}
               </span>
-              <div className="absolute inset-0 bg-linear-to-r from-[#00D2D3] to-[#00A3FF] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-linear-to-r from-[#00d335] to-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </motion.button>
           </div>
         </form>
