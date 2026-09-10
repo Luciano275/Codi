@@ -83,9 +83,6 @@ export function StoreDialog({
               >
                 <X className="h-4 w-4" />
               </button>
-              <p className="font-simply-olive text-xs font-bold text-lagos-600">
-                Confirmar canje
-              </p>
               <h2
                 id="redeem-dialog-title"
                 className="mt-1 pr-8 font-super-pandora text-2xl text-gray-900"
