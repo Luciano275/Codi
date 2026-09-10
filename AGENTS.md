@@ -76,16 +76,16 @@ pnpm db:studio                         # prisma studio
 
 ## Key commands
 
-| Goal | Command |
-|------|---------|
-| Dev all apps | `pnpm start:dev` (alias de `turbo dev`) |
-| Dev single NestJS app | `pnpm --filter @codi/api start:dev` |
-| Dev web | `pnpm --filter @codi/web dev` |
-| Typecheck a package | `pnpm --filter @codi/<pkg> lint` (runs `tsc --noEmit`) |
-| Typecheck web | `pnpm --filter @codi/web lint` (runs `next lint`) |
-| Build database (tsc) | `pnpm --filter @codi/database build` |
-| Format all | `pnpm format` |
-| Add a dep | `pnpm --filter @codi/<pkg> add <pkg>` |
+| Goal                  | Command                                                |
+| --------------------- | ------------------------------------------------------ |
+| Dev all apps          | `pnpm start:dev` (alias de `turbo dev`)                |
+| Dev single NestJS app | `pnpm --filter @codi/api start:dev`                    |
+| Dev web               | `pnpm --filter @codi/web dev`                          |
+| Typecheck a package   | `pnpm --filter @codi/<pkg> lint` (runs `tsc --noEmit`) |
+| Typecheck web         | `pnpm --filter @codi/web lint` (runs `next lint`)      |
+| Build database (tsc)  | `pnpm --filter @codi/database build`                   |
+| Format all            | `pnpm format`                                          |
+| Add a dep             | `pnpm --filter @codi/<pkg> add <pkg>`                  |
 
 ## TypeScript conventions
 
@@ -99,6 +99,7 @@ pnpm db:studio                         # prisma studio
 
 - Prettier: semicolons, single quotes, trailing commas, 100 print width, 2-space tabs.
 - No ESLint config files found outside NestJS templates — linting relies on `next lint` and `tsc --noEmit`.
+- En interfaces, no usar estrellas, destellos ni otros adornos genéricos asociados a estética de IA. Tampoco crear subtítulos en mayúsculas con `tracking` como etiqueta decorativa sobre títulos. La jerarquía visual debe resolverse con tipografía, composición y elementos propios del producto.
 
 ## Env
 
@@ -134,11 +135,11 @@ psql "$SUPABASE_DATABASE_URL" < /tmp/cmsdb_backup.sql
 
 ### 4. Actualizar conexiones
 
-| Componente | Dónde cambiar |
-|-----------|--------------|
-| Codi API + Web | Editar `.env` → `DATABASE_URL=postgresql://...` (cadena de Supabase) |
-| CMS (intranet) | Editar `/etc/cms.conf` → `database: postgresql://...` (misma cadena de Supabase) |
-| Bridge (intranet) | Editar `.env` del bridge → `DATABASE_URL=...` (misma cadena de Supabase) |
+| Componente        | Dónde cambiar                                                                    |
+| ----------------- | -------------------------------------------------------------------------------- |
+| Codi API + Web    | Editar `.env` → `DATABASE_URL=postgresql://...` (cadena de Supabase)             |
+| CMS (intranet)    | Editar `/etc/cms.conf` → `database: postgresql://...` (misma cadena de Supabase) |
+| Bridge (intranet) | Editar `.env` del bridge → `DATABASE_URL=...` (misma cadena de Supabase)         |
 
 ### 5. Verificar datos preservados
 
@@ -172,7 +173,7 @@ pnpm db:push      # crea tablas codi_* que falten sin borrar datos existentes
 
 ## Clean Code — principios obligatorios
 
-Toda refactorización debe seguir los principios descritos en *Clean Code* (Robert C. Martin). No se trata únicamente de que el código funcione, sino de que sea fácil de leer, comprender, probar y mantener.
+Toda refactorización debe seguir los principios descritos en _Clean Code_ (Robert C. Martin). No se trata únicamente de que el código funcione, sino de que sea fácil de leer, comprender, probar y mantener.
 
 ### Responsabilidad única (Single Responsibility)
 
@@ -184,22 +185,22 @@ Si un componente renderiza la UI, obtiene datos, transforma información y manej
 
 Prioriza componentes pequeños y enfocados.
 
-| Límite | Evaluación |
-|--------|-----------|
-| < 100 líneas | Ideal |
-| 100–150 líneas | Aceptable |
-| 150–200 líneas | Debe justificarse |
-| > 300 líneas | Mala arquitectura — debe dividirse |
+| Límite         | Evaluación                         |
+| -------------- | ---------------------------------- |
+| < 100 líneas   | Ideal                              |
+| 100–150 líneas | Aceptable                          |
+| 150–200 líneas | Debe justificarse                  |
+| > 300 líneas   | Mala arquitectura — debe dividirse |
 
 ### Funciones pequeñas
 
 Las funciones deben realizar una única tarea.
 
-| Límite | Evaluación |
-|--------|-----------|
-| < 20 líneas | Ideal |
+| Límite       | Evaluación         |
+| ------------ | ------------------ |
+| < 20 líneas  | Ideal              |
 | 20–40 líneas | Máximo recomendado |
-| > 40 líneas | Debe dividirse |
+| > 40 líneas  | Debe dividirse     |
 
 Si una función necesita comentarios para entender qué hace, probablemente deba dividirse.
 
