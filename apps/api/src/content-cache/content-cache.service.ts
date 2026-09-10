@@ -49,6 +49,7 @@ export class ContentCacheService {
       `lessons:${lessonId}`,
       `lessons:v2:${lessonId}`,
       `lessons:v3:${lessonId}`,
+      `lessons:v4:${lessonId}`,
       ...this.courseKeys(courseIds),
     ]);
   }
@@ -64,6 +65,7 @@ export class ContentCacheService {
       COURSE_PATHS_CACHE_KEY,
       ADMIN_COURSES_CACHE_KEY,
       'courses:all',
+      'courses:all:v2',
     ]);
   }
 
@@ -93,7 +95,11 @@ export class ContentCacheService {
       ISLAND_PATHS_CACHE_KEY,
       COURSE_PATHS_CACHE_KEY,
       ADMIN_COURSES_CACHE_KEY,
-      ...validCourseIds.flatMap((courseId) => [`courses:${courseId}`, `admin:courses:${courseId}`]),
+      ...validCourseIds.flatMap((courseId) => [
+        `courses:${courseId}`,
+        `courses:v2:${courseId}`,
+        `admin:courses:${courseId}`,
+      ]),
     ];
   }
 

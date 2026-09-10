@@ -51,20 +51,37 @@ export class CoursesService {
   }
 
   async findAll() {
-    const cached = await this.redis.get('courses:all');
+    const cached = await this.redis.get('courses:all:v2');
     if (cached) {
       return JSON.parse(cached);
     }
 
     const result = this.prisma.course.findMany({
       orderBy: { order: 'asc' },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        level: true,
+        region: true,
+        xpReward: true,
+        order: true,
+        islandId: true,
         modules: {
           orderBy: { order: 'asc' },
-          include: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
             lessons: {
               orderBy: { order: 'asc' },
-              include: {
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                type: true,
+                xpReward: true,
+                gemsReward: true,
                 problems: {
                   select: {
                     id: true,
@@ -81,7 +98,7 @@ export class CoursesService {
       },
     });
 
-    await this.redis.set('courses:all', JSON.stringify(await result), {
+    await this.redis.set('courses:all:v2', JSON.stringify(await result), {
       expiration: {
         type: 'EX',
         value: COURSES_CACHE_TTL_SECONDS,
@@ -190,20 +207,37 @@ export class CoursesService {
   }
 
   async findOne(id: string) {
-    const cached = await this.redis.get(`courses:${id}`);
+    const cached = await this.redis.get(`courses:v2:${id}`);
     if (cached) {
       return JSON.parse(cached);
     }
 
     const course = await this.prisma.course.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        level: true,
+        region: true,
+        xpReward: true,
+        order: true,
+        islandId: true,
         modules: {
           orderBy: { order: 'asc' },
-          include: {
+          select: {
+            id: true,
+            title: true,
+            order: true,
             lessons: {
               orderBy: { order: 'asc' },
-              include: {
+              select: {
+                id: true,
+                title: true,
+                order: true,
+                type: true,
+                xpReward: true,
+                gemsReward: true,
                 problems: {
                   select: {
                     id: true,
@@ -221,7 +255,7 @@ export class CoursesService {
     });
     if (!course) throw new NotFoundException('Course not found');
 
-    await this.redis.set(`courses:${id}`, JSON.stringify(course), {
+    await this.redis.set(`courses:v2:${id}`, JSON.stringify(course), {
       expiration: {
         type: 'EX',
         value: COURSES_CACHE_TTL_SECONDS,
