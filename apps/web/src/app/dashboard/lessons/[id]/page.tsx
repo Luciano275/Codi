@@ -15,6 +15,7 @@ import { fetchLesson } from '@/lib/server-api';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import LessonSidebar from './sidebar';
 import LessonCompleteButton from './complete-button';
+import { SmartHintCard } from './smart-hint-card';
 
 const typeIcons: Record<string, React.ElementType> = {
   THEORY: FileText,
@@ -53,8 +54,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
   const allLessons = lesson.module.lessons;
   const currentIndex = allLessons.findIndex((l) => l.id === id);
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
-  const nextLesson =
-    currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+  const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
   const islandSlug = lesson.module.course.island?.slug;
   const lessonPathHref = islandSlug
     ? `/dashboard/islands/${islandSlug}/courses/${lesson.module.course.id}`
@@ -80,10 +80,7 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
         <div className="w-full px-5 py-6 sm:px-8 sm:py-8 lg:px-10">
           {/* Breadcrumb */}
           <nav className="mb-6 flex items-center gap-2 text-sm text-gray-400">
-            <Link
-              href={lessonPathHref}
-              className="transition-colors hover:text-lagos-600"
-            >
+            <Link href={lessonPathHref} className="transition-colors hover:text-lagos-600">
               {lesson.module.course.title}
             </Link>
             <ChevronRight className="h-3.5 w-3.5" />
@@ -97,18 +94,14 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                 <Icon className="h-6 w-6" />
               </div>
               <div>
-                <h1 className="font-super-pandora text-2xl text-gray-900">
-                  {lesson.title}
-                </h1>
+                <h1 className="font-super-pandora text-2xl text-gray-900">{lesson.title}</h1>
                 <div className="mt-1 flex items-center gap-3 text-sm text-gray-400">
                   <span className="rounded-md bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
                     {typeLabels[lesson.type] || lesson.type}
                   </span>
                   <span className="flex items-center gap-1">
                     <Zap className="h-3.5 w-3.5 text-amber-400" />
-                    <span className="font-candy-beans text-amber-600">
-                      +{lesson.xpReward} XP
-                    </span>
+                    <span className="font-candy-beans text-amber-600">+{lesson.xpReward} XP</span>
                   </span>
                 </div>
               </div>
@@ -153,6 +146,14 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
             </div>
           )}
 
+          {lesson.smartHint && (
+            <SmartHintCard
+              lessonId={id}
+              canUnlock={lesson.smartHint.canUnlock}
+              initialHint={lesson.smartHint.content}
+            />
+          )}
+
           {/* PDF resource */}
           {lesson.resources?.pdf && (
             <div className="mb-10 rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -187,48 +188,47 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
                 {lesson.problems.map((problem) => {
                   const solved = lesson.solvedProblemIds?.includes(problem.id);
                   return (
-                  <Link
-                    key={problem.id}
-                    href={`/dashboard/lab?problemId=${problem.id}&lessonId=${id}`}
-                    className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors group ${
-                      solved
-                        ? 'border-pradera-200 bg-pradera-50 hover:bg-pradera-100'
-                        : 'border-gray-100 hover:border-lagos-200 hover:bg-lagos-50'
-                    }`}
-                  >
-                    {solved ? (
-                      <CheckCircle2 className="h-5 w-5 text-pradera-500" />
-                    ) : (
-                      <FileCode2 className="h-5 w-5 text-gray-400 group-hover:text-lagos-500" />
-                    )}
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-800 group-hover:text-lagos-700">
-                        {problem.title}
-                      </p>
-                      <p className="text-xs text-gray-400">#{problem.cmsTaskId}</p>
-                    </div>
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-xs font-medium ${difficultyColors[problem.difficulty] || 'bg-gray-100 text-gray-600'}`}
+                    <Link
+                      key={problem.id}
+                      href={`/dashboard/lab?problemId=${problem.id}&lessonId=${id}`}
+                      className={`flex items-center gap-4 rounded-xl border px-4 py-3 transition-colors group ${
+                        solved
+                          ? 'border-pradera-200 bg-pradera-50 hover:bg-pradera-100'
+                          : 'border-gray-100 hover:border-lagos-200 hover:bg-lagos-50'
+                      }`}
                     >
-                      {problem.difficulty === 'EASY'
-                        ? 'Fácil'
-                        : problem.difficulty === 'MEDIUM'
-                          ? 'Medio'
-                          : problem.difficulty === 'HARD'
-                            ? 'Difícil'
-                            : 'Experto'}
-                    </span>
-                    <span className="font-candy-beans text-xs text-amber-600">
-                      +{problem.xpReward} XP
-                    </span>
-                    <span className="flex items-center text-xs text-cyan-500 gap-2">
-                      <Gem className="h-4 w-4 text-cyan-500" />
-                      +{problem.gemsReward}
-                    </span>
-                    <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
-                  </Link>
-                );
-              })}
+                      {solved ? (
+                        <CheckCircle2 className="h-5 w-5 text-pradera-500" />
+                      ) : (
+                        <FileCode2 className="h-5 w-5 text-gray-400 group-hover:text-lagos-500" />
+                      )}
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-800 group-hover:text-lagos-700">
+                          {problem.title}
+                        </p>
+                        <p className="text-xs text-gray-400">#{problem.cmsTaskId}</p>
+                      </div>
+                      <span
+                        className={`rounded-md px-2 py-0.5 text-xs font-medium ${difficultyColors[problem.difficulty] || 'bg-gray-100 text-gray-600'}`}
+                      >
+                        {problem.difficulty === 'EASY'
+                          ? 'Fácil'
+                          : problem.difficulty === 'MEDIUM'
+                            ? 'Medio'
+                            : problem.difficulty === 'HARD'
+                              ? 'Difícil'
+                              : 'Experto'}
+                      </span>
+                      <span className="font-candy-beans text-xs text-amber-600">
+                        +{problem.xpReward} XP
+                      </span>
+                      <span className="flex items-center text-xs text-cyan-500 gap-2">
+                        <Gem className="h-4 w-4 text-cyan-500" />+{problem.gemsReward}
+                      </span>
+                      <ChevronRight className="h-4 w-4 text-gray-300 group-hover:text-lagos-500" />
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           )}
@@ -269,10 +269,6 @@ async function LessonContent({ params }: { params: Promise<{ id: string }> }) {
   );
 }
 
-export default function LessonPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function LessonPage({ params }: { params: Promise<{ id: string }> }) {
   return <LessonContent params={params} />;
 }

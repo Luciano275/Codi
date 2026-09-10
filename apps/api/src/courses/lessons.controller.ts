@@ -30,6 +30,12 @@ export class LessonsController {
     return this.coursesService.uncompleteLesson(user.id, id);
   }
 
+  @Post(':id/smart-hint/unlock')
+  @UseGuards(JwtAuthGuard)
+  unlockSmartHint(@CurrentUser() user: User, @Param('id') id: string) {
+    return this.lessonsService.unlockSmartHint(user.id, id);
+  }
+
   @Get(':id/status')
   @UseGuards(JwtAuthGuard)
   status(@CurrentUser() user: User, @Param('id') id: string) {

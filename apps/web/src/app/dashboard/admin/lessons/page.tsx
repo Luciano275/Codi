@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   Plus,
@@ -14,6 +14,7 @@ import {
   ChevronUp,
   ExternalLink,
   ChevronRight,
+  CheckCircle2,
   X,
 } from 'lucide-react';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
@@ -58,6 +59,12 @@ interface LessonManagementContext {
   moduleId?: string;
 }
 
+interface LessonToast {
+  tone: 'success' | 'error';
+  title: string;
+  detail: string;
+}
+
 export default function AdminLessonsPage({ context }: { context?: LessonManagementContext }) {
   const queryClient = useQueryClient();
   const searchParams = useSearchParams();
@@ -71,6 +78,10 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
   const [initialFormCourseId, setInitialFormCourseId] = useState('');
   const [initialFormModuleId, setInitialFormModuleId] = useState('');
   const [lessonToDelete, setLessonToDelete] = useState<string | null>(null);
+  const [toast, setToast] = useState<LessonToast | null>(null);
+  const [isClosingLessonForm, setIsClosingLessonForm] = useState(false);
+  const toastTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const formCloseTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const lessonsQuery = useAdminLessons();
   const coursesQuery = useAdminCourses();
@@ -81,21 +92,71 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
   const courses = coursesQuery.data ?? [];
   const allProblems = problemsQuery.data ?? [];
 
+  useEffect(
+    () => () => {
+      clearTimeout(toastTimer.current);
+      clearTimeout(formCloseTimer.current);
+    },
+    [],
+  );
+
+  function showToast(nextToast: LessonToast) {
+    setToast(nextToast);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 4500);
+  }
+
+  function closeLessonForm() {
+    if (isClosingLessonForm) return;
+    setIsClosingLessonForm(true);
+    clearTimeout(formCloseTimer.current);
+    formCloseTimer.current = setTimeout(() => {
+      setShowForm(false);
+      setEditingLesson(null);
+      setIsClosingLessonForm(false);
+    }, 160);
+  }
+
   const handleCreate = async (data: any) => {
-    await adminFetch('/api/admin/lessons', { method: 'POST', body: JSON.stringify(data) });
-    setShowForm(false);
-    lessonsQuery.refetch();
+    try {
+      await adminFetch('/api/admin/lessons', { method: 'POST', body: JSON.stringify(data) });
+      await lessonsQuery.refetch();
+      closeLessonForm();
+      showToast({
+        tone: 'success',
+        title: '¡Lección creada!',
+        detail: 'La nueva lección ya está lista para tus estudiantes.',
+      });
+    } catch (error) {
+      showToast({
+        tone: 'error',
+        title: 'No se pudo crear la lección',
+        detail: error instanceof Error ? error.message : 'Revisá los datos e intentá nuevamente.',
+      });
+    }
   };
 
   const handleUpdate = async (data: any) => {
     if (!editingLesson) return;
-    await adminFetch(`/api/admin/lessons/${editingLesson.id}`, {
-      method: 'PATCH',
-      body: JSON.stringify(data),
-    });
-    setEditingLesson(null);
-    setShowForm(false);
-    lessonsQuery.refetch();
+    try {
+      await adminFetch(`/api/admin/lessons/${editingLesson.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      });
+      await lessonsQuery.refetch();
+      closeLessonForm();
+      showToast({
+        tone: 'success',
+        title: '¡Cambios guardados!',
+        detail: 'La lección y su Pista Inteligente fueron actualizadas.',
+      });
+    } catch (error) {
+      showToast({
+        tone: 'error',
+        title: 'No se pudieron guardar los cambios',
+        detail: error instanceof Error ? error.message : 'Revisá los datos e intentá nuevamente.',
+      });
+    }
   };
 
   const handleDelete = async () => {
@@ -137,12 +198,42 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
 
   return (
     <div className="mx-auto max-w-5xl">
+      {toast && (
+        <div
+          role={toast.tone === 'success' ? 'status' : 'alert'}
+          className={`fixed right-5 top-24 z-[60] flex max-w-sm items-center gap-3 rounded-2xl border-2 px-4 py-3 shadow-[0_12px_32px_rgba(20,36,27,0.22)] ${toast.tone === 'success' ? 'border-pradera-300 bg-pradera-50 text-pradera-800' : 'border-red-200 bg-red-50 text-red-800'}`}
+        >
+          <span
+            className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-white ${toast.tone === 'success' ? 'bg-pradera-500' : 'bg-red-500'}`}
+          >
+            {toast.tone === 'success' ? (
+              <CheckCircle2 className="h-5 w-5" strokeWidth={3} />
+            ) : (
+              <AlertCircle className="h-5 w-5" strokeWidth={3} />
+            )}
+          </span>
+          <span className="min-w-0">
+            <span className="block font-super-pandora text-sm">{toast.title}</span>
+            <span className="mt-0.5 block font-simply-olive text-xs leading-5 opacity-85">
+              {toast.detail}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setToast(null)}
+            className="cursor-pointer rounded-full p-1 text-current/55 transition hover:bg-white/50 hover:text-current"
+            aria-label="Cerrar aviso"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
       {filterCourse && (
         <div className="mb-4 flex items-center gap-2 text-sm text-gray-400">
           {islandId && (
             <>
               <Link
-                href={`/dashboard/admin/islands/${islandId}`}
+                href={`/dashboard/admin/islands/${islandId}/modules`}
                 className="transition-colors hover:text-lagos-600"
               >
                 {context?.islandTitle ?? 'Isla'}
@@ -181,6 +272,7 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
             setEditingLesson(null);
             setInitialFormCourseId(filterCourseId);
             setInitialFormModuleId(filterModuleId);
+            setIsClosingLessonForm(false);
             setShowForm(true);
           }}
           className="flex items-center gap-2 rounded-xl bg-pradera-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-pradera-600"
@@ -198,35 +290,60 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
       )}
 
       {showForm && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/30 pt-10 pb-10">
-          <div className="w-full max-w-2xl rounded-2xl border border-gray-100 bg-white p-6 shadow-xl">
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-super-pandora text-lg text-gray-800">
-                {editingLesson ? 'Editar lección' : 'Nueva lección'}
-              </h2>
-              <button
-                onClick={() => {
-                  setShowForm(false);
-                  setEditingLesson(null);
-                }}
-                className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
-              >
-                <X className="h-5 w-5" />
-              </button>
+        <div
+          className={`fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-bosque-950/45 px-4 py-7 backdrop-blur-sm sm:py-10 ${isClosingLessonForm ? 'modal-overlay-exit' : 'modal-overlay-enter'}`}
+        >
+          <div
+            className={`w-full max-w-3xl overflow-hidden rounded-[2rem] border-2 border-lagos-200 bg-[#fffdf7] shadow-[0_18px_0_rgba(4,110,145,0.85),0_30px_60px_rgba(13,46,24,0.32)] ${isClosingLessonForm ? 'modal-content-exit' : 'modal-content-enter'}`}
+          >
+            <div className="relative overflow-hidden bg-lagos-500 px-6 py-6 text-white sm:px-8">
+              <div className="absolute -right-8 -top-10 h-32 w-32 rounded-full bg-white/10" />
+              <div className="absolute bottom-[-4rem] right-24 h-28 w-28 rounded-full bg-lagos-400/70" />
+              <div className="relative flex items-center justify-between gap-4">
+                <div className="flex items-center gap-4">
+                  <span className="grid h-14 w-14 place-items-center rounded-2xl border-2 border-white/35 bg-white/15 shadow-[0_4px_0_rgba(0,0,0,0.12)]">
+                    <BookOpen className="h-7 w-7" strokeWidth={2.75} />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-white/75">
+                      {editingLesson
+                        ? 'Afiná el recorrido de aprendizaje'
+                        : 'Sumá un nuevo desafío'}
+                    </p>
+                    <h2 className="mt-1 font-super-pandora text-2xl sm:text-3xl">
+                      {editingLesson ? 'Editar lección' : 'Nueva lección'}
+                    </h2>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    closeLessonForm();
+                  }}
+                  className="grid h-10 w-10 shrink-0 place-items-center rounded-xl text-white/80 transition hover:bg-white/15 hover:text-white"
+                  aria-label="Cerrar modal de lección"
+                >
+                  <X className="h-5 w-5" strokeWidth={3} />
+                </button>
+              </div>
             </div>
-            <LessonForm
-              lesson={editingLesson}
-              courses={courses}
-              allProblems={allProblems}
-              onSave={editingLesson ? handleUpdate : handleCreate}
-              onCancel={() => {
-                setShowForm(false);
-                setEditingLesson(null);
-              }}
-              initialCourseId={initialFormCourseId}
-              initialModuleId={initialFormModuleId}
-              onUpdateProblem={updateProblem}
-            />
+            <div className="px-6 py-7 sm:px-8">
+              <div className="mb-6 rounded-2xl border border-lagos-100 bg-lagos-50 px-4 py-3 text-sm leading-5 text-lagos-800">
+                Completá los detalles y prepará una experiencia que invite a seguir avanzando.
+              </div>
+              <LessonForm
+                lesson={editingLesson}
+                courses={courses}
+                allProblems={allProblems}
+                onSave={editingLesson ? handleUpdate : handleCreate}
+                onCancel={() => {
+                  closeLessonForm();
+                }}
+                initialCourseId={initialFormCourseId}
+                initialModuleId={initialFormModuleId}
+                onUpdateProblem={updateProblem}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -301,6 +418,7 @@ export default function AdminLessonsPage({ context }: { context?: LessonManageme
                     onClick={(e) => {
                       e.stopPropagation();
                       setEditingLesson(lesson);
+                      setIsClosingLessonForm(false);
                       setShowForm(true);
                     }}
                     className="rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"

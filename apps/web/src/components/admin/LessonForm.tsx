@@ -94,6 +94,7 @@ export function LessonForm({
   const [removePdf, setRemovePdf] = useState(false);
   const [removeVideo, setRemoveVideo] = useState(false);
   const [instructions, setInstructions] = useState((lesson?.content?.instructions as string) ?? '');
+  const [smartHint, setSmartHint] = useState((lesson?.content?.smartHint as string) ?? '');
   const [selectedProblemIds, setSelectedProblemIds] = useState<string[]>(
     lesson?.problems.map((p) => p.id) ?? [],
   );
@@ -135,6 +136,7 @@ export function LessonForm({
         content: {
           description: description.trim(),
           instructions: instructions.trim(),
+          smartHint: smartHint.trim(),
         },
         problemIds: selectedProblemIds,
         ...(imageUploadKey ? { imageUploadKey } : {}),
@@ -376,6 +378,22 @@ export function LessonForm({
             rows={3}
             className="w-full rounded-xl border border-gray-200 px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-lagos-400 focus:ring-2 focus:ring-lagos-100"
             placeholder="Instrucciones para el estudiante"
+          />
+        </div>
+
+        <div className="rounded-2xl border border-castillo-100 bg-castillo-50/50 p-4">
+          <label className="mb-1 block font-super-pandora text-sm text-castillo-800">
+            Pista Inteligente
+          </label>
+          <p className="mb-3 font-simply-olive text-xs leading-5 text-castillo-700">
+            El estudiante no recibirá este contenido hasta canjear y usar una Pista Inteligente.
+          </p>
+          <textarea
+            value={smartHint}
+            onChange={(event) => setSmartHint(event.target.value)}
+            rows={4}
+            className="w-full rounded-xl border border-castillo-200 bg-white px-4 py-2.5 text-sm text-gray-900 outline-none focus:border-castillo-400 focus:ring-2 focus:ring-castillo-100"
+            placeholder="Escribí la ayuda que se revelará tras el canje..."
           />
         </div>
       </div>

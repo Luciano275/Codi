@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
+import { serverFetch } from '@/lib/server-api';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -51,4 +52,13 @@ export async function uncompleteLesson(lessonId: string) {
   revalidatePath('/dashboard');
 
   return res.json();
+}
+
+export async function unlockLessonSmartHint(lessonId: string) {
+  const result = await serverFetch<{ hint: string }>(`/api/lessons/${lessonId}/smart-hint/unlock`, {
+    method: 'POST',
+  });
+  revalidatePath(`/dashboard/lessons/${lessonId}`);
+  revalidatePath('/dashboard/store');
+  return result;
 }
