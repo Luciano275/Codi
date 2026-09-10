@@ -28,9 +28,9 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
     { id: 'retos', label: 'Retos', icon: 'trophy', href: '#' },
     { id: 'tienda', label: 'Tienda de canjes', icon: 'store', href: '/dashboard/store' },
     { id: 'laboratorio', label: 'Laboratorio', icon: 'flask', href: '/dashboard/lab' },
-    { id: 'ranking', label: 'Ranking', icon: 'chart', href: '#' },
+    { id: 'ranking', label: 'Ranking', icon: 'podium', href: '#' },
     { id: 'eventos', label: 'Eventos', icon: 'calendar', href: '#' },
-    { id: 'certificados', label: 'Certificados', icon: 'badge', href: '#' },
+    { id: 'certificados', label: 'Certificados', icon: 'graduationCap', href: '#' },
     { id: 'ajustes', label: 'Ajustes', icon: 'gear', href: '/dashboard/settings' },
   ];
 
@@ -98,25 +98,29 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
             <p className="mb-1 px-3 font-simply-olive text-[10px] font-bold uppercase text-gray-400">
               Docencia
             </p>
-            {[{ href: '/dashboard/admin/islands', label: 'Administración de Islas', icon: 'map' as const }].map(
-              (item) => {
-                const active = pathname.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${active ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs'}`}
-                  >
-                    <SidebarIcon name={item.icon} active={active} />
-                    <span>{item.label}</span>
-                    {active && (
-                      <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />
-                    )}
-                  </Link>
-                );
+            {[
+              {
+                href: '/dashboard/admin/islands',
+                label: 'Administración de Islas',
+                icon: 'palmTree' as const,
               },
-            )}
+            ].map((item) => {
+              const active = pathname.startsWith(item.href);
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={onClose}
+                  className={`group flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200 ${active ? 'bg-white text-gray-900 shadow-xs' : 'text-gray-500 hover:bg-white hover:text-gray-900 hover:shadow-xs'}`}
+                >
+                  <SidebarIcon name={item.icon} active={active} />
+                  <span>{item.label}</span>
+                  {active && (
+                    <div className="ml-auto h-2 w-2 rounded-full bg-pradera-400 shadow-xs" />
+                  )}
+                </Link>
+              );
+            })}
           </div>
         )}
 

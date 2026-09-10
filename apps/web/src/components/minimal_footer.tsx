@@ -5,7 +5,7 @@ export default function MinimalFooter () {
         &copy; Creado por{' '}
         <a href="https://github.com/Luciano275" target="_blank" className="text-white/50 hover:text-lagos-400 transition-colors">Luna Luciano</a>
         {' '}&{' '}
-        <a href="#" target="_blank" className="text-white/50 hover:text-lagos-400 transition-colors">Alberti Santiago</a>
+        <a href="https://www.instagram.com/albertuki__" target="_blank" className="text-white/50 hover:text-lagos-400 transition-colors">Alberti Santiago</a>
         {' '}- {new Date().getFullYear()}
       </p>
     </footer>
