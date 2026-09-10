@@ -23,13 +23,13 @@ export default function IslandModulesPage() {
       <div className="mb-5 flex items-center justify-between">
         <Link
           href="/dashboard/admin/islands"
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-lagos-600"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-pradera-700"
         >
           <ArrowLeft className="h-4 w-4" /> Islas
         </Link>
         <Link
           href={`/dashboard/admin/islands/${island.id}`}
-          className="inline-flex items-center gap-2 text-sm text-gray-500 hover:text-lagos-600"
+          className="inline-flex items-center gap-2 text-sm text-gray-500 transition hover:text-pradera-700"
         >
           <Pencil className="h-4 w-4" /> Editar isla
         </Link>

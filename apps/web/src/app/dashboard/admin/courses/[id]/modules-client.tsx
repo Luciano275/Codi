@@ -91,7 +91,7 @@ export default function ModulesClient({
         {island && (
           <>
             <Link
-              href={`/dashboard/admin/islands/${island.id}`}
+              href={`/dashboard/admin/islands/${island.id}/modules`}
               className="transition-colors hover:text-lagos-600"
             >
               {island.title}
