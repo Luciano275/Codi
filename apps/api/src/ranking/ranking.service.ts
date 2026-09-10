@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '@codi/database';
+import { PrismaService, UserRewardStatus } from '@codi/database';
 import { getLevelFromXp } from '@codi/progression';
 import { S3Service } from '../s3/s3.service';
+
+const STUDENTS_PAGE_SIZE = 20;
 
 @Injectable()
 export class RankingService {
@@ -10,35 +12,46 @@ export class RankingService {
     private readonly s3: S3Service,
   ) {}
 
-  async getGlobal(limit = 50) {
-    const users = await this.prisma.user.findMany({
-      where: { role: 'STUDENT' },
-      orderBy: [{ xp: 'desc' }, { createdAt: 'asc' }, { id: 'asc' }],
-      take: limit,
-      select: {
-        id: true,
-        username: true,
-        displayName: true,
-        avatarObjectKey: true,
-        profileBanner: true,
-        xp: true,
-        gems: true,
-        level: true,
-      },
-    });
+  async getGlobal(page = 1) {
+    const [totalStudents, users] = await Promise.all([
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
+      this.prisma.user.findMany({
+        where: { role: 'STUDENT' },
+        orderBy: [{ xp: 'desc' }, { createdAt: 'asc' }, { id: 'asc' }],
+        skip: (page - 1) * STUDENTS_PAGE_SIZE,
+        take: STUDENTS_PAGE_SIZE,
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          avatarObjectKey: true,
+          profileBanner: true,
+          xp: true,
+          gems: true,
+          level: true,
+        },
+      }),
+    ]);
 
-    return Promise.all(
+    const items = await Promise.all(
       users.map(async (user, index) => {
         const avatar = await this.s3.signedResource(user.avatarObjectKey, null, null);
         const { avatarObjectKey, ...profile } = user;
         return {
-          rank: index + 1,
+          rank: (page - 1) * STUDENTS_PAGE_SIZE + index + 1,
           ...profile,
           avatarUrl: avatar?.url ?? null,
           level: getLevelFromXp(user.xp),
         };
       }),
     );
+    return {
+      items,
+      page,
+      pageSize: STUDENTS_PAGE_SIZE,
+      totalStudents,
+      totalPages: Math.max(1, Math.ceil(totalStudents / STUDENTS_PAGE_SIZE)),
+    };
   }
 
   async getPlayerProfile(id: string, viewerId: string) {
@@ -61,6 +74,18 @@ export class RankingService {
           select: {
             unlockedAt: true,
             achievement: { select: { code: true, title: true, description: true, iconUrl: true } },
+          },
+        },
+        rewardRedemptions: {
+          orderBy: { createdAt: 'desc' },
+          take: 12,
+          select: {
+            id: true,
+            status: true,
+            metadata: true,
+            createdAt: true,
+            reward: { select: { name: true, type: true } },
+            entitlement: { select: { status: true, expiresAt: true } },
           },
         },
       },
@@ -99,7 +124,7 @@ export class RankingService {
       this.s3.signedResource(user.avatarObjectKey, null, null),
     ]);
 
-    const { avatarObjectKey, role: _role, achievements, ...player } = user;
+    const { avatarObjectKey, role: _role, achievements, rewardRedemptions, ...player } = user;
     return {
       ...player,
       level: getLevelFromXp(user.xp),
@@ -114,6 +139,36 @@ export class RankingService {
         ...achievement,
         unlockedAt,
       })),
+      rewards: rewardRedemptions.map((redemption) => ({
+        id: redemption.id,
+        rewardName: redemption.reward.name,
+        type: redemption.reward.type,
+        redemptionStatus: redemption.status,
+        entitlementStatus: this.getEffectiveEntitlementStatus(redemption.entitlement),
+        redeemedAt: redemption.createdAt,
+        expiresAt: redemption.entitlement?.expiresAt ?? null,
+        trimester: this.getTrimester(redemption.metadata),
+      })),
     };
+  }
+
+  private getTrimester(metadata: unknown) {
+    if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) return undefined;
+    const trimester = (metadata as Record<string, unknown>).trimester;
+    return typeof trimester === 'number' ? trimester : undefined;
+  }
+
+  private getEffectiveEntitlementStatus(
+    entitlement: { status: UserRewardStatus; expiresAt: Date | null } | null,
+  ) {
+    if (!entitlement) return null;
+    if (
+      entitlement.status === UserRewardStatus.ACTIVE &&
+      entitlement.expiresAt &&
+      entitlement.expiresAt <= new Date()
+    ) {
+      return UserRewardStatus.EXPIRED;
+    }
+    return entitlement.status;
   }
 }

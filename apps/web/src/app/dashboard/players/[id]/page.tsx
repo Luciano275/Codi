@@ -9,6 +9,7 @@ import {
 } from '@/lib/server-api';
 import { CompetitiveAchievements } from '@/components/player-profile/CompetitiveAchievements';
 import { CompetitivePlayerSheet } from '@/components/player-profile/CompetitivePlayerSheet';
+import { CompetitiveRewards } from '@/components/player-profile/CompetitiveRewards';
 import { getPlayerBannerTheme } from '@/components/player-profile/player-banner';
 import styles from '@/components/player-profile/competitive-player.module.css';
 
@@ -43,6 +44,7 @@ async function PlayerProfile({ params }: { params: Promise<{ id: string }> }) {
 
       <CompetitivePlayerSheet player={player} successRate={successRate} />
       <CompetitiveAchievements achievements={player.achievements} />
+      <CompetitiveRewards rewards={player.rewards} />
     </div>
   );
 }

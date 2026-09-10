@@ -10,10 +10,10 @@ export class RankingController {
 
   @Get('global')
   @UseGuards(JwtAuthGuard)
-  async global(@Query('limit') limit?: string) {
-    const parsed = limit ? parseInt(limit, 10) : 50;
-    const safeLimit = Number.isFinite(parsed) && parsed > 0 ? Math.min(parsed, 200) : 50;
-    return this.ranking.getGlobal(safeLimit);
+  async global(@Query('page') page?: string) {
+    const parsed = Number.parseInt(page ?? '1', 10);
+    const safePage = Number.isFinite(parsed) && parsed > 0 ? parsed : 1;
+    return this.ranking.getGlobal(safePage);
   }
 
   @Get('players/:id')

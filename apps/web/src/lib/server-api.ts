@@ -1,4 +1,5 @@
 import { cookies } from 'next/headers';
+import type { RewardRedemptionStatus, RewardType, UserRewardStatus } from '@codi/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
@@ -125,6 +126,7 @@ export interface Lesson {
   };
   problems: Problem[];
   solvedProblemIds: string[];
+  smartHint: { canUnlock: boolean; content: string | null } | null;
   module: {
     id: string;
     title: string;
@@ -178,6 +180,14 @@ export interface RankingUser {
   level: number;
 }
 
+interface PaginatedRankingUsers {
+  items: RankingUser[];
+  page: number;
+  pageSize: number;
+  totalStudents: number;
+  totalPages: number;
+}
+
 export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
   rank: number | null;
   isRanked: boolean;
@@ -194,6 +204,16 @@ export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
     description: string;
     iconUrl: string | null;
     unlockedAt: string;
+  }[];
+  rewards: {
+    id: string;
+    rewardName: string;
+    type: RewardType;
+    redemptionStatus: RewardRedemptionStatus;
+    entitlementStatus: UserRewardStatus | null;
+    redeemedAt: string;
+    expiresAt: string | null;
+    trimester?: number;
   }[];
 }
 
@@ -235,7 +255,6 @@ export interface AdminIslandMutationData {
   accent: string;
   order: number;
   available: boolean;
-  slug?: string;
   modelUploadKey?: string;
 }
 
@@ -264,7 +283,8 @@ export async function fetchProgress(): Promise<ProgressData> {
 }
 
 export async function fetchGlobalRanking(limit = 10): Promise<RankingUser[]> {
-  return serverFetch<RankingUser[]>(`/api/ranking/global?limit=${limit}`);
+  const ranking = await serverFetch<PaginatedRankingUsers>('/api/ranking/global?page=1');
+  return ranking.items.slice(0, limit);
 }
 
 export async function fetchCompetitivePlayer(id: string): Promise<CompetitivePlayerProfile> {
