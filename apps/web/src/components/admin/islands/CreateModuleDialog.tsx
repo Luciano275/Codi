@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Layers3, Loader2, Sparkles, X } from 'lucide-react';
+import { Layers3, Loader2, X } from 'lucide-react';
 import type { CourseMutationData } from '@/hooks/queries/useAdminCourses';
 
 interface CreateModuleDialogProps {
@@ -68,9 +68,6 @@ export function CreateModuleDialog({
                 <Layers3 className="h-7 w-7" strokeWidth={2.75} />
               </span>
               <div>
-                <p className="flex items-center gap-1.5 text-xs font-bold tracking-wide text-white/75">
-                  <Sparkles className="h-3.5 w-3.5" /> NUEVO RECORRIDO
-                </p>
                 <h2 id="create-module-title" className="mt-1 font-super-pandora text-2xl">
                   Crear módulo
                 </h2>
