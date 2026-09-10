@@ -18,6 +18,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
   const [menuOpen, setMenuOpen] = useState(false);
   const isIslandSelection = pathname === '/dashboard';
   const isIslandPath = pathname.startsWith('/dashboard/islands/');
+  const isRankingPath = pathname === '/dashboard/ranking';
   const isIslandExperience = isIslandSelection || isIslandPath;
 
   return (
@@ -34,7 +35,9 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
           ) : isIslandPath ? (
             <div className="min-h-0 w-full">{children}</div>
           ) : (
-            <div className="mx-auto min-h-0 w-full max-w-[1600px] p-3 md:p-5 lg:p-6">
+            <div
+              className={`mx-auto min-h-0 w-full p-3 md:p-5 lg:p-6 ${isRankingPath ? 'max-w-[2400px] 2xl:p-8' : 'max-w-[1600px]'}`}
+            >
               {children}
             </div>
           )}

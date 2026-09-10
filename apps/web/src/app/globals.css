@@ -96,8 +96,17 @@
   --font-candy-beans: var(--font-candy-beans), 'Patrick Hand', cursive;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 #main-content {
   scroll-margin-top: 2rem;
+}
+
+.ranking-row {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 5.5rem;
 }
 
 *:focus-visible {
@@ -362,6 +371,5 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+    }
 }
