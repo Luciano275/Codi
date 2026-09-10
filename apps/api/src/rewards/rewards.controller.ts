@@ -1,4 +1,14 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import type { User } from '@codi/database';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -27,6 +37,13 @@ export class RewardsController {
     return this.rewards.getCatalog();
   }
 
+  @Get('admin/redemptions')
+  @UseGuards(RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  getAdminRedemptions(@Query('page') page?: string) {
+    return this.rewards.getAdminRedemptions(this.parsePage(page));
+  }
+
   @Post('admin')
   @UseGuards(RolesGuard)
   @Roles('TEACHER', 'ADMIN')
@@ -39,6 +56,13 @@ export class RewardsController {
   @Roles('TEACHER', 'ADMIN')
   update(@Param('id') rewardId: string, @Body() dto: UpdateRewardDto) {
     return this.rewards.updateReward(rewardId, dto);
+  }
+
+  @Delete('admin/redemptions/:id')
+  @UseGuards(RolesGuard)
+  @Roles('TEACHER', 'ADMIN')
+  revoke(@Param('id') redemptionId: string) {
+    return this.rewards.revokeRedemption(redemptionId);
   }
 
   @Delete('admin/:id')
@@ -60,5 +84,10 @@ export class RewardsController {
     @Body() dto: ConsumeRewardDto,
   ) {
     return this.rewards.consume(user.id, entitlementId, dto);
+  }
+
+  private parsePage(value?: string) {
+    const page = Number.parseInt(value ?? '1', 10);
+    return Number.isFinite(page) && page > 0 ? page : 1;
   }
 }

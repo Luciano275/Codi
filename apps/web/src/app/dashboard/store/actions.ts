@@ -1,7 +1,12 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import type { AdminReward, RewardEditorInput, RewardsStoreData } from '@codi/types';
+import type {
+  AdminReward,
+  AdminRewardRedemptionsPage,
+  RewardEditorInput,
+  RewardsStoreData,
+} from '@codi/types';
 import { auth } from '@/lib/auth';
 import { serverFetch } from '@/lib/server-api';
 
@@ -56,4 +61,20 @@ export async function deleteReward(id: string) {
   await serverFetch<{ removed: true }>(`/api/rewards/admin/${id}`, { method: 'DELETE' });
   revalidatePath(STORE_PATH);
   return id;
+}
+
+export async function getAdminRewardRedemptions(page: number) {
+  await requireCatalogManager();
+  return serverFetch<AdminRewardRedemptionsPage>(`/api/rewards/admin/redemptions?page=${page}`);
+}
+
+export async function revokeRewardRedemption(id: string) {
+  await requireCatalogManager();
+  const result = await serverFetch<{ revoked: true; id: string; userId: string }>(
+    `/api/rewards/admin/redemptions/${id}`,
+    { method: 'DELETE' },
+  );
+  revalidatePath(STORE_PATH);
+  revalidatePath(`/dashboard/players/${result.userId}`);
+  return result;
 }

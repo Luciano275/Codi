@@ -53,6 +53,7 @@ export interface LeagueInfo {
 
 export type RewardCategory = 'EXAMS' | 'PRACTICE' | 'ADVANTAGES' | 'SPECIALS';
 export type RewardType = 'EXAM_BONUS_POINT' | 'SMART_HINT' | 'DOUBLE_XP';
+export type RewardRedemptionStatus = 'COMPLETED' | 'REVOKED';
 export type UserRewardStatus = 'AVAILABLE' | 'ACTIVE' | 'USED' | 'EXPIRED';
 export type RewardIcon =
   | 'badge-check'
@@ -124,4 +125,32 @@ export interface AdminReward extends RewardEditorInput {
   createdAt: string;
   updatedAt: string;
   redemptionCount: number;
+}
+
+export interface RewardRedemptionSummary {
+  id: string;
+  rewardName: string;
+  type: RewardType;
+  redemptionStatus: RewardRedemptionStatus;
+  entitlementStatus: UserRewardStatus | null;
+  canRevoke: boolean;
+  redeemedAt: string;
+  expiresAt: string | null;
+  trimester?: number;
+}
+
+export interface AdminStudentRewardRedemptions {
+  id: string;
+  username: string;
+  displayName: string;
+  gems: number;
+  redemptions: RewardRedemptionSummary[];
+}
+
+export interface AdminRewardRedemptionsPage {
+  items: AdminStudentRewardRedemptions[];
+  page: number;
+  pageSize: number;
+  totalStudents: number;
+  totalPages: number;
 }

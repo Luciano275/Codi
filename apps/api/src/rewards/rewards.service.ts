@@ -7,6 +7,7 @@ import {
 import {
   Prisma,
   PrismaService,
+  RewardRedemptionStatus,
   RewardType,
   UserRewardStatus,
   type Reward,
@@ -19,6 +20,7 @@ import { RedeemRewardDto } from './dto/redeem-reward.dto';
 import { UpdateRewardDto } from './dto/update-reward.dto';
 
 const RETRY_LIMIT = 3;
+const STUDENTS_PAGE_SIZE = 20;
 
 type RewardMetadata = Record<string, unknown>;
 
@@ -100,6 +102,79 @@ export class RewardsService {
     return { removed: true, id: rewardId };
   }
 
+  async getAdminRedemptions(page: number) {
+    const skip = (page - 1) * STUDENTS_PAGE_SIZE;
+    const [totalStudents, students] = await Promise.all([
+      this.prisma.user.count({ where: { role: 'STUDENT' } }),
+      this.prisma.user.findMany({
+        where: { role: 'STUDENT' },
+        orderBy: [{ displayName: 'asc' }, { id: 'asc' }],
+        skip,
+        take: STUDENTS_PAGE_SIZE,
+        select: {
+          id: true,
+          username: true,
+          displayName: true,
+          gems: true,
+          rewardRedemptions: {
+            orderBy: { createdAt: 'desc' },
+            select: {
+              id: true,
+              status: true,
+              metadata: true,
+              createdAt: true,
+              reward: { select: { name: true, type: true } },
+              entitlement: {
+                select: { id: true, status: true, expiresAt: true },
+              },
+            },
+          },
+        },
+      }),
+    ]);
+
+    const totalPages = Math.max(1, Math.ceil(totalStudents / STUDENTS_PAGE_SIZE));
+    return {
+      items: students.map((student) => ({
+        ...student,
+        redemptions: student.rewardRedemptions.map((redemption) =>
+          this.toRewardRedemptionSummary(redemption),
+        ),
+      })),
+      page,
+      pageSize: STUDENTS_PAGE_SIZE,
+      totalStudents,
+      totalPages,
+    };
+  }
+
+  async revokeRedemption(redemptionId: string) {
+    return this.prisma.$transaction(async (transaction) => {
+      const redemption = await transaction.rewardRedemption.findUnique({
+        where: { id: redemptionId },
+        include: { entitlement: true },
+      });
+      if (!redemption) throw new NotFoundException('El canje no existe');
+      if (redemption.status === RewardRedemptionStatus.REVOKED) {
+        throw new ConflictException('Este canje ya fue revocado');
+      }
+      if (!redemption.entitlement) {
+        throw new ConflictException('Este canje ya no tiene una recompensa para revocar');
+      }
+      if (redemption.entitlement.status === UserRewardStatus.USED) {
+        throw new ConflictException('No se puede revocar una recompensa que ya fue utilizada');
+      }
+
+      await transaction.userReward.delete({ where: { id: redemption.entitlement.id } });
+      await transaction.rewardRedemption.update({
+        where: { id: redemptionId },
+        data: { status: RewardRedemptionStatus.REVOKED },
+      });
+
+      return { revoked: true, id: redemptionId, userId: redemption.userId };
+    });
+  }
+
   async getStore(userId: string) {
     const now = new Date();
     await this.prisma.userReward.updateMany({
@@ -121,7 +196,7 @@ export class RewardsService {
         include: { reward: { select: { type: true } } },
       }),
       this.prisma.rewardRedemption.findMany({
-        where: { userId },
+        where: { userId, status: RewardRedemptionStatus.COMPLETED },
         orderBy: { createdAt: 'desc' },
         take: 5,
         include: {
@@ -240,6 +315,35 @@ export class RewardsService {
     if (result.count !== 1) throw new ConflictException('Esta recompensa ya fue utilizada');
 
     return { consumed: true, entitlementId };
+  }
+
+  async consumeSmartHintForLesson(userId: string, lessonId: string) {
+    const entitlement = await this.prisma.userReward.findFirst({
+      where: {
+        userId,
+        status: UserRewardStatus.AVAILABLE,
+        reward: { type: RewardType.SMART_HINT },
+      },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true },
+    });
+    if (!entitlement) {
+      throw new ConflictException('Canjeá una Pista Inteligente en la tienda para desbloquearla');
+    }
+
+    const result = await this.prisma.userReward.updateMany({
+      where: { id: entitlement.id, userId, status: UserRewardStatus.AVAILABLE },
+      data: {
+        status: UserRewardStatus.USED,
+        usedAt: new Date(),
+        metadata: { contextType: 'LESSON', contextId: lessonId },
+      },
+    });
+    if (result.count !== 1) {
+      throw new ConflictException('La Pista Inteligente ya fue utilizada');
+    }
+
+    return { consumed: true, entitlementId: entitlement.id };
   }
 
   private async toStoreReward(
@@ -466,7 +570,7 @@ export class RewardsService {
     return { gems: user.gems, redemption, entitlement: entitlement ?? redemption.entitlement };
   }
 
-  private effectiveStatus(entitlement: UserReward, now: Date) {
+  private effectiveStatus(entitlement: Pick<UserReward, 'status' | 'expiresAt'>, now: Date) {
     if (
       entitlement.status === UserRewardStatus.ACTIVE &&
       entitlement.expiresAt &&
@@ -475,6 +579,33 @@ export class RewardsService {
       return UserRewardStatus.EXPIRED;
     }
     return entitlement.status;
+  }
+
+  private toRewardRedemptionSummary(redemption: {
+    id: string;
+    status: RewardRedemptionStatus;
+    metadata: unknown;
+    createdAt: Date;
+    reward: { name: string; type: RewardType };
+    entitlement: { status: UserRewardStatus; expiresAt: Date | null } | null;
+  }) {
+    const entitlementStatus = redemption.entitlement
+      ? this.effectiveStatus(redemption.entitlement, new Date())
+      : null;
+    return {
+      id: redemption.id,
+      rewardName: redemption.reward.name,
+      type: redemption.reward.type,
+      redemptionStatus: redemption.status,
+      entitlementStatus,
+      canRevoke:
+        redemption.status === RewardRedemptionStatus.COMPLETED &&
+        entitlementStatus !== null &&
+        entitlementStatus !== UserRewardStatus.USED,
+      redeemedAt: redemption.createdAt.toISOString(),
+      expiresAt: redemption.entitlement?.expiresAt?.toISOString() ?? null,
+      trimester: getTrimester(redemption.metadata),
+    };
   }
 
   private isWriteConflict(error: unknown) {
