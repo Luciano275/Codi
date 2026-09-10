@@ -7,7 +7,6 @@ const STEP_GAP = 176;
 export interface LearningPathStep {
   id: string;
   title: string;
-  eyebrow: string;
   detail: string;
   href?: string;
   kind?: 'lesson' | 'submodule';
@@ -20,7 +19,6 @@ interface LearningPathProps {
   backHref: string;
   backLabel: string;
   description: string;
-  eyebrow: string;
   itemLabel: string;
   steps: LearningPathStep[];
   title: string;
@@ -40,7 +38,6 @@ export default function LearningPath({
   backHref,
   backLabel,
   description,
-  eyebrow,
   itemLabel,
   steps,
   title,
@@ -54,7 +51,7 @@ export default function LearningPath({
   const path = createPath(pathPoints);
 
   return (
-    <section className="relative left-1/2 min-h-dvh w-screen -translate-x-1/2 overflow-hidden bg-[#f1f2f6] pt-16 md:pt-20">
+    <section className="relative min-h-dvh w-full overflow-visible bg-[#f1f2f6] pt-16 md:pt-20">
       {variant === 'submodules' ? (
         <>
           <div className="pointer-events-none absolute inset-0 opacity-55 [background-image:linear-gradient(rgba(88,204,2,0.1)_1px,transparent_1px),linear-gradient(90deg,rgba(88,204,2,0.1)_1px,transparent_1px)] [background-size:2rem_2rem]" />
@@ -91,9 +88,6 @@ export default function LearningPath({
           <ArrowLeft className="h-4 w-4" />
           {backLabel}
         </Link>
-        <p className="font-simply-olive mt-12 text-xs font-bold uppercase text-green-700/55 md:mt-5">
-          {eyebrow}
-        </p>
         <h1 className="font-super-pandora mt-1 text-2xl text-[#244229] md:text-4xl">{title}</h1>
         <p className="font-simply-olive mx-auto mt-1 max-w-xl text-sm text-[#527057]">
           {description}
@@ -145,6 +139,10 @@ export default function LearningPath({
                   : 'bg-[#e7eee4] text-[#80927a]';
 
             const className = `group absolute z-10 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center ${step.locked ? 'cursor-not-allowed opacity-45 saturate-50' : ''}`;
+            const position = {
+              left: `clamp(7rem, ${point.x}%, calc(100% - 7rem))`,
+              top: point.y,
+            };
             const content = (
               <>
                 <span
@@ -170,9 +168,6 @@ export default function LearningPath({
                   )}
                 </span>
                 <span className="mt-4 max-w-[11rem] rounded-xl border border-green-900/10 bg-white/90 px-3 py-2 text-center shadow-sm transition-transform group-hover:-translate-y-0.5">
-                  <span className="font-simply-olive block text-[9px] font-bold uppercase text-green-700/55">
-                    {step.eyebrow}
-                  </span>
                   <span className="font-super-pandora mt-0.5 block text-xs text-[#29482e]">
                     {step.title}
                   </span>
@@ -185,12 +180,7 @@ export default function LearningPath({
             );
 
             return step.locked || !step.href ? (
-              <div
-                key={step.id}
-                aria-disabled="true"
-                className={className}
-                style={{ left: `${point.x}%`, top: point.y }}
-              >
+              <div key={step.id} aria-disabled="true" className={className} style={position}>
                 {content}
               </div>
             ) : (
@@ -199,7 +189,7 @@ export default function LearningPath({
                 href={step.href}
                 aria-label={step.title}
                 className={className}
-                style={{ left: `${point.x}%`, top: point.y }}
+                style={position}
               >
                 {content}
               </Link>

@@ -25,7 +25,6 @@ export default async function CourseSubmodulePathPage({
     const submoduleStep: LearningPathStep = {
       id: `submodule-${module.id}`,
       title: module.title,
-      eyebrow: `Submódulo ${module.order}`,
       detail: `${module.lessons.length} lecciones`,
       completed,
       current,
@@ -38,7 +37,6 @@ export default async function CourseSubmodulePathPage({
       return {
         id: lesson.id,
         title: lesson.title,
-        eyebrow: `Lección ${lesson.order} · ${lesson.type}`,
         detail:
           lesson.gemsReward > 0
             ? `${lesson.xpReward} XP · ${lesson.gemsReward} 💎`
@@ -58,7 +56,6 @@ export default async function CourseSubmodulePathPage({
       backHref={`/dashboard/islands/${slug}`}
       backLabel="Volver a los módulos"
       description="Recorré los submódulos y completá sus lecciones para avanzar."
-      eyebrow="Ruta de submódulos y lecciones"
       itemLabel="hitos"
       steps={steps}
       title={course.title}

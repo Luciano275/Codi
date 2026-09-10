@@ -35,7 +35,6 @@ export default async function IslandLearningPathPage({
       backHref="/dashboard"
       backLabel="Volver a las islas"
       description={island.description}
-      eyebrow="Ruta de aprendizaje"
       itemLabel="módulos"
       steps={steps}
       title={island.title}

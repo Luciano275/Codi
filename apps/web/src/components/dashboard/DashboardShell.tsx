@@ -28,9 +28,11 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
         id="main-content"
         className={`relative h-dvh min-w-0 overflow-x-hidden overflow-y-auto ${isIslandSelection ? 'overflow-hidden' : ''} ${isIslandExperience ? '' : 'pt-16 md:pt-20'}`}
       >
-        <PageTransition>
+        <PageTransition animateTransform={!isIslandPath}>
           {isIslandSelection ? (
             <div className="h-full">{children}</div>
+          ) : isIslandPath ? (
+            <div className="min-h-0 w-full">{children}</div>
           ) : (
             <div className="mx-auto min-h-0 w-full max-w-[1600px] p-3 md:p-5 lg:p-6">
               {children}
