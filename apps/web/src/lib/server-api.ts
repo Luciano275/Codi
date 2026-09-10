@@ -178,17 +178,41 @@ export interface RankingUser {
   xp: number;
   gems: number;
   level: number;
+  totalXp: number;
+  completedLessons: number;
+  streak: number;
 }
 
-interface PaginatedRankingUsers {
+export interface RankingPageData {
   items: RankingUser[];
+  podium: RankingUser[];
+  rewards: RankingRewardForViewer[];
   page: number;
   pageSize: number;
   totalStudents: number;
   totalPages: number;
+  currentUser: {
+    rank: number;
+    xp: number;
+    totalXp: number;
+    level: number;
+    completedLessons: number;
+    streak: number;
+    xpToNextRank: number;
+  } | null;
 }
 
-export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank'> {
+export interface RankingReward {
+  position: 1 | 2 | 3;
+  title: string;
+  gems: number;
+}
+
+export interface RankingRewardForViewer extends RankingReward {
+  claimed: boolean;
+}
+
+export interface CompetitivePlayerProfile extends Omit<RankingUser, 'rank' | 'totalXp'> {
   rank: number | null;
   isRanked: boolean;
   profileBanner: string;
@@ -283,8 +307,22 @@ export async function fetchProgress(): Promise<ProgressData> {
 }
 
 export async function fetchGlobalRanking(limit = 10): Promise<RankingUser[]> {
-  const ranking = await serverFetch<PaginatedRankingUsers>('/api/ranking/global?page=1');
+  const ranking = await serverFetch<RankingPageData>('/api/ranking/global?page=1');
   return ranking.items.slice(0, limit);
+}
+
+export async function fetchRankingPage(
+  page = 1,
+  period: 'WEEK' | 'MONTH' | 'ALL_TIME' = 'ALL_TIME',
+  scope: 'GLOBAL' | 'SCHOOL' | 'FRIENDS' | 'COURSE' = 'GLOBAL',
+): Promise<RankingPageData> {
+  return serverFetch<RankingPageData>(
+    `/api/ranking/global?page=${page}&period=${period}&scope=${scope}`,
+  );
+}
+
+export async function fetchAdminRankingRewards(): Promise<RankingReward[]> {
+  return serverFetch<RankingReward[]>('/api/ranking/rewards/admin');
 }
 
 export async function fetchCompetitivePlayer(id: string): Promise<CompetitivePlayerProfile> {
