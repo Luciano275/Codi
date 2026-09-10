@@ -5,7 +5,7 @@ import { ContentCacheService } from '../../content-cache/content-cache.service';
 import { CreateIslandDto } from './dto/create-island.dto';
 import { UpdateIslandDto } from './dto/update-island.dto';
 import { IslandModelService } from './island-model.service';
-import { createIslandSlug } from './island-slug';
+import { createSlug } from '../slug-generator';
 
 @Injectable()
 export class AdminIslandsService {
@@ -82,32 +82,13 @@ export class AdminIslandsService {
   async create(userId: string, dto: CreateIslandDto) {
     const { modelUploadKey, ...fields } = dto;
     const id = randomUUID();
-    const slug = dto.slug ?? createIslandSlug(dto.title);
-    await this.assertSlugAvailable(slug);
     const model = await this.islandModels.promote(userId, modelUploadKey, id);
 
     try {
-      const island = await this.prisma.island.create({
-        data: {
-          id,
-          ...fields,
-          slug,
-          modelObjectKey: model?.objectKey,
-        },
-        select: {
-          id: true,
-          title: true,
-          slug: true,
-          description: true,
-          accent: true,
-          order: true,
-          available: true,
-          createdAt: true,
-          updatedAt: true,
-          modelPath: true,
-          modelObjectKey: true,
-          _count: { select: { courses: true } },
-        },
+      const island = await this.createWithUniqueSlug({
+        id,
+        ...fields,
+        modelObjectKey: model?.objectKey,
       });
       await this.contentCache.invalidateIslands();
       return this.islandModels.resolve(island);
@@ -121,7 +102,6 @@ export class AdminIslandsService {
     const existing = await this.prisma.island.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException('Island not found');
     const { modelUploadKey, ...fields } = dto;
-    if (fields.slug && fields.slug !== existing.slug) await this.assertSlugAvailable(fields.slug);
     const model = await this.islandModels.promote(userId, modelUploadKey, id);
 
     try {
@@ -156,13 +136,57 @@ export class AdminIslandsService {
     return { deleted: true };
   }
 
-  private async assertSlugAvailable(slug: string) {
-    const island = await this.prisma.island.findUnique({ where: { slug }, select: { id: true } });
-    if (island) throw new ConflictException('Ya existe una isla con ese slug');
+  private async createWithUniqueSlug(fields: Omit<Prisma.IslandCreateInput, 'slug'>) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      const slug = await this.createUniqueSlug(fields.title);
+
+      try {
+        return await this.prisma.island.create({
+          data: { ...fields, slug },
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+            description: true,
+            accent: true,
+            order: true,
+            available: true,
+            createdAt: true,
+            updatedAt: true,
+            modelPath: true,
+            modelObjectKey: true,
+            _count: { select: { courses: true } },
+          },
+        });
+      } catch (error) {
+        if (!this.isUniqueConstraintError(error)) throw error;
+      }
+    }
+
+    throw new ConflictException('No se pudo generar un slug único para la isla');
+  }
+
+  private async createUniqueSlug(title: string) {
+    const baseSlug = createSlug(title);
+    let suffix = 1;
+    let candidate = baseSlug;
+
+    while (
+      await this.prisma.island.findUnique({ where: { slug: candidate }, select: { id: true } })
+    ) {
+      suffix += 1;
+      candidate = `${baseSlug}-${suffix}`;
+    }
+
+    return candidate;
+  }
+
+  private isUniqueConstraintError(error: unknown) {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
   }
 
   private rethrowWriteError(error: unknown): never {
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+    if (this.isUniqueConstraintError(error)) {
       throw new ConflictException('Ya existe una isla con ese slug');
     }
     throw error;

@@ -18,7 +18,6 @@ export interface AdminCourse {
 
 export interface CourseMutationData {
   title: string;
-  slug: string;
   level: number;
   region: string;
   xpReward: number;

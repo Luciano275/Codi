@@ -35,12 +35,6 @@ export class CreateIslandDto {
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
-  @Matches(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
-  slug?: string;
-
-  @IsOptional()
-  @IsString()
   @MaxLength(512)
   modelUploadKey?: string;
 }

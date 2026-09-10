@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 
-export function createIslandSlug(title: string) {
+export function createSlug(title: string) {
   const slug = title
     .normalize('NFD')
     .replace(/[\u0300-\u036f]/g, '')

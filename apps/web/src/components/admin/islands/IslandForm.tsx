@@ -16,7 +16,6 @@ interface IslandFormProps {
 export function IslandForm({ island, onSubmit, submitLabel }: IslandFormProps) {
   const [title, setTitle] = useState(island?.title ?? '');
   const [description, setDescription] = useState(island?.description ?? '');
-  const [slug, setSlug] = useState(island?.slug ?? '');
   const [accent, setAccent] = useState(island?.accent ?? '#58cc02');
   const [order, setOrder] = useState(island?.order ?? 0);
   const [available, setAvailable] = useState(island?.available ?? true);
@@ -42,7 +41,6 @@ export function IslandForm({ island, onSubmit, submitLabel }: IslandFormProps) {
         accent,
         order,
         available,
-        ...(slug.trim() ? { slug: slug.trim() } : {}),
         ...(modelUploadKey ? { modelUploadKey } : {}),
       });
     } finally {
@@ -62,18 +60,6 @@ export function IslandForm({ island, onSubmit, submitLabel }: IslandFormProps) {
             className={islandInputClassName}
           />
         </Field>
-        {island && (
-          <Field label="Slug" className="md:col-span-2">
-            <input
-              required
-              maxLength={255}
-              pattern="[a-z0-9]+(?:-[a-z0-9]+)*"
-              value={slug}
-              onChange={(event) => setSlug(event.target.value.toLowerCase())}
-              className={islandInputClassName}
-            />
-          </Field>
-        )}
         <Field label="Descripción" className="md:col-span-2">
           <textarea
             required

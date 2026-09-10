@@ -5,10 +5,6 @@ export class CreateCourseDto {
   @MaxLength(255)
   title!: string;
 
-  @IsString()
-  @MaxLength(255)
-  slug!: string;
-
   @IsInt()
   level!: number;
 
