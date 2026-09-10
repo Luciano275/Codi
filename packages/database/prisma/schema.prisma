@@ -108,6 +108,7 @@ model User {
   lessonCompletions LessonCompletion[]
   rewardRedemptions RewardRedemption[]
   rewards           UserReward[]
+  rankingRewardClaims RankingRewardClaim[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -232,6 +233,34 @@ model Reward {
   updatedAt DateTime @updatedAt
 
   @@map("codi_reward")
+}
+
+model RankingReward {
+  id       String               @id @default(uuid())
+  position Int                  @unique
+  title    String
+  gems     Int                  @default(0)
+  claims   RankingRewardClaim[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("codi_ranking_reward")
+}
+
+model RankingRewardClaim {
+  id              String        @id @default(uuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rankingRewardId String
+  rankingReward   RankingReward @relation(fields: [rankingRewardId], references: [id], onDelete: Cascade)
+  gemsAwarded     Int
+  periodStart     DateTime
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, rankingRewardId, periodStart])
+  @@map("codi_ranking_reward_claim")
 }
 
 model RewardRedemption {
