@@ -28,7 +28,7 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
     { id: 'retos', label: 'Retos', icon: 'trophy', href: '#' },
     { id: 'tienda', label: 'Tienda de canjes', icon: 'store', href: '/dashboard/store' },
     { id: 'laboratorio', label: 'Laboratorio', icon: 'flask', href: '/dashboard/lab' },
-    { id: 'ranking', label: 'Ranking', icon: 'podium', href: '#' },
+    { id: 'ranking', label: 'Ranking', icon: 'podium', href: '/dashboard/ranking' },
     { id: 'eventos', label: 'Eventos', icon: 'calendar', href: '#' },
     { id: 'certificados', label: 'Certificados', icon: 'graduationCap', href: '#' },
     { id: 'ajustes', label: 'Ajustes', icon: 'gear', href: '/dashboard/settings' },
@@ -103,6 +103,11 @@ export default function Menubar({ open, userRole, onClose }: MenubarProps) {
                 href: '/dashboard/admin/islands',
                 label: 'Administración de Islas',
                 icon: 'palmTree' as const,
+              },
+              {
+                href: '/dashboard/admin/ranking',
+                label: 'Recompensas del podio',
+                icon: 'podium' as const,
               },
             ].map((item) => {
               const active = pathname.startsWith(item.href);
