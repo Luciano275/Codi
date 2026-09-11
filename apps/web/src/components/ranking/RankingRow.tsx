@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { BookOpenCheck, Flame, Zap } from 'lucide-react';
+import { BookOpenCheck, Flame, Zap } from '@/components/ui/Icon';
 import { PlayerAvatar } from '@/components/player-profile/PlayerAvatar';
 import type { RankingEntry } from './types';
 

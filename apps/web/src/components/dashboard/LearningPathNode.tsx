@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { Check, Play, Lock } from 'lucide-react';
+import { Check, Play, Lock } from '@/components/ui/Icon';
 
 interface StageData {
   id: number;
@@ -36,7 +36,8 @@ const nodeStyles = {
 } as const;
 
 function NodeIcon({ status }: { status: StageData['status'] }) {
-  const size = 'h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5 xl:h-5 xl:w-5 2xl:h-6 2xl:w-6';
+  const size =
+    'h-3.5 w-3.5 sm:h-4 sm:w-4 md:h-4 md:w-4 lg:h-5 lg:w-5 xl:h-5 xl:w-5 2xl:h-6 2xl:w-6';
   if (status === 'completed') return <Check className={`${size} drop-shadow-xs`} />;
   if (status === 'available') return <Play className={`${size} drop-shadow-xs ml-0.5`} />;
   return <Lock className={`${size} drop-shadow-xs`} />;
@@ -61,9 +62,7 @@ function NodeInner({ stage }: { stage: StageData }) {
             : {}
         }
         transition={
-          stage.status === 'available'
-            ? { duration: 2.5, repeat: Infinity, ease: 'easeInOut' }
-            : {}
+          stage.status === 'available' ? { duration: 2.5, repeat: Infinity, ease: 'easeInOut' } : {}
         }
         whileHover={{ scale: 1.12 }}
         whileTap={{ scale: 0.92 }}
@@ -74,8 +73,8 @@ function NodeInner({ stage }: { stage: StageData }) {
             stage.status === 'completed'
               ? 'bg-pradera-600'
               : stage.status === 'available'
-              ? 'bg-lagos-600'
-              : 'bg-slate-500'
+                ? 'bg-lagos-600'
+                : 'bg-slate-500'
           }`}
         >
           {stage.id}
@@ -88,8 +87,8 @@ function NodeInner({ stage }: { stage: StageData }) {
           stage.status === 'completed'
             ? 'bg-pradera-500'
             : stage.status === 'available'
-            ? 'bg-lagos-500'
-            : 'bg-slate-400'
+              ? 'bg-lagos-500'
+              : 'bg-slate-400'
         }`}
       >
         {stage.name.length > 20 ? stage.name.slice(0, 18) + '…' : stage.name}
@@ -143,11 +142,11 @@ export function Node({
 export function MapLegend() {
   return (
     <div className="absolute bottom-2 left-2 flex items-center gap-2 rounded-xl bg-white/90 px-2.5 py-1.5 shadow-xs backdrop-blur-sm md:bottom-3 md:left-3 md:gap-3 md:px-3 md:py-2">
-      {([
+      {[
         { status: 'completed' as const, label: 'Completado', color: 'bg-pradera-500' },
         { status: 'available' as const, label: 'Disponible', color: 'bg-lagos-500' },
         { status: 'locked' as const, label: 'Bloqueado', color: 'bg-slate-400' },
-      ]).map((item) => (
+      ].map((item) => (
         <div key={item.status} className="flex items-center gap-1 md:gap-1.5">
           <div className={`h-2 w-2 rounded-full ${item.color} shadow-xs md:h-2.5 md:w-2.5`} />
           <span className="font-simply-olive text-[9px] font-medium text-gray-500 md:text-[10px] lg:text-[11px]">

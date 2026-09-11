@@ -2,7 +2,7 @@
 
 import { memo } from 'react';
 import { motion, useReducedMotion } from 'motion/react';
-import { Zap } from 'lucide-react';
+import { Zap } from '@/components/ui/Icon';
 import { LevelUpAnimation } from './LevelUpAnimation';
 import { useXPBarSequence } from './useXPBarSequence';
 

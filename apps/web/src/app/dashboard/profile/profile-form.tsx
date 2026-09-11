@@ -15,7 +15,7 @@ import {
   CheckCircle2,
   AlertCircle,
   Flag,
-} from 'lucide-react';
+} from '@/components/ui/Icon';
 import type { UserProfile } from '@/lib/auth';
 import { adminFetch } from '@/lib/admin-api';
 import { AvatarUploadField } from '@/components/uploads/AvatarUploadField';

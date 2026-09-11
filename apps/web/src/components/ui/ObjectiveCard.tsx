@@ -1,4 +1,4 @@
-import { Trophy } from 'lucide-react';
+import { Trophy } from '@/components/ui/Icon';
 
 interface ObjectiveCardProps {
   title: string;
@@ -13,7 +13,9 @@ export default function ObjectiveCard({ title, progress, xpReward }: ObjectiveCa
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xs transition-all duration-300 hover:shadow-md">
       <div className="bg-linear-to-r from-lagos-500 to-lagos-400 px-4 py-2.5 md:px-5 md:py-3">
-        <h3 className="font-super-pandora text-sm text-white drop-shadow-xs md:text-base">Próximo Objetivo</h3>
+        <h3 className="font-super-pandora text-sm text-white drop-shadow-xs md:text-base">
+          Próximo Objetivo
+        </h3>
       </div>
       <div className="space-y-3 p-4 md:p-5">
         <p className="font-simply-olive text-xs leading-snug text-gray-700 md:text-sm">{title}</p>

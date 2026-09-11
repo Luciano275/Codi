@@ -40,26 +40,29 @@ export interface AdminLesson {
   problems: AdminProblem[];
 }
 
-export function useAdminLessons() {
+export function useAdminLessons(initialData?: AdminLesson[]) {
   return useQuery({
     queryKey: queryKeys.lessons.admin.all,
     queryFn: () => adminFetch<AdminLesson[]>('/api/admin/lessons'),
+    initialData,
     staleTime: 5 * 60 * 1000,
   });
 }
 
-export function useAdminCourses() {
+export function useAdminCourses(initialData?: AdminCourse[]) {
   return useQuery({
     queryKey: queryKeys.courses.all,
     queryFn: () => adminFetch<AdminCourse[]>('/api/courses'),
+    initialData,
     staleTime: 5 * 60 * 1000,
   });
 }
 
-export function useAdminProblems() {
+export function useAdminProblems(initialData?: AdminProblem[]) {
   return useQuery({
     queryKey: ['problems', 'admin'] as const,
     queryFn: () => adminFetch<AdminProblem[]>('/api/admin/problems'),
+    initialData,
     staleTime: 5 * 60 * 1000,
   });
 }

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { Gem, X, Zap } from 'lucide-react';
+import { Gem, X, Zap } from '@/components/ui/Icon';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import { RewardBurst } from './RewardBurst';
 

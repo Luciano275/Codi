@@ -2,13 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from '@bprogress/next';
-import {
-  FileText,
-  FileCode2,
-  Play,
-  ChevronLeft,
-  BookOpen,
-} from 'lucide-react';
+import { FileText, FileCode2, Play, ChevronLeft, BookOpen } from '@/components/ui/Icon';
 
 const typeIcons: Record<string, React.ElementType> = {
   THEORY: FileText,
@@ -75,12 +69,8 @@ export default function LessonSidebar({
             <ChevronLeft className="h-3.5 w-3.5" />
             {backLabel}
           </button>
-          <h3 className="font-super-pandora text-sm text-gray-800">
-            {courseTitle}
-          </h3>
-          <p className="font-simply-olive text-xs text-gray-400">
-            {moduleTitle}
-          </p>
+          <h3 className="font-super-pandora text-sm text-gray-800">{courseTitle}</h3>
+          <p className="font-simply-olive text-xs text-gray-400">{moduleTitle}</p>
         </div>
 
         {/* Lesson list */}
@@ -101,16 +91,12 @@ export default function LessonSidebar({
                       setCollapsed(true);
                     }}
                     className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-all ${
-                      isCurrent
-                        ? 'bg-lagos-50 text-lagos-700'
-                        : 'text-gray-600 hover:bg-gray-50'
+                      isCurrent ? 'bg-lagos-50 text-lagos-700' : 'text-gray-600 hover:bg-gray-50'
                     }`}
                   >
                     <div
                       className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
-                        isCurrent
-                          ? 'bg-lagos-100 text-lagos-600'
-                          : 'bg-gray-100 text-gray-400'
+                        isCurrent ? 'bg-lagos-100 text-lagos-600' : 'bg-gray-100 text-gray-400'
                       }`}
                     >
                       <Icon className="h-3.5 w-3.5" />
@@ -122,9 +108,7 @@ export default function LessonSidebar({
                         {lesson.title}
                       </p>
                     </div>
-                    <span className="text-[10px] text-gray-400">
-                      {lesson.order}
-                    </span>
+                    <span className="text-[10px] text-gray-400">{lesson.order}</span>
                   </button>
                 </li>
               );

@@ -1,4 +1,4 @@
-import { Trophy, ClipboardList } from 'lucide-react';
+import { Trophy, ClipboardList } from '@/components/ui/Icon';
 import type { RankingUser } from '@/lib/server-api';
 import RankingItem from '@/components/ui/RankingItem';
 
@@ -29,11 +29,7 @@ export default function WeeklyRanking({ users }: WeeklyRankingProps) {
         ) : (
           <ul className="space-y-1.5 md:space-y-2">
             {users.map((student) => (
-              <RankingItem
-                key={student.id}
-                user={student}
-                isTopThree={student.rank <= 3}
-              />
+              <RankingItem key={student.id} user={student} isTopThree={student.rank <= 3} />
             ))}
           </ul>
         )}

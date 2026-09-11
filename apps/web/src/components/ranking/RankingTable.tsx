@@ -1,4 +1,4 @@
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList } from '@/components/ui/Icon';
 import type { RankingEntry } from './types';
 import { RankingRow } from './RankingRow';
 

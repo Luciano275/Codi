@@ -1,4 +1,4 @@
-import { Medal } from 'lucide-react';
+import { Medal } from '@/components/ui/Icon';
 
 export function RankingHeader() {
   return (

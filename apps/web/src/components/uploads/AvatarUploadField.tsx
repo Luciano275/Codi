@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Camera, CheckCircle2, Loader2, Trash2 } from 'lucide-react';
+import { Camera, CheckCircle2, Loader2, Trash2 } from '@/components/ui/Icon';
 import { uploadFileThroughApi } from '@/lib/backend-upload';
 import { AvatarCropDialog } from './AvatarCropDialog';
 

@@ -9,7 +9,7 @@ import {
   Zap,
   CheckCircle2,
   Gem,
-} from 'lucide-react';
+} from '@/components/ui/Icon';
 import { auth } from '@/lib/auth';
 import { fetchLesson } from '@/lib/server-api';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Check, Loader2, Zap, Award, RotateCcw } from 'lucide-react';
+import { Check, Loader2, Zap, Award, RotateCcw } from '@/components/ui/Icon';
 import {
   useLessonStatus,
   useCompleteLesson,

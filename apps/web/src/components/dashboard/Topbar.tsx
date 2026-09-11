@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Gem, ChevronDown, LogOut, Menu, User, Settings } from 'lucide-react';
+import { Gem, ChevronDown, LogOut, Menu, User, Settings } from '@/components/ui/Icon';
 import type { UserProfile } from '@/lib/auth';
 import { useCurrentUser, useSetCurrentUser } from '@/hooks/queries/useCurrentUser';
 import { XPBar } from '@/components/level-up/XPBar';

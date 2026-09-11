@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useState, useTransition } from 'react';
-import { Gem, Lightbulb, LockKeyhole, Sparkles } from 'lucide-react';
+import { Gem, Lightbulb, LockKeyhole, Sparkles } from '@/components/ui/Icon';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import { unlockLessonSmartHint } from './actions';
 

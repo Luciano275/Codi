@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Globe2, Trophy, UsersRound } from 'lucide-react';
+import { Globe2, Trophy, UsersRound } from '@/components/ui/Icon';
 import type { RankingScope } from './types';
 
 interface RankingFiltersProps {

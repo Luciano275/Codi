@@ -1,6 +1,6 @@
 'use client';
 
-import { X, FileCode2 } from 'lucide-react';
+import { X, FileCode2 } from '@/components/ui/Icon';
 
 const ALL_LANGUAGES = [
   { id: 'python', label: 'Python 3', extension: 'py' },
@@ -82,7 +82,9 @@ export function OptionsPanel({
               onChange={(e) => onFontSizeChange(Number(e.target.value))}
               className="flex-1 h-1 accent-valle-500"
             />
-            <span className="w-5 text-center text-[10px] font-medium text-gray-600">{fontSize}</span>
+            <span className="w-5 text-center text-[10px] font-medium text-gray-600">
+              {fontSize}
+            </span>
           </div>
         </div>
         <div>
@@ -93,7 +95,9 @@ export function OptionsPanel({
                 key={n}
                 onClick={() => onTabSizeChange(n)}
                 className={`flex-1 rounded-md py-1 text-[10px] font-medium transition-colors ${
-                  tabSize === n ? 'bg-valle-100 text-valle-700' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                  tabSize === n
+                    ? 'bg-valle-100 text-valle-700'
+                    : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                 }`}
               >
                 {n}
@@ -121,9 +125,18 @@ export function OptionsPanel({
           Atajos
         </p>
         <div className="space-y-1 text-[10px] text-gray-500">
-          <p><kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+Space</kbd> Autocompletado</p>
-          <p><kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+S</kbd> Guardar</p>
-          <p><kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+Enter</kbd> Ejecutar</p>
+          <p>
+            <kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+Space</kbd>{' '}
+            Autocompletado
+          </p>
+          <p>
+            <kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+S</kbd>{' '}
+            Guardar
+          </p>
+          <p>
+            <kbd className="rounded bg-gray-200 px-1 py-0.5 font-mono text-[9px]">Ctrl+Enter</kbd>{' '}
+            Ejecutar
+          </p>
         </div>
       </div>
     </aside>

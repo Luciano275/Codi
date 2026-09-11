@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDown } from 'lucide-react';
+import { ArrowDown } from '@/components/ui/Icon';
 import { motion } from 'motion/react';
 
 interface LevelNumberProps {

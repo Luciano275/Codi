@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Check, Gem, Trophy, X } from 'lucide-react';
+import { Check, Gem, Trophy, X } from '@/components/ui/Icon';
 
 const confetti = [
   { x: -42, y: -70, rotate: -155, color: '#ffbe0b', delay: 0.08, size: 10 },

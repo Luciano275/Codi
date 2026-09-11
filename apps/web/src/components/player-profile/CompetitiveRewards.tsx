@@ -1,4 +1,4 @@
-import { Gem, Gift, LockKeyhole } from 'lucide-react';
+import { Gem, Gift, LockKeyhole } from '@/components/ui/Icon';
 import type { CompetitivePlayerProfile } from '@/lib/server-api';
 import styles from './competitive-player.module.css';
 

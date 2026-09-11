@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronUp, FlagTriangleRight } from 'lucide-react';
+import { ChevronUp, FlagTriangleRight } from '@/components/ui/Icon';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import type { CurrentRankingPosition } from './types';
 import styles from './ranking.module.css';

@@ -10,7 +10,7 @@ import {
   Map as MapIcon,
   TreePalm,
   Trophy,
-} from 'lucide-react';
+} from '@/components/ui/Icon';
 import type { RankingUser } from '@/lib/server-api';
 import type { IslandViewModel } from './types';
 

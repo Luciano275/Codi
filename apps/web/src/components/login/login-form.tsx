@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
+import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from '@/components/ui/Icon';
 import { apiPost } from '@/lib/api-client';
 
 interface LoginResponse {
@@ -104,7 +104,10 @@ export default function LoginForm() {
               Nombre de Usuario
             </label>
             <div className="relative">
-              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
+              <User
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40"
+                aria-hidden="true"
+              />
               <input
                 id="email"
                 type="text"
@@ -112,7 +115,7 @@ export default function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="tu_usuario"
                 style={{
-                  outline: 'none'
+                  outline: 'none',
                 }}
                 className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
@@ -127,7 +130,10 @@ export default function LoginForm() {
               Contraseña
             </label>
             <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40" aria-hidden="true" />
+              <Lock
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-white/40"
+                aria-hidden="true"
+              />
               <input
                 id="password"
                 type={showPassword ? 'text' : 'password'}
@@ -135,7 +141,7 @@ export default function LoginForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
                 style={{
-                  outline: 'none'
+                  outline: 'none',
                 }}
                 className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
@@ -148,13 +154,20 @@ export default function LoginForm() {
                 aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
               >
-                {showPassword ? <EyeOff className="w-4.5 h-4.5" aria-hidden="true" /> : <Eye className="w-4.5 h-4.5" aria-hidden="true" />}
+                {showPassword ? (
+                  <EyeOff className="w-4.5 h-4.5" aria-hidden="true" />
+                ) : (
+                  <Eye className="w-4.5 h-4.5" aria-hidden="true" />
+                )}
               </button>
             </div>
           </div>
 
           <div className="flex items-center justify-between">
-            <a href="/forgot-password" className="text-sm font-semibold text-[#55C703] hover:text-[#6aff00] transition-colors">
+            <a
+              href="/forgot-password"
+              className="text-sm font-semibold text-[#55C703] hover:text-[#6aff00] transition-colors"
+            >
               ¿Olvidaste tu contraseña?
             </a>
           </div>

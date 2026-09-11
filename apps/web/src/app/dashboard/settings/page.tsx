@@ -1,13 +1,6 @@
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';
-import {
-  User,
-  Mail,
-  Shield,
-  Bell,
-  KeyRound,
-  ChevronRight,
-} from 'lucide-react';
+import { User, Mail, Shield, Bell, KeyRound, ChevronRight } from '@/components/ui/Icon';
 import type { ComponentType, SVGProps } from 'react';
 
 interface SettingsItem {
@@ -41,7 +34,12 @@ export default async function SettingsPage() {
         {
           icon: Shield,
           label: 'Rol',
-          value: user.role === 'ADMIN' ? 'Administrador' : user.role === 'TEACHER' ? 'Docente' : 'Estudiante',
+          value:
+            user.role === 'ADMIN'
+              ? 'Administrador'
+              : user.role === 'TEACHER'
+                ? 'Docente'
+                : 'Estudiante',
           color: 'text-bosque-600 bg-bosque-100',
         },
       ],
@@ -71,14 +69,15 @@ export default async function SettingsPage() {
     <div className="mx-auto max-w-2xl">
       <div className="mb-8">
         <h1 className="font-super-pandora text-2xl text-gray-900">Ajustes</h1>
-        <p className="font-simply-olive mt-0.5 text-sm text-gray-500">
-          Configuración de tu cuenta
-        </p>
+        <p className="font-simply-olive mt-0.5 text-sm text-gray-500">Configuración de tu cuenta</p>
       </div>
 
       <div className="space-y-6">
         {sections.map((section) => (
-          <div key={section.title} className="rounded-2xl border border-gray-100 bg-white shadow-sm">
+          <div
+            key={section.title}
+            className="rounded-2xl border border-gray-100 bg-white shadow-sm"
+          >
             <div className="border-b border-gray-50 px-5 py-3">
               <h2 className="font-super-pandora text-sm text-gray-700">{section.title}</h2>
             </div>
@@ -90,7 +89,9 @@ export default async function SettingsPage() {
                     key={item.label}
                     className={`flex items-center gap-4 px-5 py-3.5 ${item.disabled ? 'opacity-60' : ''}`}
                   >
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}>
+                    <div
+                      className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${item.color}`}
+                    >
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">

@@ -1,4 +1,4 @@
-import { Trophy } from 'lucide-react';
+import { Trophy } from '@/components/ui/Icon';
 import { fetchAdminRankingRewards } from '@/lib/server-api';
 import { BackToRankingButton } from './back-to-ranking-button';
 import RankingRewardsAdmin from './ranking-rewards-admin';

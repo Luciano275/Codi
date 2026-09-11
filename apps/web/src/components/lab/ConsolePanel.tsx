@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Terminal, X, PanelBottomClose, PanelBottomOpen } from 'lucide-react';
+import { CheckCircle2, Terminal, X, PanelBottomClose, PanelBottomOpen } from '@/components/ui/Icon';
 import type { ConsoleTab } from '@/hooks/lab/types';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -143,7 +143,9 @@ export function ConsolePanel({
               value={consoleInput}
               onChange={(e) => onConsoleInputChange(e.target.value)}
               onKeyDown={onConsoleKeyDown}
-              placeholder={sessionId ? 'Escribí entrada y presioná Enter...' : 'Presioná RUN para ejecutar'}
+              placeholder={
+                sessionId ? 'Escribí entrada y presioná Enter...' : 'Presioná RUN para ejecutar'
+              }
               disabled={!sessionId}
               className="flex-1 bg-transparent px-2 py-1 font-mono text-[11px] text-gray-300 outline-none placeholder:text-gray-600 disabled:opacity-40"
             />

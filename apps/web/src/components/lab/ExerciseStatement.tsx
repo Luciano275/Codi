@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, X, Zap, FileCode2, CheckCircle2 } from 'lucide-react';
+import { BookOpen, X, Zap, FileCode2, CheckCircle2 } from '@/components/ui/Icon';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: 'text-pradera-600 bg-pradera-50',
@@ -41,7 +41,13 @@ interface ExerciseStatementProps {
   submissions: any[];
 }
 
-export function ExerciseStatement({ exercise, problemId, showStatement, onClose, submissions }: ExerciseStatementProps) {
+export function ExerciseStatement({
+  exercise,
+  problemId,
+  showStatement,
+  onClose,
+  submissions,
+}: ExerciseStatementProps) {
   if (!showStatement) return null;
 
   return (
@@ -63,9 +69,7 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-2.5">
-          <h2 className="font-super-pandora text-sm text-gray-900">
-            {exercise.title}
-          </h2>
+          <h2 className="font-super-pandora text-sm text-gray-900">{exercise.title}</h2>
           <span
             className={`rounded-md px-2 py-0.5 text-[10px] font-medium ${
               DIFFICULTY_COLORS[exercise.difficulty] || 'bg-gray-100 text-gray-600'
@@ -75,13 +79,11 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
           </span>
           <div className="ml-auto flex items-center gap-3 text-xs text-gray-400">
             <span className="flex items-center gap-1">
-              <Zap className="h-3 w-3 text-amber-400" />
-              +{exercise.xpReward} XP
+              <Zap className="h-3 w-3 text-amber-400" />+{exercise.xpReward} XP
             </span>
             {exercise.cmsTaskId > 0 && (
               <span className="flex items-center gap-1">
-                <FileCode2 className="h-3 w-3" />
-                #{exercise.cmsTaskId}
+                <FileCode2 className="h-3 w-3" />#{exercise.cmsTaskId}
               </span>
             )}
           </div>
@@ -115,7 +117,13 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
                 <div className="divide-y divide-gray-50">
                   {submissions.map((s, idx) => {
                     const isAccepted = s.status === 'ACCEPTED';
-                    const isError = ['WRONG_ANSWER', 'COMPILATION_ERROR', 'RUNTIME_ERROR', 'TIME_LIMIT_EXCEEDED', 'MEMORY_LIMIT_EXCEEDED'].includes(s.status);
+                    const isError = [
+                      'WRONG_ANSWER',
+                      'COMPILATION_ERROR',
+                      'RUNTIME_ERROR',
+                      'TIME_LIMIT_EXCEEDED',
+                      'MEMORY_LIMIT_EXCEEDED',
+                    ].includes(s.status);
                     const statusIcon = isAccepted ? '✅' : isError ? '❌' : '⏳';
                     const statusColor = isAccepted
                       ? 'border-l-pradera-500 bg-pradera-50/30'
@@ -134,13 +142,15 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
                               Envío #{submissions.length - idx}
                             </span>
                             {s.score != null && (
-                              <span className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
-                                s.score >= 100
-                                  ? 'bg-pradera-100 text-pradera-700'
-                                  : s.score >= 60
-                                    ? 'bg-desierto-100 text-desierto-700'
-                                    : 'bg-volcan-100 text-volcan-700'
-                              }`}>
+                              <span
+                                className={`rounded-md px-1.5 py-0.5 text-[10px] font-bold ${
+                                  s.score >= 100
+                                    ? 'bg-pradera-100 text-pradera-700'
+                                    : s.score >= 60
+                                      ? 'bg-desierto-100 text-desierto-700'
+                                      : 'bg-volcan-100 text-volcan-700'
+                                }`}
+                              >
                                 {s.score.toFixed(0)}%
                               </span>
                             )}
@@ -150,7 +160,10 @@ export function ExerciseStatement({ exercise, problemId, showStatement, onClose,
                           </span>
                         </div>
                         <span className="shrink-0 text-gray-400">
-                          {new Date(s.submittedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(s.submittedAt).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })}
                         </span>
                       </div>
                     );

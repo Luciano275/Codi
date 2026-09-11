@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertTriangle, Loader2, X } from 'lucide-react';
+import { AlertTriangle, Loader2, X } from '@/components/ui/Icon';
 
 interface ConfirmDialogProps {
   open: boolean;

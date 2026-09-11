@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Check, Lightbulb, Sparkles, X } from 'lucide-react';
+import { Check, Lightbulb, Sparkles, X } from '@/components/ui/Icon';
 
 interface SmartHintCelebrationProps {
   open: boolean;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Layers3, Loader2, X } from 'lucide-react';
+import { Layers3, Loader2, X } from '@/components/ui/Icon';
 import type { CourseMutationData } from '@/hooks/queries/useAdminCourses';
 
 interface CreateModuleDialogProps {

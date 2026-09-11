@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { useEffect } from 'react';
-import { Gem, X } from 'lucide-react';
+import { Gem, X } from '@/components/ui/Icon';
 import type { StoreReward } from '@codi/types';
 
 interface StoreDialogProps {

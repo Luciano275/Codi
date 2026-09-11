@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Box, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Box, Pencil, Plus, Trash2 } from '@/components/ui/Icon';
 import { useState } from 'react';
 import { useRouter } from '@bprogress/next';
 import {

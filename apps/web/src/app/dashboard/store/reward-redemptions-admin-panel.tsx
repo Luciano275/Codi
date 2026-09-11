@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Ban, ChevronLeft, ChevronRight, Gem, Gift, UsersRound } from 'lucide-react';
+import { Ban, ChevronLeft, ChevronRight, Gem, Gift, UsersRound } from '@/components/ui/Icon';
 import type { AdminRewardRedemptionsPage, RewardRedemptionSummary } from '@codi/types';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { getAdminRewardRedemptions, revokeRewardRedemption } from './actions';

@@ -1,5 +1,7 @@
 'use client';
 
+import Image from 'next/image';
+
 type LessonAssetPreviewType = 'image' | 'pdf' | 'video';
 
 interface LessonAssetPreviewProps {
@@ -26,9 +28,12 @@ export function LessonAssetPreview({ type, sourceUrl, fileName }: LessonAssetPre
         {fileName ? `: ${fileName}` : ''}
       </p>
       {type === 'image' ? (
-        <img
+        <Image
           src={sourceUrl}
           alt={fileName ?? 'Imagen de la lección'}
+          width={1600}
+          height={900}
+          sizes="(max-width: 768px) 100vw, 768px"
           className="h-auto w-full bg-gray-50"
         />
       ) : type === 'pdf' ? (

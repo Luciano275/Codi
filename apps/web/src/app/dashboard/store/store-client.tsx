@@ -18,7 +18,7 @@ import {
   ReceiptText,
   ShieldCheck,
   X,
-} from 'lucide-react';
+} from '@/components/ui/Icon';
 import type {
   AdminReward,
   AdminRewardRedemptionsPage,

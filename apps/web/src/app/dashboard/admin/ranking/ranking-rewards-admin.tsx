@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { Gem, Medal, Save } from 'lucide-react';
+import { Gem, Medal, Save } from '@/components/ui/Icon';
 import type { RankingReward } from '@/lib/server-api';
 import { saveRankingRewards } from './actions';
 

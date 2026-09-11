@@ -1,4 +1,4 @@
-import { Trophy, Zap, Gem } from 'lucide-react';
+import { Trophy, Zap, Gem } from '@/components/ui/Icon';
 import Link from 'next/link';
 import type { RankingUser } from '@/lib/server-api';
 import { PlayerAvatar } from '@/components/player-profile/PlayerAvatar';

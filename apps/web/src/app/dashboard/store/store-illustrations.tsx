@@ -6,7 +6,7 @@ import {
   CircleGauge,
   ClipboardCheck,
   TimerReset,
-} from 'lucide-react';
+} from '@/components/ui/Icon';
 import type { RewardIcon } from '@codi/types';
 
 const rewardIcons = {

@@ -1,4 +1,4 @@
-import { Dumbbell, Code2, Trophy, BookOpen, FlaskConical } from 'lucide-react';
+import { Dumbbell, Code2, Trophy, BookOpen, FlaskConical } from '@/components/ui/Icon';
 import BottomActionCard from '@/components/ui/BottomActionCard';
 import type { ElementType } from 'react';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRouter } from '@bprogress/next';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from '@/components/ui/Icon';
 import styles from './competitive-player.module.css';
 
 export function BackToRankingButton() {

@@ -1,4 +1,4 @@
-import { Trophy } from 'lucide-react';
+import { Trophy } from '@/components/ui/Icon';
 import type { RankingEntry } from './types';
 import { PodiumCard } from './PodiumCard';
 import { useReducedParticleDensity } from './useReducedParticleDensity';

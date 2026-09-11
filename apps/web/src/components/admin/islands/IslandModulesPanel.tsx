@@ -1,25 +1,18 @@
 'use client';
 
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  BookOpen,
-  ChevronRight,
-  ClipboardList,
-  Files,
-  Layers3,
-  Loader2,
-  Pencil,
-  Plus,
-  Save,
-  Trash2,
-  X,
-} from 'lucide-react';
+import { Files, Layers3, Loader2, Plus, Save, X } from '@/components/ui/Icon';
 import { useCreateCourse, useDeleteCourse, useUpdateCourse } from '@/hooks/queries/useAdminCourses';
 import type { AdminIsland, AdminIslandCourse } from '@/lib/server-api';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { CreateModuleDialog } from './CreateModuleDialog';
+
+const CreateModuleDialog = dynamic(
+  () => import('./CreateModuleDialog').then((module) => module.CreateModuleDialog),
+  { ssr: false },
+);
 
 type CourseFormData = Pick<AdminIslandCourse, 'title' | 'level' | 'region' | 'xpReward' | 'order'>;
 
@@ -108,29 +101,29 @@ export function IslandModulesPanel({ island }: { island: AdminIsland }) {
                     href={`/dashboard/admin/islands/${island.id}/courses/${course.id}`}
                     className="inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-sm font-bold text-pradera-700 shadow-sm transition hover:bg-pradera-100"
                   >
-                    Administrar <ChevronRight className="h-4 w-4" />
+                    Administrar <span aria-hidden="true">›</span>
                   </Link>
                   <button
                     type="button"
                     onClick={() => setEditingCourse(course)}
                     aria-label={`Editar ${course.title}`}
-                    className="cursor-pointer rounded-xl p-2 text-gray-400 transition hover:bg-pradera-100 hover:text-pradera-700"
+                    className="cursor-pointer rounded-xl px-2 py-1.5 text-xs font-semibold text-gray-400 transition hover:bg-pradera-100 hover:text-pradera-700"
                   >
-                    <Pencil className="h-4 w-4" />
+                    Editar
                   </button>
                   <button
                     type="button"
                     onClick={() => setCourseToDelete(course)}
                     aria-label={`Eliminar ${course.title}`}
-                    className="cursor-pointer rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                    className="cursor-pointer rounded-lg px-2 py-1.5 text-xs font-semibold text-gray-400 hover:bg-red-50 hover:text-red-500"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    Eliminar
                   </button>
                 </div>
               </div>
               <div className="bg-pradera-50/60 px-6 py-5 sm:px-7">
                 <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-bosque-600/65">
-                  <ClipboardList className="h-4 w-4 text-pradera-600" /> Submódulos y lecciones
+                  Submódulos y lecciones
                 </div>
                 <div className="grid gap-3 md:grid-cols-2">
                   {course.modules.map((module) => (
@@ -140,7 +133,10 @@ export function IslandModulesPanel({ island }: { island: AdminIsland }) {
                       className="group flex min-h-20 items-center justify-between rounded-2xl border border-pradera-100 bg-white px-4 py-3 text-sm shadow-sm transition hover:border-pradera-300 hover:bg-pradera-50"
                     >
                       <span className="flex items-center gap-2 text-gray-600">
-                        <BookOpen className="h-5 w-5 shrink-0 text-pradera-600" />
+                        <span
+                          className="h-2.5 w-2.5 shrink-0 rounded-full bg-pradera-600"
+                          aria-hidden="true"
+                        />
                         <span>
                           <strong className="block font-semibold text-gray-800">
                             {module.title}
@@ -202,24 +198,26 @@ export function IslandModulesPanel({ island }: { island: AdminIsland }) {
           }}
         />
       )}
-      <CreateModuleDialog
-        isOpen={isCreatingCourse}
-        isSaving={createCourse.isPending}
-        initialOrder={Math.max(1, ...courses.map((course) => course.order + 1))}
-        onClose={() => setIsCreatingCourse(false)}
-        onSubmit={async (data) => {
-          setError('');
-          try {
-            await createCourse.mutateAsync({ ...data, islandId: island.id });
-            router.refresh();
-          } catch (createError) {
-            setError(
-              createError instanceof Error ? createError.message : 'No se pudo crear el módulo',
-            );
-            throw createError;
-          }
-        }}
-      />
+      {isCreatingCourse && (
+        <CreateModuleDialog
+          isOpen
+          isSaving={createCourse.isPending}
+          initialOrder={Math.max(1, ...courses.map((course) => course.order + 1))}
+          onClose={() => setIsCreatingCourse(false)}
+          onSubmit={async (data) => {
+            setError('');
+            try {
+              await createCourse.mutateAsync({ ...data, islandId: island.id });
+              router.refresh();
+            } catch (createError) {
+              setError(
+                createError instanceof Error ? createError.message : 'No se pudo crear el módulo',
+              );
+              throw createError;
+            }
+          }}
+        />
+      )}
       <ConfirmDialog
         open={Boolean(courseToDelete)}
         title="¿Eliminar este módulo?"

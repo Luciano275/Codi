@@ -1,7 +1,17 @@
 'use client';
 
 import { useState } from 'react';
-import { Save, Loader2, X, Search, ChevronDown, ChevronUp, Eye, Edit3, Gem } from 'lucide-react';
+import {
+  Save,
+  Loader2,
+  X,
+  Search,
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  Edit3,
+  Gem,
+} from '@/components/ui/Icon';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import { PrivateFileUploadField } from '@/components/uploads/PrivateFileUploadField';
 

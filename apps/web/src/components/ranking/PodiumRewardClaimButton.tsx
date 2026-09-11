@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Gift } from 'lucide-react';
+import { Gift } from '@/components/ui/Icon';
 import styles from './ranking.module.css';
 import type { PodiumRewardClaim } from './types';
 

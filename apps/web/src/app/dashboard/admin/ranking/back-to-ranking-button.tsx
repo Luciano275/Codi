@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from '@/components/ui/Icon';
 import { useRouter } from '@bprogress/next';
 
 export function BackToRankingButton() {

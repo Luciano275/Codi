@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Check, Move, RotateCcw, ZoomIn } from 'lucide-react';
+import { Check, Move, RotateCcw, ZoomIn } from '@/components/ui/Icon';
 import { createCroppedAvatar } from './avatar-crop-utils';
 
 const VIEWPORT_SIZE = 280;

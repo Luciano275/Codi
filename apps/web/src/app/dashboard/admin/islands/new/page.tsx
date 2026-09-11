@@ -1,17 +1,8 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-import { useRouter } from '@bprogress/next';
-import { useState } from 'react';
-import { IslandForm } from '@/components/admin/islands/IslandForm';
-import { useCreateAdminIsland } from '@/hooks/queries/useAdminIslands';
+import { ArrowLeft } from '@/components/ui/Icon';
+import NewIslandClient from './new-island-client';
 
 export default function NewIslandPage() {
-  const router = useRouter();
-  const createIsland = useCreateAdminIsland();
-  const [error, setError] = useState('');
-
   return (
     <div className="mx-auto max-w-3xl">
       <Link
@@ -24,21 +15,7 @@ export default function NewIslandPage() {
       <p className="mb-6 mt-1 text-sm text-gray-400">
         El slug se genera una sola vez a partir del nombre.
       </p>
-      {error && <p className="mb-4 rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">{error}</p>}
-      <IslandForm
-        submitLabel="Crear isla"
-        onSubmit={async (data) => {
-          setError('');
-          try {
-            const island = await createIsland.mutateAsync(data);
-            router.push(`/dashboard/admin/islands/${island.id}`);
-          } catch (createError) {
-            setError(
-              createError instanceof Error ? createError.message : 'No se pudo crear la isla',
-            );
-          }
-        }}
-      />
+      <NewIslandClient />
     </div>
   );
 }

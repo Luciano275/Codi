@@ -1,23 +1,12 @@
-'use client';
-
 import Link from 'next/link';
-import { ArrowLeft, Pencil } from 'lucide-react';
-import { useParams } from 'next/navigation';
+import { ArrowLeft, Pencil } from '@/components/ui/Icon';
+import { notFound } from 'next/navigation';
 import { IslandModulesPanel } from '@/components/admin/islands/IslandModulesPanel';
-import { useAdminIsland } from '@/hooks/queries/useAdminIslands';
+import { fetchAdminIsland } from '@/lib/server-api';
 
-export default function IslandModulesPage() {
-  const { id } = useParams<{ id: string }>();
-  const islandQuery = useAdminIsland(id);
-  if (islandQuery.isLoading)
-    return <p className="py-10 text-center text-sm text-gray-400">Cargando módulos…</p>;
-  if (!islandQuery.data)
-    return (
-      <p className="rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-        No se pudo cargar la isla.
-      </p>
-    );
-  const island = islandQuery.data;
+export default async function IslandModulesPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const island = await fetchAdminIsland(id).catch(() => notFound());
   return (
     <div className="w-full">
       <div className="mb-5 flex items-center justify-between">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { X } from 'lucide-react';
+import { X } from '@/components/ui/Icon';
 import { motion, useReducedMotion } from 'motion/react';
 import type {
   AdminReward,

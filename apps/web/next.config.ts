@@ -32,6 +32,19 @@ const nextConfig: NextConfig = {
   output: 'standalone',
   transpilePackages: ['@codi/ui', '@codi/auth', '@codi/types'],
   allowedDevOrigins: ['100.108.75.51'],
+  async headers() {
+    return [
+      {
+        source: '/icons/sprite.svg',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=3600, s-maxage=86400, stale-while-revalidate=86400',
+          },
+        ],
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       ...(s3RemotePattern ? [s3RemotePattern] : []),

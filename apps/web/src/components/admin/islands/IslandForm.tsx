@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Loader2, Save } from 'lucide-react';
+import { Loader2, Save } from '@/components/ui/Icon';
 import { PrivateFileUploadField } from '@/components/uploads/PrivateFileUploadField';
 import type { AdminIsland, AdminIslandMutationData } from '@/lib/server-api';
 import { IslandFormField as Field, islandInputClassName } from './IslandFormField';

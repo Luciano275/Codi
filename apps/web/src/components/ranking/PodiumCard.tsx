@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import { Crown, Medal, Zap } from 'lucide-react';
+import { Crown, Medal, Zap } from '@/components/ui/Icon';
 import { PlayerAvatar } from '@/components/player-profile/PlayerAvatar';
 import { PodiumParticles } from './PodiumParticles';
 import type { RankingEntry } from './types';

@@ -2,7 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { X } from 'lucide-react';
+import { X } from '@/components/ui/Icon';
 import SidebarIcon from '@/components/ui/SidebarIcon';
 import type { IconName } from '@/components/ui/SidebarIcon';
 

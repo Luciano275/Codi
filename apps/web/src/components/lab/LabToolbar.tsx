@@ -1,6 +1,14 @@
 'use client';
 
-import { ArrowLeft, BookOpen, FlaskConical, PanelLeftOpen, Play, Loader2, CheckCircle2 } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookOpen,
+  FlaskConical,
+  PanelLeftOpen,
+  Play,
+  Loader2,
+  CheckCircle2,
+} from '@/components/ui/Icon';
 
 interface LangInfo {
   id: string;
@@ -90,7 +98,11 @@ export function LabToolbar({
             disabled={running}
             className="flex items-center gap-1.5 rounded-lg bg-pradera-500 px-4 py-1.5 text-xs font-semibold text-white transition-all hover:bg-pradera-600 active:scale-95 disabled:opacity-50"
           >
-            {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+            {running ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Play className="h-3.5 w-3.5" />
+            )}
             RUN
           </button>
           <button
@@ -131,7 +143,11 @@ export function LabToolbar({
         disabled={running}
         className="flex items-center gap-1.5 rounded-lg bg-pradera-500 px-4 py-1.5 text-xs font-semibold text-white transition-all hover:bg-pradera-600 active:scale-95 disabled:opacity-50"
       >
-        {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />}
+        {running ? (
+          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+        ) : (
+          <Play className="h-3.5 w-3.5" />
+        )}
         RUN
       </button>
     </div>

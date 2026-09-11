@@ -5,7 +5,13 @@ import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import { Children, isValidElement, type ReactElement, type ReactNode } from 'react';
-import { CircleAlert, Info, Lightbulb, TriangleAlert, type LucideIcon } from 'lucide-react';
+import {
+  CircleAlert,
+  Info,
+  Lightbulb,
+  TriangleAlert,
+  type IconComponent,
+} from '@/components/ui/Icon';
 import type { Components } from 'react-markdown';
 
 interface MarkdownRendererProps {
@@ -17,7 +23,7 @@ type CalloutKind = 'IMPORTANT' | 'NOTE' | 'TIP' | 'WARNING';
 
 interface CalloutStyle {
   label: string;
-  Icon: LucideIcon;
+  Icon: IconComponent;
   className: string;
 }
 
@@ -78,7 +84,8 @@ function preprocess(md: string): string {
         const isNextRow = next.startsWith('|') && next.endsWith('|');
         const isNextSep = /^\|[-:| ]+\|$/.test(next);
         // Also grab plain lines that look like orphaned table data
-        const isOrphan = /^[A-Za-z0-9].{0,60}$/.test(next) && !next.includes('```') && !next.startsWith('#');
+        const isOrphan =
+          /^[A-Za-z0-9].{0,60}$/.test(next) && !next.includes('```') && !next.startsWith('#');
 
         if (isNextRow || isNextSep) {
           block.push(lines[j]);
@@ -170,17 +177,13 @@ const tableComponents: Components = {
   ),
   thead: ({ children }) => <thead className="bg-lagos-50">{children}</thead>,
   tbody: ({ children }) => <tbody className="divide-y divide-gray-100">{children}</tbody>,
-  tr: ({ children }) => (
-    <tr className="even:bg-gray-50/50">{children}</tr>
-  ),
+  tr: ({ children }) => <tr className="even:bg-gray-50/50">{children}</tr>,
   th: ({ children }) => (
     <th className="px-3 py-2 text-left text-xs font-semibold uppercase text-lagos-800">
       {children}
     </th>
   ),
-  td: ({ children }) => (
-    <td className="px-3 py-2 text-sm text-gray-700">{children}</td>
-  ),
+  td: ({ children }) => <td className="px-3 py-2 text-sm text-gray-700">{children}</td>,
 };
 
 export default function MarkdownRenderer({ content, className = '' }: MarkdownRendererProps) {

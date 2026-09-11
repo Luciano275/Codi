@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { CheckCircle2, FileUp, Loader2, Trash2 } from 'lucide-react';
+import { CheckCircle2, FileUp, Loader2, Trash2 } from '@/components/ui/Icon';
 import { uploadFileThroughApi, type UploadAssetType } from '@/lib/backend-upload';
 import {
   LessonAssetPreview,

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowLeft, BookOpen, Check, Files, LockKeyhole, Play } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, Files, LockKeyhole, Play } from '@/components/ui/Icon';
 
 const STEP_POSITIONS = [18, 36, 58, 74, 62, 42, 20, 33, 54, 72];
 const STEP_GAP = 176;

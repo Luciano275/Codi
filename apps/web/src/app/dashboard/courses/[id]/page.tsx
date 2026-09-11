@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronRight, FileText, FileCode2, Play, Zap, CheckCircle2 } from 'lucide-react';
+import { ChevronRight, FileText, FileCode2, Play, Zap, CheckCircle2 } from '@/components/ui/Icon';
 import { auth } from '@/lib/auth';
 import { serverFetch } from '@/lib/server-api';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
@@ -70,18 +70,14 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
         </div>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-super-pandora text-3xl text-gray-900">
-              {course.title}
-            </h1>
+            <h1 className="font-super-pandora text-3xl text-gray-900">{course.title}</h1>
             <p className="font-simply-olive mt-1 text-sm text-gray-500">
               {totalLessons} lecciones &middot; Nivel {course.level}
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-xl bg-amber-50 px-4 py-2">
             <Zap className="h-5 w-5 text-amber-500" />
-            <span className="font-candy-beans text-lg text-amber-700">
-              +{course.xpReward} XP
-            </span>
+            <span className="font-candy-beans text-lg text-amber-700">+{course.xpReward} XP</span>
           </div>
         </div>
       </div>
@@ -89,10 +85,7 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
       {/* Modules */}
       <div className="space-y-6">
         {course.modules.map((mod) => (
-          <div
-            key={mod.id}
-            className="rounded-2xl border border-gray-100 bg-white shadow-sm"
-          >
+          <div key={mod.id} className="rounded-2xl border border-gray-100 bg-white shadow-sm">
             <div className="border-b border-gray-50 px-5 py-4">
               <h2 className="font-super-pandora text-base text-gray-800">
                 Módulo {mod.order}: {mod.title}
@@ -143,10 +136,6 @@ async function CourseContent({ params }: { params: Promise<{ id: string }> }) {
   );
 }
 
-export default function CoursePage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
+export default function CoursePage({ params }: { params: Promise<{ id: string }> }) {
   return <CourseContent params={params} />;
 }

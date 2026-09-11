@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { Gem, Medal } from 'lucide-react';
+import { Gem, Medal } from '@/components/ui/Icon';
 import chestImage from '@/assets/diamonds_chest.webp';
 import type { RankingRewardForViewer } from '@/lib/server-api';
 import styles from './ranking.module.css';

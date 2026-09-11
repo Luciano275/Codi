@@ -1,4 +1,4 @@
-import { Crown, Flame, Gem, ShieldCheck, Swords, Target, Trophy, Zap } from 'lucide-react';
+import { Crown, Flame, Gem, ShieldCheck, Swords, Target, Trophy, Zap } from '@/components/ui/Icon';
 import type { CompetitivePlayerProfile } from '@/lib/server-api';
 import { getPlayerBanner } from './player-banner';
 import { PlayerAvatar } from './PlayerAvatar';

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { AnimatePresence } from 'motion/react';
-import { Eye, EyeOff, Gem, Pencil, Plus, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Gem, Pencil, Plus, Trash2 } from '@/components/ui/Icon';
 import type { AdminReward, RewardEditorInput } from '@codi/types';
 import { createReward, deleteReward, updateReward } from './actions';
 import { RewardEditorDialog } from './reward-editor-dialog';

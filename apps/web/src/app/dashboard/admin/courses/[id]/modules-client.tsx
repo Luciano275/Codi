@@ -1,7 +1,16 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Loader2, Save, X, BookOpen, ChevronRight } from 'lucide-react';
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Loader2,
+  Save,
+  X,
+  BookOpen,
+  ChevronRight,
+} from '@/components/ui/Icon';
 import Link from 'next/link';
 import { useCreateModule, useUpdateModule, useDeleteModule } from '@/hooks/queries/useAdminModules';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
