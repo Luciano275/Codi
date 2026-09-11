@@ -52,6 +52,7 @@ export default function RankingItem({ user, isTopThree }: RankingItemProps) {
           displayName={user.displayName}
           rank={user.rank}
           className="h-7 w-7 rounded-full text-[10px] font-bold shadow-xs md:h-8 md:w-8 md:text-xs"
+          imageSizes="32px"
         />
 
         <div className="min-w-0 flex-1">

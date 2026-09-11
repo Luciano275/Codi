@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from 'react';
+import Image from 'next/image';
 
 const fallbackTones = [
   'bg-castillo-400 text-castillo-900',
@@ -11,6 +12,7 @@ interface PlayerAvatarProps extends HTMLAttributes<HTMLDivElement> {
   displayName: string;
   rank?: number;
   imageClassName?: string;
+  imageSizes?: string;
 }
 
 export function PlayerAvatar({
@@ -19,17 +21,24 @@ export function PlayerAvatar({
   rank,
   className = '',
   imageClassName = '',
+  imageSizes = '48px',
   ...props
 }: PlayerAvatarProps) {
   const fallbackTone = rank && rank <= 3 ? fallbackTones[rank - 1] : 'bg-slate-200 text-slate-600';
 
   return (
     <div
-      className={`grid shrink-0 place-items-center overflow-hidden font-candy-beans ${fallbackTone} ${className}`}
+      className={`relative grid shrink-0 place-items-center overflow-hidden font-candy-beans ${fallbackTone} ${className}`}
       {...props}
     >
       {avatarUrl ? (
-        <img src={avatarUrl} alt="" className={`h-full w-full object-cover ${imageClassName}`} />
+        <Image
+          src={avatarUrl}
+          alt=""
+          fill
+          sizes={imageSizes}
+          className={`object-cover ${imageClassName}`}
+        />
       ) : (
         <span aria-hidden>{displayName.charAt(0).toUpperCase()}</span>
       )}

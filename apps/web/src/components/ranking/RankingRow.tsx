@@ -28,6 +28,7 @@ export function RankingRow({ student, isCurrentUser }: RankingRowProps) {
           displayName={student.displayName}
           rank={student.rank}
           className="h-11 w-11 rounded-2xl text-base shadow-xs lg:h-12 lg:w-12"
+          imageSizes="48px"
         />
         <div className="min-w-0">
           <div className="flex items-center gap-2">

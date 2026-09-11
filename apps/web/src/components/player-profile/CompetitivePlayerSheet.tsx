@@ -111,6 +111,7 @@ export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlaye
                 displayName={player.displayName}
                 rank={player.rank ?? undefined}
                 className="h-30 w-30 text-5xl sm:h-36 sm:w-36"
+                imageSizes="144px"
               />
             </div>
             <div className="min-w-0">

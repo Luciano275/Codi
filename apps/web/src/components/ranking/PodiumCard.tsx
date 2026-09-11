@@ -60,6 +60,7 @@ export function PodiumCard({ student, reduceParticleDensity }: PodiumCardProps) 
         displayName={student.displayName}
         rank={student.rank}
         className={`rounded-[1.1rem] border-4 border-white text-xl shadow-md ${champion ? 'h-20 w-20 md:h-24 md:w-24' : 'h-17 w-17 md:h-20 md:w-20'}`}
+        imageSizes={champion ? '(max-width: 767px) 80px, 96px' : '(max-width: 767px) 68px, 80px'}
       />
       <p className="mt-3 w-full truncate font-super-pandora text-base text-gray-800 lg:text-lg">
         {student.displayName}
