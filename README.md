@@ -134,7 +134,11 @@ pnpm install
 
 cp .env.example .env
 
-pnpm db:push
+pnpm db:setup
 
 pnpm dev
 ```
+
+`pnpm db:setup` aplica todas las migraciones versionadas, genera Prisma Client y carga el catálogo inicial de
+islas, cursos y módulos. Para una base ya inicializada o remota, usá `pnpm db:migrate`; no uses `db:push`
+como mecanismo de despliegue.

@@ -46,11 +46,12 @@ packages/
 - All Prisma commands must run from `packages/database/` or via `pnpm --filter @codi/database` (scripts in `turbo.json` or root `package.json`).
 
 ```sh
-pnpm db:setup                          # crea tablas codi_* + baselines migration (fresh clone)
+pnpm db:setup                          # migrate deploy + genera cliente + semilla inicial (base Codi vacía)
 pnpm db:generate                       # prisma generate
 pnpm db:migrate                        # prisma migrate deploy (aplica migraciones pendientes)
 pnpm db:migrate:dev                    # prisma migrate dev (solo desarrollo local)
-pnpm db:push                           # prisma db push
+pnpm db:seed                           # carga islas, cursos y módulos iniciales que falten
+pnpm db:push                           # prisma db push (solo prototipado local)
 pnpm db:studio                         # prisma studio
 ```
 
@@ -58,12 +59,12 @@ pnpm db:studio                         # prisma studio
 - En fresh clone: copiar `.env.example` → `.env`, ajustar credenciales, luego:
   ```sh
   pnpm install
-  pnpm db:setup              # crea tablas codi_* en cmsdb + baselines migration
-  pnpm db:generate           # genera el cliente Prisma
+  pnpm db:setup              # aplica todas las migraciones + genera cliente + carga la semilla
   pnpm build
   pnpm dev
   ```
 - Después de `db:setup`, las migraciones futuras se aplican normalmente con `pnpm db:migrate`.
+- La semilla es idempotente: crea las islas, cursos y módulos de ejemplo que falten, sin actualizar ni eliminar contenido existente.
 - `prisma migrate dev` debe usarse solo localmente (`pnpm db:migrate:dev`) — nunca en cmsdb compartida porque detecta las tablas del CMS como "no gestionadas" y ofrece resetear la BD.
 
 ## Architecture notes
@@ -156,19 +157,19 @@ Comparar contra la BD local original para confirmar que no se perdió nada.
 
 ### 6. Crear tablas `codi_*` faltantes (solo si no se restauraron)
 
-Si el backup no incluyó las tablas `codi_*` (ej: porque se crearon con Prisma después), ejecutar:
+Si una base remota nueva todavía no tiene las tablas `codi_*`, ejecutar:
 
 ```sh
-pnpm db:push      # crea tablas codi_* que falten sin borrar datos existentes
+pnpm db:setup     # aplica todas las migraciones y carga la semilla inicial
 ```
 
-`prisma db push` es **seguro**: respeta el `@@map` y no dropea tablas con datos.
+Para una base restaurada que ya tiene datos y `_prisma_migrations`, usar `pnpm db:migrate` para aplicar solo las migraciones pendientes.
 
 ### ⚠️ Precauciones críticas
 
-- **NO** ejecutar `prisma migrate dev` en Supabase — detecta tablas `public.*` (CMS) como "no gestionadas" y puede intentar resetear la BD.
-- **NO** ejecutar `pnpm db:setup` en Supabase — hace `prisma migrate dev` internamente.
-- Usar siempre `pnpm db:push` o `pnpm db:migrate` (migrate deploy) para cambios de schema.
+- **NO** ejecutar `prisma migrate dev` ni `prisma db push` en Supabase o una base compartida.
+- En una base remota existente, usar `pnpm db:migrate` (`migrate deploy`) para cambios de schema.
+- `pnpm db:setup` no usa `migrate dev`; está reservado para una base sin tablas `codi_*` y carga el catálogo inicial.
 - El firewall de la intranet **debe permitir outbound TCP/5432** hacia la IP de Supabase.
 
 ## Clean Code — principios obligatorios
