@@ -2,6 +2,30 @@ const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../../..', '.env') });
 
 const { Client } = require('pg');
+const { randomUUID } = require('node:crypto');
+
+const defaultIslands = [
+  {
+    id: 'island-programacion-competitiva',
+    title: 'Programación Competitiva',
+    slug: 'programacion-competitiva',
+    description: 'Dominá algoritmos, estructuras de datos y desafíos OIA.',
+    modelPath: '/islands/isla.glb',
+    available: true,
+    accent: '#58cc02',
+    order: 1,
+  },
+  {
+    id: 'island-programacion-mobile',
+    title: 'Programación Mobile',
+    slug: 'programacion-mobile',
+    description: 'Creá aplicaciones móviles y experiencias para cualquier dispositivo.',
+    modelPath: '/islands/isla.glb',
+    available: false,
+    accent: '#9ca3af',
+    order: 2,
+  },
+];
 
 const courses = [
   {
@@ -146,56 +170,107 @@ const courses = [
   },
 ];
 
+async function findIslandId(client, island) {
+  await client.query(
+    `INSERT INTO "codi_island" ("id", "title", "slug", "description", "modelPath", "available", "accent", "order", "createdAt", "updatedAt")
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+     ON CONFLICT ("slug") DO NOTHING`,
+    [
+      island.id,
+      island.title,
+      island.slug,
+      island.description,
+      island.modelPath,
+      island.available,
+      island.accent,
+      island.order,
+    ],
+  );
+
+  const { rows } = await client.query(`SELECT "id" FROM "codi_island" WHERE "slug" = $1`, [
+    island.slug,
+  ]);
+  return rows[0].id;
+}
+
+async function seedCourse(client, course, islandId) {
+  const { rows } = await client.query(
+    `INSERT INTO "codi_course" ("id", "title", "slug", "level", "region", "xpReward", "order", "islandId", "createdAt", "updatedAt")
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+     ON CONFLICT ("slug") DO NOTHING
+     RETURNING "id"`,
+    [
+      randomUUID(),
+      course.title,
+      course.slug,
+      course.level,
+      course.region,
+      course.xpReward,
+      course.order,
+      islandId,
+    ],
+  );
+
+  const courseId =
+    rows.length > 0
+      ? rows[0].id
+      : (await client.query(`SELECT "id" FROM "codi_course" WHERE "slug" = $1`, [course.slug]))
+          .rows[0].id;
+  const existingModules = await client.query(
+    `SELECT "title", "order" FROM "codi_module" WHERE "courseId" = $1`,
+    [courseId],
+  );
+  const existingModuleKeys = new Set(
+    existingModules.rows.map((module) => `${module.title}:${module.order}`),
+  );
+  let createdModules = 0;
+
+  for (const module of course.modules) {
+    if (existingModuleKeys.has(`${module.title}:${module.order}`)) {
+      continue;
+    }
+
+    await client.query(
+      `INSERT INTO "codi_module" ("id", "courseId", "title", "order", "createdAt", "updatedAt")
+       VALUES ($1, $2, $3, $4, now(), now())`,
+      [randomUUID(), courseId, module.title, module.order],
+    );
+    createdModules += 1;
+  }
+
+  return { createdCourse: rows.length > 0, createdModules };
+}
+
 async function main() {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
-    console.error('DATABASE_URL not set');
-    process.exit(1);
+    throw new Error('DATABASE_URL not set');
   }
 
   const client = new Client({ connectionString: databaseUrl });
   await client.connect();
 
   try {
-    // Check if courses already exist
-    const { rows: existing } = await client.query(
-      `SELECT COUNT(*) as count FROM "codi_course"`
-    );
-
-    if (parseInt(existing[0].count) > 0) {
-      console.log(`✓ ${existing[0].count} courses already exist — skipping seed`);
-      return;
-    }
-
     await client.query('BEGIN');
-
-    try {
-      for (const course of courses) {
-        const { rows: [courseRow] } = await client.query(
-          `INSERT INTO "codi_course" ("id", "title", "slug", "level", "region", "xpReward", "order", "islandId", "createdAt", "updatedAt")
-           VALUES (gen_random_uuid(), $1, $2, $3, $4, $5, $6, 'island-programacion-competitiva', now(), now())
-           RETURNING "id"`,
-          [course.title, course.slug, course.level, course.region, course.xpReward, course.order]
-        );
-
-        for (const mod of course.modules) {
-          await client.query(
-            `INSERT INTO "codi_module" ("id", "courseId", "title", "order", "createdAt", "updatedAt")
-             VALUES (gen_random_uuid(), $1, $2, $3, now(), now())`,
-            [courseRow.id, mod.title, mod.order]
-          );
-        }
-
-        console.log(`  ✓ ${course.title}`);
-      }
-
-      await client.query('COMMIT');
-
-      console.log(`\n✓ Seeded ${courses.length} courses with ${courses.reduce((s, c) => s + c.modules.length, 0)} modules`);
-    } catch (err) {
-      await client.query('ROLLBACK');
-      throw err;
+    const islandIds = [];
+    for (const island of defaultIslands) {
+      islandIds.push(await findIslandId(client, island));
     }
+
+    let seededCourses = 0;
+    let seededModules = 0;
+
+    for (const course of courses) {
+      const result = await seedCourse(client, course, islandIds[0]);
+      seededCourses += Number(result.createdCourse);
+      seededModules += result.createdModules;
+    }
+
+    await client.query('COMMIT');
+    console.log(`✓ Seed complete: ${seededCourses} courses and ${seededModules} modules created`);
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
   } finally {
     await client.end();
   }

@@ -7,11 +7,11 @@
   "scripts": {
     "build": "tsc",
     "db:generate": "prisma generate",
-    "db:setup": "node scripts/setup-db.js",
+    "db:setup": "prisma migrate deploy && prisma generate && prisma db seed",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",
-    "db:seed": "node scripts/seed-courses.js",
+    "db:seed": "prisma db seed",
     "db:studio": "prisma studio"
   },
   "dependencies": {

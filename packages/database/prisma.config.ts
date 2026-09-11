@@ -8,6 +8,10 @@ const DATABASE_URL = process.env.DATABASE_URL;
 
 export default defineConfig({
   schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+    seed: 'node scripts/seed-courses.js',
+  },
   experimental: {
     externalTables: true,
   },
@@ -30,4 +34,4 @@ export default defineConfig({
   datasource: {
     url: DATABASE_URL,
   },
-})
+});
