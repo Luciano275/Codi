@@ -1,89 +1,81 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
+import type { NextRequest } from 'next/server';
+import { fetchBackendWithSession } from '@/lib/server/backend-api';
+import { rejectCrossOriginMutation } from '@/lib/server/request-security';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+interface RouteContext {
+  params: Promise<{ path: string[] }>;
+}
+
+const BLOCKED_PATHS = new Set(['/api/auth/login']);
+const FORWARDED_REQUEST_HEADERS = [
+  'accept',
+  'content-type',
+  'if-modified-since',
+  'if-none-match',
+  'range',
+];
+const FORWARDED_RESPONSE_HEADERS = [
+  'accept-ranges',
+  'cache-control',
+  'content-disposition',
+  'content-range',
+  'content-type',
+  'etag',
+  'last-modified',
+];
 
 function getTargetPath(path: string[]): string {
-  const cleaned = path[0] === 'api' ? path.slice(1) : path;
-  return '/api/' + cleaned.join('/');
+  const segments = path[0] === 'api' ? path.slice(1) : path;
+  return `/api/${segments.map(encodeURIComponent).join('/')}`;
 }
 
-async function fetchWithAuth(url: string, init?: RequestInit) {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('session')?.value;
-
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...init?.headers,
-    },
-  });
-  return res;
+function forwardedHeaders(source: Headers, names: string[]): Headers {
+  const headers = new Headers();
+  for (const name of names) {
+    const value = source.get(name);
+    if (value) headers.set(name, value);
+  }
+  return headers;
 }
 
-function streamResponse(res: Response) {
-  const contentType = res.headers.get('content-type') || '';
-  const headers: Record<string, string> = {
-    'Content-Type': contentType,
-    'Cache-Control': 'no-cache',
+async function proxy(request: NextRequest, context: RouteContext): Promise<Response> {
+  const forbidden = rejectCrossOriginMutation(request);
+  if (forbidden) return forbidden;
+
+  const { path } = await context.params;
+  const targetPath = getTargetPath(path);
+  if (BLOCKED_PATHS.has(targetPath)) {
+    return Response.json({ message: 'Not found' }, { status: 404 });
+  }
+
+  const searchParams = new URLSearchParams(request.nextUrl.searchParams);
+  searchParams.delete('_sse');
+  const query = searchParams.toString();
+  const init: RequestInit & { duplex?: 'half' } = {
+    method: request.method,
+    headers: forwardedHeaders(request.headers, FORWARDED_REQUEST_HEADERS),
   };
-  const contentLength = res.headers.get('content-length');
-  if (contentLength) headers['Content-Length'] = contentLength;
-
-  const stream = new ReadableStream({
-    async start(controller) {
-      const reader = res.body?.getReader();
-      if (!reader) { controller.close(); return; }
-      try {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) { controller.close(); break; }
-          controller.enqueue(value);
-        }
-      } finally {
-        reader.releaseLock();
-      }
-    },
-  });
-
-  return new Response(stream, { status: res.status, statusText: res.statusText, headers });
-}
-
-export async function POST(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  const targetPath = getTargetPath(path);
-  const body = await req.json().catch(() => undefined);
-
-  const res = await fetchWithAuth(`${API_URL}${targetPath}`, {
-    method: 'POST',
-    body: body ? JSON.stringify(body) : undefined,
-  });
-
-  const data = await res.json().catch(() => ({}));
-  return NextResponse.json(data, { status: res.status });
-}
-
-export async function GET(req: NextRequest, { params }: { params: Promise<{ path: string[] }> }) {
-  const { path } = await params;
-  const targetPath = getTargetPath(path);
-  const queryString = req.nextUrl.searchParams.toString();
-  const fullUrl = `${API_URL}${targetPath}${queryString ? `?${queryString}` : ''}`;
-  const isSSE = req.nextUrl.searchParams.get('_sse') === '1';
-
-  const res = await fetchWithAuth(fullUrl);
-
-  if (isSSE) {
-    return streamResponse(res);
+  if (request.method !== 'GET' && request.method !== 'HEAD') {
+    init.body = request.body;
+    init.duplex = 'half';
   }
 
-  const contentType = res.headers.get('content-type') || '';
+  const backendResponse = await fetchBackendWithSession(
+    `${targetPath}${query ? `?${query}` : ''}`,
+    init,
+  );
+  const responseHeaders = forwardedHeaders(backendResponse.headers, FORWARDED_RESPONSE_HEADERS);
+  responseHeaders.set('cache-control', 'no-store');
 
-  if (contentType.startsWith('application/pdf') || contentType.startsWith('application/octet-stream')) {
-    return streamResponse(res);
-  }
-
-  const data = await res.json().catch(() => ({}));
-  return NextResponse.json(data, { status: res.status });
+  return new Response(backendResponse.body, {
+    status: backendResponse.status,
+    statusText: backendResponse.statusText,
+    headers: responseHeaders,
+  });
 }
+
+export const GET = proxy;
+export const POST = proxy;
+export const PUT = proxy;
+export const PATCH = proxy;
+export const DELETE = proxy;

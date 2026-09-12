@@ -164,10 +164,6 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
               <div className="border-t border-gray-100 p-1">
                 <button
                   onClick={async () => {
-                    localStorage.removeItem('codi_token');
-                    try {
-                      sessionStorage.removeItem('codi_user_cache');
-                    } catch {}
                     await fetch('/api/auth/session', { method: 'DELETE' });
                     window.location.href = '/';
                   }}

@@ -7,12 +7,6 @@ export function LogoutButton() {
   const router = useRouter();
 
   const handleLogout = async () => {
-    localStorage.removeItem('codi_token');
-    try {
-      sessionStorage.removeItem('codi_user_cache');
-    } catch {
-      /* noop */
-    }
     await fetch('/api/auth/session', { method: 'DELETE' });
     router.push('/');
   };

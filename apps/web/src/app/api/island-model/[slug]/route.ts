@@ -1,7 +1,5 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+import { fetchBackendWithSession } from '@/lib/server/backend-api';
 
 interface IslandModelResponse {
   slug: string;
@@ -10,11 +8,7 @@ interface IslandModelResponse {
 
 export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const token = (await cookies()).get('session')?.value;
-  const islandsResponse = await fetch(`${API_URL}/api/courses/islands`, {
-    headers: token ? { Authorization: `Bearer ${token}` } : {},
-    cache: 'no-store',
-  });
+  const islandsResponse = await fetchBackendWithSession('/api/courses/islands');
 
   if (!islandsResponse.ok) {
     return NextResponse.json(
@@ -49,10 +43,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     'Content-Type': modelResponse.headers.get('content-type') || 'model/gltf-binary',
     'Cache-Control': 'private, max-age=3600',
   });
-  ['accept-ranges', 'content-length', 'content-range', 'etag', 'last-modified'].forEach((header) => {
-    const value = modelResponse.headers.get(header);
-    if (value) responseHeaders.set(header, value);
-  });
+  ['accept-ranges', 'content-length', 'content-range', 'etag', 'last-modified'].forEach(
+    (header) => {
+      const value = modelResponse.headers.get(header);
+      if (value) responseHeaders.set(header, value);
+    },
+  );
 
   return new Response(modelResponse.body, {
     status: modelResponse.status,

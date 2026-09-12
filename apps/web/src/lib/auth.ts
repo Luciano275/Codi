@@ -1,5 +1,7 @@
+import 'server-only';
+
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import { fetchBackendWithSession } from './server/backend-api';
 
 export interface UserProfile {
   id: string;
@@ -17,17 +19,8 @@ export interface UserProfile {
   streak: number;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
 export const auth = cache(async (): Promise<UserProfile | null> => {
-  const token = (await cookies()).get('session')?.value;
-
-  if (!token) return null;
-
-  const res = await fetch(`${API_URL}/api/auth/me`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: 'no-store',
-  });
+  const res = await fetchBackendWithSession('/api/auth/me');
 
   if (!res.ok) return null;
 

@@ -4,23 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from '@/components/ui/Icon';
-import { apiPost } from '@/lib/api-client';
-
-interface LoginResponse {
-  token: string;
-  user: {
-    id: string;
-    displayName: string;
-    username: string;
-    email: string;
-    role: string;
-    xp: number;
-    gems: number;
-    level: number;
-    cmsUserId: number;
-    streak: number;
-  };
-}
 
 export default function LoginForm() {
   const router = useRouter();
@@ -36,24 +19,17 @@ export default function LoginForm() {
     setError('');
 
     try {
-      const res = await apiPost<LoginResponse>('/api/auth/login', {
-        username: email,
-        password,
-      });
-
-      localStorage.setItem('codi_token', res.token);
-
-      try {
-        sessionStorage.setItem('codi_user_cache', JSON.stringify(res.user));
-      } catch {
-        /* quota exceeded */
-      }
-
-      await fetch('/api/auth/session', {
+      const response = await fetch('/api/auth/login', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token: res.token }),
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ username: email, password }),
       });
+      if (!response.ok) {
+        const payload = (await response.json().catch(() => null)) as { message?: unknown } | null;
+        throw new Error(
+          typeof payload?.message === 'string' ? payload.message : `HTTP ${response.status}`,
+        );
+      }
 
       window.location.href = '/dashboard';
     } catch (err) {

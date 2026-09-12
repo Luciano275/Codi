@@ -2,7 +2,12 @@ import { config as dotenv } from 'dotenv';
 import { resolve } from 'path';
 import type { NextConfig } from 'next';
 
-dotenv({ path: resolve(__dirname, '../../.env') });
+const rootEnvironment: Record<string, string> = {};
+dotenv({ path: resolve(__dirname, '../../.env'), processEnv: rootEnvironment });
+
+for (const name of ['API_URL', 'JWT_EXPIRES_IN', 'S3_ENDPOINT'] as const) {
+  process.env[name] ??= rootEnvironment[name];
+}
 
 function getS3RemotePattern(): {
   protocol: 'http' | 'https';
