@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "@bprogress/next": "^3.2.12",
@@ -34,7 +34,8 @@
     "remark-math": "^6.0.0",
     "socket.io-client": "^4.8.3",
     "tailwind-merge": "^3.6.0",
-    "three": "^0.185.1"
+    "three": "^0.185.1",
+    "use-debounce": "^10.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.1",

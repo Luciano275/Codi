@@ -152,7 +152,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
           } catch {
             // continue polling
           }
-        }, 1500);
+        }, 500);
         pollIntervalsRef.current.add(pollInterval);
 
         const pollTimeout = window.setTimeout(() => {

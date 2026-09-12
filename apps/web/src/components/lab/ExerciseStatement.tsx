@@ -51,7 +51,7 @@ export function ExerciseStatement({
   if (!showStatement) return null;
 
   return (
-    <aside className="flex w-[720px] flex-shrink-0 flex-col border-r border-gray-200 bg-white">
+    <aside className="flex min-h-0 flex-1 flex-col border-r border-gray-200 bg-white lg:w-[720px] lg:flex-none">
       <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
         <div className="flex items-center gap-2">
           <BookOpen className="h-4 w-4 text-lagos-500" />
@@ -61,13 +61,13 @@ export function ExerciseStatement({
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600"
+          className="hidden items-center justify-center rounded-lg p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 lg:flex"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
-      <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-3 lg:p-4">
         <div className="flex items-center gap-3 border-b border-gray-100 px-4 py-2.5">
           <h2 className="font-super-pandora text-sm text-gray-900">{exercise.title}</h2>
           <span

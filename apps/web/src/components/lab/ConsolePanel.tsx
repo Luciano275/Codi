@@ -14,12 +14,12 @@ interface ConsolePanelProps {
   showConsole: boolean;
   onToggle: () => void;
   consoleHeight: number;
-  onStartResize: (e: React.MouseEvent) => void;
+  onStartResize: (e: React.MouseEvent | React.TouchEvent) => void;
   consoleTabs: ConsoleTab[];
   activeConsoleTab: string | null;
   onActiveTabChange: (id: string) => void;
   activeConsole: ConsoleTab | undefined;
-  sessionId: string | null;
+  sessionActive: boolean;
   consoleInput: string;
   onConsoleInputChange: (val: string) => void;
   onConsoleKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -36,7 +36,7 @@ export function ConsolePanel({
   activeConsoleTab,
   onActiveTabChange,
   activeConsole,
-  sessionId,
+  sessionActive,
   consoleInput,
   onConsoleInputChange,
   onConsoleKeyDown,
@@ -59,7 +59,8 @@ export function ConsolePanel({
     <>
       <div
         onMouseDown={onStartResize}
-        className="h-1.5 cursor-row-resize bg-[#2d2d2d] transition-colors hover:bg-[#0e639c]"
+        onTouchStart={onStartResize}
+        className="h-1.5 touch-none cursor-row-resize bg-[#2d2d2d] transition-colors hover:bg-[#0e639c]"
       />
       <div
         style={{ height: consoleHeight }}
@@ -137,19 +138,27 @@ export function ConsolePanel({
         </div>
 
         <div className="border-t border-gray-700 bg-[#252526] px-2 py-1.5">
+          {sessionActive && (
+            <p className="px-2 pb-1.5 text-[10px] text-cyan-300">
+              ¿Tu programa pide datos? Escribilos abajo y presioná Enter para enviarlos.
+            </p>
+          )}
           <div className="flex items-center gap-2">
-            <span className="font-mono text-[10px] text-gray-500">{sessionId ? '>' : '$'}</span>
+            <span className="font-mono text-[10px] text-gray-500">{sessionActive ? '>' : '$'}</span>
             <input
               value={consoleInput}
               onChange={(e) => onConsoleInputChange(e.target.value)}
               onKeyDown={onConsoleKeyDown}
               placeholder={
-                sessionId ? 'Escribí entrada y presioná Enter...' : 'Presioná RUN para ejecutar'
+                sessionActive
+                  ? 'Ingresá los datos de entrada y presioná Enter...'
+                  : 'Presioná RUN para ejecutar'
               }
-              disabled={!sessionId}
+              aria-label="Entrada del programa"
+              disabled={!sessionActive}
               className="flex-1 bg-transparent px-2 py-1 font-mono text-[11px] text-gray-300 outline-none placeholder:text-gray-600 disabled:opacity-40"
             />
-            {sessionId && (
+            {sessionActive && (
               <button
                 onClick={onStopSession}
                 className="rounded px-1.5 py-0.5 text-[10px] text-volcan-400 transition-colors hover:bg-volcan-500/10"
