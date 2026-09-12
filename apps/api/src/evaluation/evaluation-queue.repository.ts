@@ -5,6 +5,7 @@ import type { EvaluationLanguage, EvaluationStatus } from './evaluation.types';
 
 export interface EvaluationJob {
   id: string;
+  userId: string;
   code: string;
   language: EvaluationLanguage;
   cmsTaskId: number;
@@ -17,7 +18,14 @@ export class EvaluationQueueRepository {
 
   async claim(workerId: string): Promise<EvaluationJob | null> {
     const rows = await this.prisma.$queryRaw<
-      Array<{ id: string; code: string; language: string; cmsTaskId: number; attempts: number }>
+      Array<{
+        id: string;
+        userId: string;
+        code: string;
+        language: string;
+        cmsTaskId: number;
+        attempts: number;
+      }>
     >`
       WITH candidate AS (
         SELECT submission.id
@@ -42,6 +50,7 @@ export class EvaluationQueueRepository {
       WHERE submission.id = candidate.id AND problem.id = submission."problemId"
       RETURNING
         submission.id,
+        submission."userId",
         submission.code,
         submission.language,
         problem."cmsTaskId" AS "cmsTaskId",

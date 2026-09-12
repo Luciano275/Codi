@@ -2,7 +2,7 @@ import { createHash } from 'crypto';
 import { Injectable } from '@nestjs/common';
 import { AsyncSemaphore } from './async-semaphore';
 import { evaluationSettings } from './evaluation.constants';
-import { IsolateSandboxService, type SandboxExecution } from './isolate-sandbox.service';
+import { CloudflareSandboxService, type SandboxExecution } from './cloudflare-sandbox.service';
 import type {
   CmsTaskConfiguration,
   CompiledSubmission,
@@ -24,28 +24,30 @@ export class SubmissionCompilerService {
   private readonly semaphore = new AsyncSemaphore(evaluationSettings.compileConcurrency);
   private readonly graderObjects = new Map<string, Promise<Buffer>>();
 
-  constructor(private readonly sandbox: IsolateSandboxService) {}
+  constructor(private readonly sandbox: CloudflareSandboxService) {}
 
   compile(
+    userId: string,
     language: EvaluationLanguage,
     sourceCode: string,
     task: CmsTaskConfiguration,
   ): Promise<CompiledSubmission> {
     return this.semaphore.use(() =>
       language === 'python'
-        ? this.compilePython(sourceCode, task.graderSource)
-        : this.compileCpp(sourceCode, task.graderSource),
+        ? this.compilePython(userId, sourceCode, task.graderSource)
+        : this.compileCpp(userId, sourceCode, task.graderSource),
     );
   }
 
   private async compilePython(
+    userId: string,
     sourceCode: string,
     graderSource: string | null,
   ): Promise<CompiledSubmission> {
     const files = new Map<string, Buffer>([['solution.py', Buffer.from(sourceCode)]]);
     if (graderSource) files.set('grader.py', Buffer.from(graderSource));
 
-    await this.sandbox.use(files, async (session) => {
+    await this.sandbox.use(userId, files, async (session) => {
       const filenames = graderSource ? ['solution.py', 'grader.py'] : ['solution.py'];
       const result = await session.execute({
         command: ['/usr/bin/python3', '-m', 'py_compile', ...filenames],
@@ -63,14 +65,15 @@ export class SubmissionCompilerService {
   }
 
   private async compileCpp(
+    userId: string,
     sourceCode: string,
     graderSource: string | null,
   ): Promise<CompiledSubmission> {
-    const graderObject = graderSource ? await this.getGraderObject(graderSource) : null;
+    const graderObject = graderSource ? await this.getGraderObject(userId, graderSource) : null;
     const files = new Map<string, Buffer>([['solution.cpp', Buffer.from(sourceCode)]]);
     if (graderObject) files.set('grader.o', graderObject);
 
-    const executable = await this.sandbox.use(files, async (session) => {
+    const executable = await this.sandbox.use(userId, files, async (session) => {
       const compile = await session.execute({
         command: [
           '/usr/bin/g++',
@@ -111,12 +114,12 @@ export class SubmissionCompilerService {
     };
   }
 
-  private getGraderObject(graderSource: string): Promise<Buffer> {
+  private getGraderObject(userId: string, graderSource: string): Promise<Buffer> {
     const digest = createHash('sha256').update(graderSource).digest('hex');
     const cached = this.graderObjects.get(digest);
     if (cached) return cached;
 
-    const compilation = this.compileGrader(graderSource).catch((error) => {
+    const compilation = this.compileGrader(userId, graderSource).catch((error) => {
       this.graderObjects.delete(digest);
       throw error;
     });
@@ -124,9 +127,9 @@ export class SubmissionCompilerService {
     return compilation;
   }
 
-  private compileGrader(graderSource: string): Promise<Buffer> {
+  private compileGrader(userId: string, graderSource: string): Promise<Buffer> {
     const files = new Map([['grader.cpp', Buffer.from(graderSource)]]);
-    return this.sandbox.use(files, async (session) => {
+    return this.sandbox.use(userId, files, async (session) => {
       const result = await session.execute({
         command: [
           '/usr/bin/g++',

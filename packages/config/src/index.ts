@@ -41,15 +41,6 @@ export const config = {
     },
   },
   eval: {
-    get isolateBin() {
-      return process.env.EVAL_ISOLATE_BIN || '/usr/local/bin/isolate';
-    },
-    get firstBoxId() {
-      return parseInt(process.env.EVAL_FIRST_BOX_ID || '200', 10);
-    },
-    get lastBoxId() {
-      return parseInt(process.env.EVAL_LAST_BOX_ID || '299', 10);
-    },
     get submissionConcurrency() {
       return parseInt(process.env.EVAL_SUBMISSION_CONCURRENCY || '2', 10);
     },
@@ -72,13 +63,7 @@ export const config = {
       return parseInt(process.env.EVAL_MAX_ATTEMPTS || '3', 10);
     },
     get maxOutputKb() {
-      return parseInt(process.env.EVAL_MAX_OUTPUT_KB || '102400', 10);
-    },
-    get playgroundFirstBoxId() {
-      return parseInt(process.env.PLAYGROUND_FIRST_BOX_ID || '300', 10);
-    },
-    get playgroundLastBoxId() {
-      return parseInt(process.env.PLAYGROUND_LAST_BOX_ID || '399', 10);
+      return parseInt(process.env.EVAL_MAX_OUTPUT_KB || '1024', 10);
     },
   },
   redis: {
