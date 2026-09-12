@@ -1,0 +1,23 @@
+{
+  "name": "@codi/evaluator",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "wrangler deploy --dry-run --outdir dist",
+    "cf-typegen": "wrangler types",
+    "deploy": "wrangler deploy --containers-rollout=immediate",
+    "dev": "wrangler dev",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@cloudflare/sandbox": "0.13.0-next.751.1",
+    "@codi/evaluator-contract": "workspace:*",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.131.1"
+  }
+}

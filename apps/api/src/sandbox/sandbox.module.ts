@@ -1,9 +1,9 @@
 import { Global, Module } from '@nestjs/common';
-import { BoxLeasePool } from './box-lease-pool.service';
+import { CloudflareSandboxClientService } from './cloudflare-sandbox-client.service';
 
 @Global()
 @Module({
-  providers: [BoxLeasePool],
-  exports: [BoxLeasePool],
+  providers: [CloudflareSandboxClientService],
+  exports: [CloudflareSandboxClientService],
 })
 export class SandboxModule {}

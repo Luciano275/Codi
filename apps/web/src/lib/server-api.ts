@@ -1,7 +1,7 @@
-import { cookies } from 'next/headers';
-import type { RewardRedemptionStatus, RewardType, UserRewardStatus } from '@codi/types';
+import 'server-only';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+import type { RewardRedemptionStatus, RewardType, UserRewardStatus } from '@codi/types';
+import { fetchBackendWithSession } from './server/backend-api';
 
 export class UnauthorizedError extends Error {
   constructor() {
@@ -14,17 +14,12 @@ export async function serverFetch<T>(
   path: string,
   options: Pick<RequestInit, 'method' | 'body'> = {},
 ): Promise<T> {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('session')?.value;
-
-  const res = await fetch(`${API_URL}${path}`, {
+  const res = await fetchBackendWithSession(path, {
     method: options.method,
     body: options.body,
     headers: {
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
       'Content-Type': 'application/json',
     },
-    cache: 'no-store',
   });
 
   if (!res.ok) {

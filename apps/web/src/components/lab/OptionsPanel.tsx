@@ -35,7 +35,7 @@ export function OptionsPanel({
   if (!showOptions) return null;
 
   return (
-    <aside className="flex w-56 flex-shrink-0 flex-col border-r border-gray-200 bg-gray-50">
+    <aside className="absolute inset-0 z-30 flex flex-shrink-0 flex-col border-r border-gray-200 bg-gray-50 lg:static lg:z-auto lg:w-56">
       <div className="flex items-center justify-between border-b border-gray-200 px-3 py-2">
         <span className="font-simply-olive text-xs font-semibold uppercase text-gray-400">
           Opciones

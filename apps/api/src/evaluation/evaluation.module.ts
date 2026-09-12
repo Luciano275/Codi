@@ -4,7 +4,7 @@ import { CmsTaskConfigRepository } from './cms-task-config.repository';
 import { EvaluationCompletionService } from './evaluation-completion.service';
 import { EvaluationQueueProcessor } from './evaluation-queue.processor';
 import { EvaluationQueueRepository } from './evaluation-queue.repository';
-import { IsolateSandboxService } from './isolate-sandbox.service';
+import { CloudflareSandboxService } from './cloudflare-sandbox.service';
 import { SubmissionCompilerService } from './submission-compiler.service';
 
 @Module({
@@ -14,7 +14,7 @@ import { SubmissionCompilerService } from './submission-compiler.service';
     EvaluationQueueProcessor,
     EvaluationQueueRepository,
     EvaluationService,
-    IsolateSandboxService,
+    CloudflareSandboxService,
     SubmissionCompilerService,
   ],
   exports: [EvaluationQueueProcessor, EvaluationService],

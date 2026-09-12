@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useCallback } from 'react';
+import { useRef, useCallback, useEffect } from 'react';
 import Editor, { type OnMount } from '@monaco-editor/react';
 import { PYTHON_KEYWORDS, PYTHON_BUILTINS, PYTHON_SNIPPETS } from '@/lib/editor/python-completions';
 import { CPP_KEYWORDS, CPP_STDLIB_FUNCTIONS, CPP_SNIPPETS } from '@/lib/editor/cpp-completions';
@@ -138,6 +138,8 @@ function registerCppCompletion(monaco: any, range: any) {
 
 export default function LabEditor({ value, onChange, language, fontSize, tabSize, caretAnimation }: LabEditorProps) {
   const editorRef = useRef<any>(null);
+  const localValueRef = useRef<string | null>(null);
+  const applyingExternalValueRef = useRef(false);
 
   const handleMount: OnMount = useCallback((editorInstance, monaco) => {
     editorRef.current = editorInstance;
@@ -156,13 +158,34 @@ export default function LabEditor({ value, onChange, language, fontSize, tabSize
     monaco.languages.registerCompletionItemProvider(language, provider);
   }, [language]);
 
+  useEffect(() => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    if (localValueRef.current === value) {
+      localValueRef.current = null;
+      return;
+    }
+    if (localValueRef.current !== null || editor.getValue() === value) return;
+
+    applyingExternalValueRef.current = true;
+    editor.setValue(value);
+    applyingExternalValueRef.current = false;
+  }, [value]);
+
+  const handleChange = (nextValue: string | undefined) => {
+    if (applyingExternalValueRef.current) return;
+    const code = nextValue ?? '';
+    localValueRef.current = code;
+    onChange(code);
+  };
+
   return (
     <Editor
       height="100%"
       language={language}
       theme="vs-dark"
-      value={value}
-      onChange={(val) => onChange(val || '')}
+      defaultValue={value}
+      onChange={handleChange}
       onMount={handleMount}
       options={{
         ...EDITOR_DEFAULT_OPTIONS,

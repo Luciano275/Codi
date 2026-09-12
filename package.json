@@ -2,10 +2,10 @@
   "name": "codi",
   "private": true,
   "scripts": {
-    "start:dev": "turbo dev",
-    "dev": "turbo dev",
-    "build": "turbo build",
-    "lint": "turbo lint",
+    "start:dev": "turbo run dev",
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "db:generate": "pnpm --filter @codi/database db:generate",
     "db:setup": "pnpm --filter @codi/database db:setup",
@@ -27,14 +27,5 @@
   "engines": {
     "node": ">=20.9.0"
   },
-  "packageManager": "pnpm@11.10.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "@prisma/client",
-      "@prisma/engines",
-      "prisma",
-      "esbuild",
-      "sharp"
-    ]
-  }
+  "packageManager": "pnpm@11.10.0"
 }

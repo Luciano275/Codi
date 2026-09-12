@@ -8,6 +8,7 @@
     "lint": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/node": "^22.20.2",
     "typescript": "^6.0.3"
   }
 }

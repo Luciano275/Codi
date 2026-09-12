@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useDebouncedCallback } from 'use-debounce';
+
+const SAVE_DEBOUNCE_MS = 1_000;
 
 export function useCodePersistence(storageKey: string, defaultCode: string) {
   const [code, setCode] = useState(defaultCode);
@@ -8,8 +11,16 @@ export function useCodePersistence(storageKey: string, defaultCode: string) {
   const [codeReady, setCodeReady] = useState(false);
   const firstSave = useRef(false);
   const initialCodeSet = useRef(false);
+  const saveCode = useDebouncedCallback(
+    (nextCode: string, nextLanguage: string, nextStorageKey: string) => {
+      localStorage.setItem(nextStorageKey, JSON.stringify({ code: nextCode, language: nextLanguage }));
+    },
+    SAVE_DEBOUNCE_MS,
+  );
 
   useEffect(() => {
+    firstSave.current = false;
+    setCodeReady(false);
     const raw = localStorage.getItem(storageKey);
     if (raw) {
       try {
@@ -33,8 +44,10 @@ export function useCodePersistence(storageKey: string, defaultCode: string) {
       firstSave.current = true;
       return;
     }
-    localStorage.setItem(storageKey, JSON.stringify({ code, language }));
-  }, [code, language, storageKey, codeReady]);
+    saveCode(code, language, storageKey);
+  }, [code, language, storageKey, codeReady, saveCode]);
+
+  useEffect(() => () => saveCode.cancel(), [saveCode]);
 
   const setCodeFromTemplate = (template: string) => {
     if (!initialCodeSet.current) {

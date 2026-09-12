@@ -1,0 +1,36 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "codi-evaluator",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-11",
+  "compatibility_flags": ["nodejs_compat"],
+  "observability": {
+    "enabled": true,
+    "traces": {
+      "enabled": true
+    }
+  },
+  "containers": [
+    {
+      "class_name": "EvaluatorSandbox",
+      "image": "./Dockerfile",
+      "instance_type": "lite",
+      "max_instances": 10
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "EvaluatorSandbox",
+        "name": "EVALUATOR_SANDBOX"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "new_sqlite_classes": ["EvaluatorSandbox"],
+      "tag": "v1"
+    }
+  ],
+  "upload_source_maps": true
+}

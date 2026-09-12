@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useLayoutEffect, useRef } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import LabEditor from './editor';
 import {
@@ -9,6 +9,7 @@ import {
 } from '@/components/feedback/OperationResultMascot';
 import { GemRewardPopup } from '@/components/lab/GemRewardPopup';
 import { ExerciseStatement } from '@/components/lab/ExerciseStatement';
+import { LabMobileTabs, type LabMobileTab } from '@/components/lab/LabMobileTabs';
 import { LabToolbar } from '@/components/lab/LabToolbar';
 import { OptionsPanel } from '@/components/lab/OptionsPanel';
 import { ConsolePanel } from '@/components/lab/ConsolePanel';
@@ -18,6 +19,7 @@ import { useConsole } from '@/hooks/lab/useConsole';
 import { useSession } from '@/hooks/lab/useSession';
 import { useEvaluation } from '@/hooks/lab/useEvaluation';
 import { useResizable } from '@/hooks/lab/useResizable';
+import { useIsMobile } from '@/hooks/lab/useIsMobile';
 import { apiGet } from '@/lib/lab-api';
 
 const DEFAULT_CODE = `# Laboratorio de Python
@@ -47,6 +49,17 @@ export default function LabClient({
   const lessonId = searchParams.get('lessonId');
   const STORAGE_KEY = problemId ? `codi_lab_code_${user.id}_${problemId}` : 'codi_lab_code';
 
+  const mobileTab: LabMobileTab = searchParams.get('tab') === 'statement' ? 'statement' : 'code';
+
+  const setMobileTab = useCallback(
+    (tab: LabMobileTab) => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('tab', tab);
+      router.replace(`/dashboard/lab?${params.toString()}`, { scroll: false });
+    },
+    [router, searchParams],
+  );
+
   const { code, setCode, language, setLanguage, setCodeFromTemplate } = useCodePersistence(
     STORAGE_KEY,
     DEFAULT_CODE,
@@ -66,11 +79,12 @@ export default function LabClient({
     addConsoleTab,
     clearConsole,
   } = useConsole();
-  const { sessionId, running, handleRun, sendStdin, stopSession, cleanup, consoleOutputRef } =
+  const { sessionActive, running, handleRun, sendStdin, stopSession, cleanup, consoleOutputRef } =
     useSession(addConsoleTab);
   const { evaluating, handleEvaluate } = useEvaluation(addConsoleTab);
 
   const { height: consoleHeight, startResize } = useResizable(280);
+  const isMobile = useIsMobile(1024);
 
   const [showOptions, setShowOptions] = useState(true);
   const [showConsole, setShowConsole] = useState(true);
@@ -100,6 +114,10 @@ export default function LabClient({
 
   useEffect(() => cleanup, [cleanup]);
 
+  useLayoutEffect(() => {
+    if (isMobile) setShowOptions(false);
+  }, [isMobile]);
+
   const handleLanguageChange = useCallback(
     (newLang: string) => {
       setLanguage(newLang);
@@ -120,23 +138,13 @@ export default function LabClient({
     (e: React.KeyboardEvent<HTMLInputElement>) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        if (consoleInput && sessionId) {
+        if (consoleInput && sessionActive) {
           sendStdin(consoleInput);
-          consoleOutputRef.current += consoleInput + '\n';
           setConsoleInput('');
-          const runTab = consoleTabs.filter((t) => t.type === 'output').pop();
-          if (runTab) {
-            addConsoleTab({
-              id: runTab.id,
-              label: 'Run',
-              type: 'output',
-              content: consoleOutputRef.current,
-            });
-          }
         }
       }
     },
-    [consoleInput, sessionId, sendStdin, consoleTabs, addConsoleTab, consoleOutputRef],
+    [consoleInput, sessionActive, sendStdin],
   );
 
   const evaluateAndReward = useCallback(
@@ -180,18 +188,20 @@ export default function LabClient({
 
   return (
     <>
-      <div className="flex h-[calc(100vh-5rem)] -m-6 overflow-hidden">
-        {exercise && (
+      <div className="relative flex h-[calc(100dvh-4rem)] -m-3 flex-col overflow-hidden md:h-[calc(100vh-5rem)] md:-m-5 lg:-m-6 lg:flex-row">
+        {exercise && isMobile && <LabMobileTabs active={mobileTab} onChange={setMobileTab} />}
+
+        {exercise && (isMobile ? mobileTab === 'statement' : showStatement) && (
           <ExerciseStatement
             exercise={exercise}
             problemId={problemId}
-            showStatement={showStatement}
+            showStatement={isMobile ? true : showStatement}
             onClose={() => setShowStatement(false)}
             submissions={submissions}
           />
         )}
 
-        {!exercise && (
+        {!exercise && showOptions && (
           <OptionsPanel
             showOptions={showOptions}
             onClose={() => setShowOptions(false)}
@@ -208,7 +218,11 @@ export default function LabClient({
           />
         )}
 
-        <div className="flex flex-1 flex-col overflow-hidden">
+        <div
+          className={`flex min-w-0 flex-1 flex-col overflow-hidden ${
+            isMobile && exercise && mobileTab === 'statement' ? 'hidden' : ''
+          }`}
+        >
           <LabToolbar
             mode={exercise ? 'exercise' : 'playground'}
             exerciseMode={
@@ -257,7 +271,7 @@ export default function LabClient({
             activeConsoleTab={activeConsoleTab}
             onActiveTabChange={setActiveConsoleTab}
             activeConsole={activeConsole}
-            sessionId={sessionId}
+            sessionActive={sessionActive}
             consoleInput={consoleInput}
             onConsoleInputChange={setConsoleInput}
             onConsoleKeyDown={handleConsoleKeyDown}

@@ -88,7 +88,12 @@ export class EvaluationQueueProcessor implements OnModuleInit, OnApplicationShut
     );
 
     try {
-      const result = await this.evaluator.evaluate(job.language, job.code, job.cmsTaskId);
+      const result = await this.evaluator.evaluate(
+        job.userId,
+        job.language,
+        job.code,
+        job.cmsTaskId,
+      );
       await this.completion.complete(job.id, this.workerId, result);
     } catch (error) {
       const failure = this.toError(error);

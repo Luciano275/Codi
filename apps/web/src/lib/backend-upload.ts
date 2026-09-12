@@ -9,8 +9,6 @@ interface UploadResponse {
   uploadKey: string;
 }
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-
 /** Sends the file to Nest. Only the API communicates with S3. */
 export function uploadFileThroughApi(
   assetType: UploadAssetType,
@@ -23,16 +21,13 @@ export function uploadFileThroughApi(
       : assetType === 'island-model'
         ? '/api/uploads/island-model'
         : '/api/uploads/lesson-asset';
-  const token = localStorage.getItem('codi_token');
-
   return new Promise<string>((resolve, reject) => {
     const formData = new FormData();
     formData.append('file', file);
     if (assetType.startsWith('lesson-')) formData.append('assetType', assetType);
 
     const request = new XMLHttpRequest();
-    request.open('POST', `${API_URL}${endpoint}`);
-    if (token) request.setRequestHeader('Authorization', `Bearer ${token}`);
+    request.open('POST', `/api/proxy${endpoint}`);
     request.upload.onprogress = (event) => {
       if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100));
     };

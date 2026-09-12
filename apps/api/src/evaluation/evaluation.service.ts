@@ -1,9 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import { join } from 'path';
 import { AsyncSemaphore } from './async-semaphore';
 import { CmsTaskConfigRepository } from './cms-task-config.repository';
 import { evaluationSettings } from './evaluation.constants';
-import { IsolateSandboxService, type SandboxExecution } from './isolate-sandbox.service';
+import {
+  CloudflareSandboxService,
+  type SandboxExecution,
+  type SandboxRun,
+} from './cloudflare-sandbox.service';
 import { calculateScore } from './score-calculator';
 import { CompilationError, SubmissionCompilerService } from './submission-compiler.service';
 import type {
@@ -24,20 +27,23 @@ export class EvaluationService {
   constructor(
     private readonly tasks: CmsTaskConfigRepository,
     private readonly compiler: SubmissionCompilerService,
-    private readonly sandbox: IsolateSandboxService,
+    private readonly sandbox: CloudflareSandboxService,
   ) {}
 
   async evaluate(
+    userId: string,
     language: EvaluationLanguage,
     sourceCode: string,
     cmsTaskId: number,
   ): Promise<EvaluationResult> {
     try {
       const task = await this.tasks.find(cmsTaskId, language);
-      const compiled = await this.compiler.compile(language, sourceCode, task);
-      const results = await Promise.all(
-        task.testcases.map((testcase) =>
-          this.testcaseSlots.use(() => this.evaluateTestcase(compiled, testcase, task)),
+      const compiled = await this.compiler.compile(userId, language, sourceCode, task);
+      const results = await this.sandbox.useReusable(userId, compiled.files, (run) =>
+        Promise.all(
+          task.testcases.map((testcase) =>
+            this.testcaseSlots.use(() => this.evaluateTestcase(run, compiled, testcase, task)),
+          ),
         ),
       );
       const score = calculateScore(
@@ -60,36 +66,34 @@ export class EvaluationService {
     }
   }
 
-  private evaluateTestcase(
+  private async evaluateTestcase(
+    run: SandboxRun,
     compiled: CompiledSubmission,
     testcase: CmsTestcase,
     task: CmsTaskConfiguration,
   ): Promise<EvaluationCaseResult> {
-    const files = new Map(compiled.files);
-    files.set('input.txt', testcase.input);
+    const files = new Map<string, Buffer>([['input.txt', Buffer.from(testcase.input)]]);
 
-    return this.sandbox.use(files, async (session) => {
-      const execution = await session.execute({
-        command: compiled.command,
-        limits: {
-          timeSeconds: task.timeLimit,
-          wallSeconds: task.timeLimit * 2 + 1,
-          memoryKb: task.memoryLimitKb,
-          outputKb: evaluationSettings.maxOutputKb,
-          processes: 5,
-        },
-        stdin: 'input.txt',
-        stdout: 'output.txt',
-        stderr: 'stderr.txt',
-      });
-      return this.toCaseResult(testcase, execution, join(session.boxRoot, 'output.txt'));
+    const { execution, stdoutFile } = await run(files, {
+      command: workspaceRelativeCommand(compiled.command),
+      limits: {
+        timeSeconds: task.timeLimit,
+        wallSeconds: task.timeLimit * 2 + 1,
+        memoryKb: task.memoryLimitKb,
+        outputKb: evaluationSettings.maxOutputKb,
+        processes: 5,
+      },
+      stdin: 'input.txt',
+      stdout: 'output.txt',
+      stderr: 'stderr.txt',
     });
+    return this.toCaseResult(testcase, execution, stdoutFile);
   }
 
   private async toCaseResult(
     testcase: CmsTestcase,
     execution: SandboxExecution,
-    outputPath: string,
+    output: Buffer | undefined,
   ): Promise<EvaluationCaseResult> {
     const metrics = {
       executionTime: this.readNumber(execution.metadata, 'time-wall'),
@@ -126,10 +130,10 @@ export class EvaluationService {
       );
     }
     if (sandboxStatus.includes('XX')) {
-      throw new Error(execution.metadata.get('message') ?? 'Internal isolate failure');
+      throw new Error(execution.metadata.get('message') ?? 'Internal sandbox failure');
     }
 
-    const passed = await whiteDiff(outputPath, testcase.output);
+    const passed = await whiteDiff(output ?? Buffer.alloc(0), testcase.output);
     return {
       codename: testcase.codename,
       outcome: passed ? 'correct' : 'wrong',
@@ -159,6 +163,24 @@ export class EvaluationService {
     const parsed = Number(metadata.get(key));
     return Number.isFinite(parsed) ? parsed : undefined;
   }
+}
+
+/**
+ * Rewrites the program path of the compiled command so it targets the session
+ * workspace instead of the per-testcase box directory.
+ *
+ * The worker parks the compiled files (grader.py, solution.py or the statically
+ * linked `submission` binary) in the session workspace at create time, while
+ * each testcase only uploads `input.txt` into a fresh `<workspace>/box-*`
+ * directory. A `../` reference from the box reaches those files, avoiding the
+ * per-testcase re-upload of the grader and binary that previously dominated
+ * evaluation latency.
+ */
+function workspaceRelativeCommand(command: readonly string[]): string[] {
+  const basename = (entry: string) => entry.replace(/^\.\//, '');
+  return command.map((entry, index) =>
+    index === command.length - 1 && !entry.startsWith('/') ? `../${basename(entry)}` : entry,
+  );
 }
 
 export type { EvaluationResult } from './evaluation.types';

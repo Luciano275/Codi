@@ -1,21 +1,13 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { cookies } from 'next/headers';
 import { serverFetch } from '@/lib/server-api';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+import { fetchBackendWithSession } from '@/lib/server/backend-api';
 
 export async function completeLesson(lessonId: string) {
-  const token = (await cookies()).get('session')?.value;
-  if (!token) throw new Error('Not authenticated');
-
-  const res = await fetch(`${API_URL}/api/lessons/${lessonId}/complete`, {
+  const res = await fetchBackendWithSession(`/api/lessons/${lessonId}/complete`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (res.status === 409) {
@@ -33,15 +25,9 @@ export async function completeLesson(lessonId: string) {
 }
 
 export async function uncompleteLesson(lessonId: string) {
-  const token = (await cookies()).get('session')?.value;
-  if (!token) throw new Error('Not authenticated');
-
-  const res = await fetch(`${API_URL}/api/lessons/${lessonId}/uncomplete`, {
+  const res = await fetchBackendWithSession(`/api/lessons/${lessonId}/uncomplete`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { 'Content-Type': 'application/json' },
   });
 
   if (!res.ok) {
