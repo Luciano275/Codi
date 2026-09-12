@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Codi Runtime Architecture",
+    "output": "codi-runtime-architecture.html",
+    "quality_profile": "showcase",
+    "repository": {
+      "url": "https://github.com/santiagonicoalberti-pixel/Codi",
+      "provider": "github",
+      "link_mode": "web",
+      "revision": "3e13c3486412fe80fb42b407d2463ade8ef68d98"
+    },
+    "views": [
+      {
+        "id": "primary-request",
+        "label": "Primary request path",
+        "focus": ["browser", "web", "api", "postgres"],
+        "note": "Follow an authenticated browser request from the Next.js edge into durable application state."
+      },
+      {
+        "id": "evaluation",
+        "label": "Code evaluation",
+        "focus": ["api", "eval", "worker", "sandbox", "postgres"],
+        "note": "Trace submission persistence, database-backed queue processing, and isolated execution."
+      },
+      {
+        "id": "supporting-services",
+        "label": "Supporting services",
+        "focus": ["auth", "redis", "s3", "api"],
+        "note": "See JWT authentication, cache access, and signed object storage without crowding the main path."
+      }
+    ]
+  },
+  "components": [
+    {
+      "id": "browser",
+      "type": "external",
+      "label": "Learner / admin browser",
+      "sublabel": "React 19 + Monaco",
+      "tag": "public client",
+      "pos": [50, 360],
+      "size": [170, 72],
+      "sources": [{ "path": "apps/web/src/app/layout.tsx" }]
+    },
+    {
+      "id": "web",
+      "type": "frontend",
+      "label": "Next.js web app",
+      "sublabel": "App Router :3000",
+      "tag": "SSR + proxy",
+      "pos": [280, 360],
+      "size": [170, 72],
+      "sources": [
+        { "path": "apps/web/src/app/api/proxy/[...path]/route.ts", "line": 54, "end_line": 89 },
+        { "path": "apps/web/src/lib/server-api.ts", "line": 13, "end_line": 36 }
+      ]
+    },
+    {
+      "id": "api",
+      "type": "backend",
+      "label": "NestJS API",
+      "sublabel": "REST + SSE :4000",
+      "tag": "JWT-protected",
+      "pos": [510, 360],
+      "size": [170, 72],
+      "sources": [
+        { "path": "apps/api/src/main.ts", "line": 58, "end_line": 94 },
+        { "path": "apps/api/src/app.module.ts", "line": 20, "end_line": 48 }
+      ]
+    },
+    {
+      "id": "auth",
+      "type": "security",
+      "label": "Auth and guards",
+      "sublabel": "JWT + CSRF + roles",
+      "tag": "identity boundary",
+      "pos": [510, 150],
+      "size": [170, 72],
+      "sources": [
+        { "path": "apps/api/src/auth/auth.controller.ts", "line": 12, "end_line": 37 },
+        { "path": "apps/api/src/auth/auth.service.ts", "line": 49, "end_line": 60 }
+      ]
+    },
+    {
+      "id": "eval",
+      "type": "messagebus",
+      "label": "Evaluation queue",
+      "sublabel": "DB-backed claim / retry",
+      "tag": "async in API",
+      "pos": [510, 540],
+      "size": [170, 72],
+      "sources": [
+        { "path": "apps/api/src/evaluation/evaluation-queue.processor.ts", "line": 42, "end_line": 107 },
+        { "path": "apps/api/src/submissions/submissions.service.ts", "line": 12, "end_line": 24 }
+      ]
+    },
+    {
+      "id": "postgres",
+      "type": "database",
+      "label": "PostgreSQL",
+      "sublabel": "Prisma + pg :5432",
+      "tag": "Codi + CMS tables",
+      "pos": [740, 360],
+      "size": [180, 72],
+      "sources": [
+        { "path": "packages/database/src/prisma.service.ts", "line": 6, "end_line": 24 },
+        { "path": "apps/api/src/evaluation/cms-task-config.repository.ts", "line": 47, "end_line": 83 }
+      ]
+    },
+    {
+      "id": "redis",
+      "type": "database",
+      "label": "Redis",
+      "sublabel": "content cache :6379",
+      "tag": "best-effort",
+      "pos": [740, 60],
+      "size": [180, 72],
+      "sources": [
+        { "path": "apps/api/src/redis/redis.service.ts", "line": 6, "end_line": 31 },
+        { "path": "apps/api/src/content-cache/content-cache.service.ts", "line": 22, "end_line": 44 }
+      ]
+    },
+    {
+      "id": "s3",
+      "type": "cloud",
+      "label": "S3-compatible storage",
+      "sublabel": "uploads + signed reads",
+      "tag": "object boundary",
+      "pos": [970, 150],
+      "size": [190, 72],
+      "sources": [
+        { "path": "apps/api/src/s3/s3.module.ts", "line": 10, "end_line": 39 },
+        { "path": "apps/api/src/s3/s3.service.ts", "line": 43, "end_line": 72 }
+      ]
+    },
+    {
+      "id": "worker",
+      "type": "cloud",
+      "label": "Cloudflare Worker",
+      "sublabel": "Evaluator HTTP API",
+      "tag": "Bearer token",
+      "pos": [740, 540],
+      "size": [180, 72]
+    },
+    {
+      "id": "sandbox",
+      "type": "security",
+      "label": "Isolated Sandbox",
+      "sublabel": "Durable Object session",
+      "tag": "internet disabled",
+      "pos": [970, 540],
+      "size": [190, 72]
+    }
+  ],
+  "boundaries": [
+    { "kind": "security-group", "label": "Public client boundary", "wraps": ["browser"], "pad": 24 },
+    { "kind": "security-group", "label": "Codi trusted application plane", "wraps": ["web", "api", "auth", "eval", "postgres", "redis", "s3"], "pad": 32 },
+    { "kind": "security-group", "label": "Untrusted code execution boundary", "wraps": ["worker", "sandbox"], "pad": 28 }
+  ],
+  "connections": [
+    { "id": "browser-web", "from": "browser", "to": "web", "label": "HTTPS", "variant": "emphasis" },
+    { "id": "web-api", "from": "web", "to": "api", "label": "REST /api/*", "variant": "emphasis" },
+    { "id": "api-auth", "from": "api", "to": "auth", "label": "authenticate", "variant": "security", "fromSide": "top", "toSide": "bottom", "labelAt": [520, 290] },
+    { "id": "api-postgres", "from": "api", "to": "postgres", "label": "SQL / Prisma", "labelAt": [710, 446] },
+    { "id": "api-redis", "from": "api", "to": "redis", "label": "read-through cache", "fromSide": "top", "toSide": "bottom" },
+    { "id": "api-s3", "from": "api", "to": "s3", "label": "signed URLs / objects", "fromSide": "right", "toSide": "bottom", "via": [[720, 396], [720, 250], [1065, 250]], "labelAt": [930, 270] },
+    { "id": "api-eval", "from": "api", "to": "eval", "label": "persist + wake", "variant": "dashed", "fromSide": "bottom", "toSide": "top", "labelAt": [520, 460] },
+    { "id": "eval-postgres", "from": "eval", "to": "postgres", "label": "claim + complete", "variant": "dashed", "fromSide": "right", "toSide": "bottom" },
+    { "id": "eval-worker", "from": "eval", "to": "worker", "label": "evaluate code", "variant": "dashed", "labelAt": [710, 640] },
+    { "id": "worker-sandbox", "from": "worker", "to": "sandbox", "label": "session commands", "variant": "security", "labelAt": [945, 625] }
+  ],
+  "cards": [
+    {
+      "dot": "cyan",
+      "title": "Primary request",
+      "items": [
+        "Next.js forwards session cookies as Bearer tokens to NestJS /api endpoints.",
+        "NestJS validates, authorizes, and persists learning, rewards, rankings, and submissions via Prisma."
+      ]
+    },
+    {
+      "dot": "amber",
+      "title": "Evaluation path",
+      "items": [
+        "Submissions persist as EVALUATING; an in-process DB-backed worker claims, retries, and completes jobs.",
+        "The API sends bounded source and tests to Cloudflare; the Sandbox runs code with Internet disabled."
+      ]
+    },
+    {
+      "dot": "rose",
+      "title": "Trust boundaries",
+      "items": [
+        "The public browser is separated from the trusted server/data plane by JWT, CSRF, roles, and API controls.",
+        "PostgreSQL hosts Codi codi_* and CMS public.* tables; S3 holds objects and Redis is best-effort cache."
+      ]
+    }
+  ]
+}
