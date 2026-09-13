@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'motion/react';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
 import { MascotParticles } from './mascot-particles';
 
 interface SuccessMascotProps {
@@ -12,6 +12,8 @@ interface SuccessMascotProps {
 }
 
 export function SuccessMascot({ title, description, score, reducedMotion }: SuccessMascotProps) {
+  const isPerfectScore = score === 100;
+
   return (
     <div className="relative flex min-h-[29rem] flex-col items-center justify-end px-5 pb-8 pt-14 sm:min-h-[32rem] sm:pb-10">
       <div className="relative flex h-64 w-full items-end justify-center sm:h-72">
@@ -31,15 +33,17 @@ export function SuccessMascot({ title, description, score, reducedMotion }: Succ
             times: [0, 0.18, 0.46, 0.72, 1],
             ease: [0.22, 1, 0.36, 1],
           }}
-          className="relative z-10 w-[min(19rem,72vw)] drop-shadow-[0_12px_0_rgba(23,50,77,0.14)]"
+          className="relative z-10 h-64 w-[min(19rem,72vw)] sm:h-72"
         >
-          <Image
-            src="/mascot-success.png"
-            alt="Mascota de Codi celebrando con el puño en alto"
-            width={1254}
-            height={1254}
-            className="h-auto w-full"
-            priority
+          <CodiMascot
+            animation="Codi_Correct_Small"
+            loopAfter={isPerfectScore ? 'Codi_Excited' : undefined}
+            label={
+              isPerfectScore
+                ? 'Codi celebra una puntuación perfecta'
+                : 'Codi celebra que el ejercicio fue resuelto'
+            }
+            className="h-full w-full drop-shadow-[0_12px_0_rgba(23,50,77,0.14)]"
           />
         </motion.div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
 import { Gem, X, Zap } from '@/components/ui/Icon';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import { RewardBurst } from './RewardBurst';
@@ -123,7 +124,6 @@ function RewardCelebrationCard({
   reducedMotion: boolean | null;
 }) {
   const style = REWARD_STYLES[reward.kind];
-  const Icon = style.icon;
 
   return (
     <motion.section
@@ -172,9 +172,13 @@ function RewardCelebrationCard({
             delay: reducedMotion ? 0 : 0.1,
             ease: 'easeOut',
           }}
-          className={`relative mx-auto mt-4 flex h-20 w-20 items-center justify-center rounded-[1.6rem] bg-gradient-to-br text-white shadow-xl ${style.iconClass}`}
+          className="relative mx-auto mt-1 h-32 w-32"
         >
-          <Icon className="h-10 w-10 fill-white/20 drop-shadow-md" strokeWidth={2.4} />
+          <CodiMascot
+            animation="Codi_Happy"
+            label="Codi celebra la recompensa obtenida"
+            className="h-full w-full"
+          />
         </motion.div>
 
         <motion.div

@@ -1,7 +1,7 @@
 'use client';
 
-import Image from 'next/image';
 import { motion } from 'motion/react';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
 
 interface ErrorMascotProps {
   title: string;
@@ -11,6 +11,8 @@ interface ErrorMascotProps {
 }
 
 export function ErrorMascot({ title, description, score, reducedMotion }: ErrorMascotProps) {
+  const hasNoCorrectAnswers = score === 0;
+
   return (
     <div className="relative flex min-h-[29rem] flex-col items-center justify-end overflow-hidden px-5 pb-8 pt-14 sm:min-h-[32rem] sm:pb-10">
       <div className="relative flex h-64 w-full items-end justify-center sm:h-72">
@@ -31,15 +33,17 @@ export function ErrorMascot({ title, description, score, reducedMotion }: ErrorM
             times: [0, 0.35, 0.72, 1],
             ease: 'easeInOut',
           }}
-          className="relative z-10 w-[min(19rem,72vw)] origin-bottom drop-shadow-[0_12px_0_rgba(23,50,77,0.12)]"
+          className="relative z-10 h-64 w-[min(19rem,72vw)] origin-bottom sm:h-72"
         >
-          <Image
-            src="/mascot-error.png"
-            alt="Mascota de Codi apenada con las manos en la cara"
-            width={1254}
-            height={1254}
-            className="h-auto w-full"
-            priority
+          <CodiMascot
+            animation={hasNoCorrectAnswers ? 'Codi_Frustrated' : 'Codi_Wrong_Small'}
+            loopAfter={hasNoCorrectAnswers ? 'Codi_Crying' : undefined}
+            label={
+              hasNoCorrectAnswers
+                ? 'Codi se frustra y acompaña a volver a intentar el ejercicio'
+                : 'Codi anima a volver a intentar el ejercicio'
+            }
+            className="h-full w-full drop-shadow-[0_12px_0_rgba(23,50,77,0.12)]"
           />
         </motion.div>
       </div>

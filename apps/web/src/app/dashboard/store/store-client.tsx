@@ -27,6 +27,7 @@ import type {
   StoreReward,
 } from '@codi/types';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
 import diamondChestImage from '@/assets/diamonds_chest.webp';
 import shopImage from '@/assets/shop.webp';
 import shopWallpaperImage from '@/assets/shop_wallpaper.webp';
@@ -464,7 +465,12 @@ export default function StoreClient({
             {store.recentRewards.length ? (
               store.recentRewards.map((item) => <RecentRewardItem key={item.id} item={item} />)
             ) : (
-              <li className="font-simply-olive text-sm text-gray-500">
+              <li className="flex min-h-36 flex-col items-center justify-center text-center font-simply-olive text-sm text-gray-500 md:col-span-2 xl:col-span-3">
+                <CodiMascot
+                  animation="Codi_Rest"
+                  label="Codi descansa mientras esperás tu primera recompensa"
+                  className="h-28 w-28"
+                />
                 Todavía no hiciste canjes.
               </li>
             )}

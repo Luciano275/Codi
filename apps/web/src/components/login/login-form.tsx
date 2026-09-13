@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from '@/components/ui/Icon';
 
 export default function LoginForm() {
@@ -55,15 +56,16 @@ export default function LoginForm() {
       <div className="bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10">
         <div className="flex flex-col items-center text-center mb-7">
           <motion.div
-            className="relative mb-4 h-36 w-36 overflow-hidden md:h-40 md:w-40"
+            className="relative mb-3 h-40 w-40 md:h-44 md:w-44"
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
           >
-            <img
-              src="/logo.png?v=3"
-              alt="Codi"
-              className="h-full w-full object-contain drop-shadow-lg"
+            <CodiMascot
+              animation={error ? 'Codi_Frustrated' : loading ? 'Codi_Idle' : 'Codi_Wave'}
+              loopAfter={error ? 'Codi_Crying' : loading ? undefined : 'Codi_Rest'}
+              label={error ? 'Codi acompaña el error de inicio de sesión' : 'Codi saluda'}
+              className="h-full w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.3)]"
             />
           </motion.div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">

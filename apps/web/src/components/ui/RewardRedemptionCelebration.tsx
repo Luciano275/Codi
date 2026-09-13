@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Check, Gem, Trophy, X } from '@/components/ui/Icon';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { Check, Gem, X } from '@/components/ui/Icon';
 
 const confetti = [
   { x: -42, y: -70, rotate: -155, color: '#ffbe0b', delay: 0.08, size: 10 },
@@ -57,22 +58,19 @@ function ConfettiBurst({ reducedMotion }: { reducedMotion: boolean | null }) {
   );
 }
 
-function GlbPlaceholder({ label }: { label: string }) {
+function RedemptionMascot({ label }: { label: string }) {
   return (
     <motion.div
-      className="relative mx-auto grid h-44 w-44 place-items-center rounded-[2.5rem] border-4 border-white/70 bg-linear-to-br from-[#fff6b5] via-[#f5fce9] to-[#b7f5da] shadow-[0_13px_0_#d8edbe,0_25px_36px_rgba(38,102,59,0.2)]"
+      className="relative mx-auto h-48 w-48"
       initial={{ opacity: 0, scale: 0.35, rotate: -10 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ type: 'spring', stiffness: 340, damping: 16, delay: 0.16 }}
     >
-      <span className="absolute inset-3 rounded-[2rem] border-2 border-dashed border-[#69c507]/45" />
-      <div className="relative grid h-22 w-22 place-items-center rounded-[1.7rem] bg-white text-[#69c507] shadow-lg">
-        <Trophy className="h-11 w-11" strokeWidth={2.4} />
-      </div>
-      <span className="absolute -bottom-3 rounded-full bg-[#263a2d] px-3 py-1 font-candy-beans text-[10px] tracking-wide text-white shadow-md">
-        {label}
-      </span>
-      <span className="sr-only">Espacio reservado para la animación 3D de la recompensa</span>
+      <CodiMascot
+        animation="Codi_Excited"
+        label={`Codi celebra ${label}`}
+        className="h-full w-full drop-shadow-[0_13px_0_rgba(38,102,59,0.16)]"
+      />
     </motion.div>
   );
 }
@@ -132,7 +130,7 @@ export function RewardRedemptionCelebration({ reward, onClose }: RewardRedemptio
             >
               {reward.eyebrow}
             </motion.p>
-            <GlbPlaceholder label={reward.glbLabel} />
+            <RedemptionMascot label={reward.glbLabel} />
             <div className="relative mt-7">
               <h2
                 id="reward-redemption-title"
@@ -152,9 +150,6 @@ export function RewardRedemptionCelebration({ reward, onClose }: RewardRedemptio
               </span>
               <span className="font-simply-olive text-xs font-bold">gemas</span>
             </div>
-            <p className="relative mt-3 font-simply-olive text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
-              Próximamente: animación 3D GLB
-            </p>
             <button
               type="button"
               onClick={onClose}

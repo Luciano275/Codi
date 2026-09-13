@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { Check, Lightbulb, Sparkles, X } from '@/components/ui/Icon';
+import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { Check, Sparkles, X } from '@/components/ui/Icon';
 
 interface SmartHintCelebrationProps {
   open: boolean;
@@ -18,21 +19,19 @@ const sparkles = [
   { x: -92, y: -8, rotate: 110, color: '#fb923c', delay: 0.24 },
 ] as const;
 
-function HintGlbFallback() {
+function HintMascot() {
   return (
     <motion.div
-      className="relative mx-auto grid h-40 w-40 place-items-center rounded-[2.35rem] border-4 border-white/75 bg-linear-to-br from-[#fff2a8] via-[#fffdf0] to-[#d9f9a9] shadow-[0_12px_0_#dde9a6,0_25px_36px_rgba(108,86,0,0.2)]"
+      className="relative mx-auto h-44 w-44"
       initial={{ opacity: 0, scale: 0.4, rotate: 8 }}
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ type: 'spring', stiffness: 330, damping: 17, delay: 0.16 }}
     >
-      <span className="absolute inset-3 rounded-[1.9rem] border-2 border-dashed border-[#d6a700]/45" />
-      <span className="relative grid h-20 w-20 place-items-center rounded-[1.5rem] bg-white text-[#e0a600] shadow-lg">
-        <Lightbulb className="h-10 w-10 fill-[#ffeb75]" strokeWidth={2.2} />
-      </span>
-      <span className="absolute -bottom-3 rounded-full bg-[#523f00] px-3 py-1 font-candy-beans text-[10px] tracking-wide text-white shadow-md">
-        PISTA 3D
-      </span>
+      <CodiMascot
+        animation="Codi_Happy_Alt"
+        label="Codi celebra que la pista fue desbloqueada"
+        className="h-full w-full drop-shadow-[0_12px_0_rgba(108,86,0,0.16)]"
+      />
     </motion.div>
   );
 }
@@ -109,7 +108,7 @@ export function SmartHintCelebration({ open, onClose }: SmartHintCelebrationProp
             <p className="relative font-candy-beans text-sm tracking-wide text-[#a27a00]">
               ¡IDEA DESBLOQUEADA!
             </p>
-            <HintGlbFallback />
+            <HintMascot />
             <h2
               id="smart-hint-celebration-title"
               className="relative mt-7 font-super-pandora text-2xl text-[#392f0e]"
@@ -119,9 +118,6 @@ export function SmartHintCelebration({ open, onClose }: SmartHintCelebrationProp
             <p className="relative mt-2 font-simply-olive text-sm leading-6 text-gray-600">
               Usaste una Pista Inteligente. Mirá la lección para descubrir una nueva forma de
               avanzar.
-            </p>
-            <p className="relative mt-3 font-simply-olive text-[11px] font-bold uppercase tracking-[0.12em] text-gray-400">
-              Próximamente: animación 3D GLB
             </p>
             <button
               type="button"
