@@ -62,11 +62,7 @@ export const viewport: Viewport = {
   themeColor: '#0f0f1a',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
@@ -78,22 +74,21 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="es" className={`${superPandora.variable} ${simplyOlive.variable} ${candyBeans.variable}`}>
-      <body
-        suppressHydrationWarning
-        className="min-h-screen font-sans antialiased"
-      >
+    <html
+      lang="es"
+      data-scroll-behavior="smooth"
+      className={`${superPandora.variable} ${simplyOlive.variable} ${candyBeans.variable}`}
+    >
+      <body suppressHydrationWarning className="min-h-screen font-sans antialiased">
         <SkipLink />
         <Providers>
-        <ProgressBarProvider>
-          <main id="main-content">
-          {children}
-        </main>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
-        </ProgressBarProvider>
+          <ProgressBarProvider>
+            <main id="main-content">{children}</main>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+          </ProgressBarProvider>
         </Providers>
       </body>
     </html>
