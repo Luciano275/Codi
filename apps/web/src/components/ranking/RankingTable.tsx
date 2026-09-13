@@ -22,18 +22,18 @@ export function RankingTable({
   return (
     <section
       aria-labelledby="ranking-list-heading"
-      className="rounded-[2rem] border border-gray-100 bg-white p-4 shadow-xs md:p-5 lg:p-7"
+      className="rounded-[1.6rem] border border-gray-100 bg-white p-3 sm:p-4 md:rounded-[2rem] md:p-5 lg:p-7"
     >
-      <div className="mb-4 flex items-center justify-between gap-3 px-1">
+      <div className="mb-3 flex items-center justify-between gap-2 px-1 sm:mb-4 sm:gap-3">
         <div>
           <h2
             id="ranking-list-heading"
-            className="font-super-pandora text-2xl text-gray-900 lg:text-3xl"
+            className="font-super-pandora text-xl text-gray-900 sm:text-2xl lg:text-3xl"
           >
             Todos los estudiantes
           </h2>
         </div>
-        <span className="rounded-full bg-gray-50 px-3 py-2 font-simply-olive text-sm font-bold text-gray-500">
+        <span className="shrink-0 rounded-full bg-gray-50 px-2.5 py-1.5 font-simply-olive text-xs font-bold text-gray-500 sm:px-3 sm:py-2 sm:text-sm">
           Página {page} de {totalPages}
         </span>
       </div>

@@ -17,7 +17,7 @@ const filters = [
 
 export function RankingFilters({ scope, onScopeChange, canManageRewards }: RankingFiltersProps) {
   return (
-    <div className="flex flex-wrap items-center gap-2.5 pb-2">
+    <div className="flex flex-wrap items-center gap-2 pb-1 sm:gap-2.5 sm:pb-2">
       <nav aria-label="Alcance del ranking" className="flex gap-2.5 overflow-x-auto">
         {filters.map(({ value, label, icon: Icon }) => {
           const active = scope === value;
@@ -42,7 +42,7 @@ export function RankingFilters({ scope, onScopeChange, canManageRewards }: Ranki
       {canManageRewards ? (
         <Link
           href="/dashboard/admin/ranking"
-          className="flex min-h-11 items-center gap-2 rounded-2xl bg-castillo-100 px-4 py-2 font-super-pandora text-sm text-castillo-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-castillo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-castillo-500"
+          className="flex min-h-11 w-full items-center justify-center gap-2 rounded-2xl bg-castillo-100 px-4 py-2 font-super-pandora text-sm text-castillo-800 shadow-sm transition duration-200 hover:-translate-y-0.5 hover:bg-castillo-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-castillo-500 sm:w-auto"
         >
           <Trophy className="h-4 w-4 fill-castillo-400 text-castillo-700" aria-hidden />
           Administrar recompensas

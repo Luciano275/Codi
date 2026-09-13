@@ -39,42 +39,51 @@ export function PodiumCard({ student, reduceParticleDensity }: PodiumCardProps) 
   return (
     <Link
       href={`/dashboard/players/${student.id}`}
-      className={`group relative flex min-w-0 flex-1 flex-col items-center rounded-[1.7rem] border-2 px-3 pb-4 pt-6 text-center ${styles.podiumCard} ${theme.card} ${champion ? `${styles.championCard} md:-mt-6 md:pb-6 md:pt-9` : ''}`}
+      className={`group relative flex min-w-0 flex-col items-center rounded-2xl border-2 px-1.5 pb-2.5 pt-4 text-center sm:rounded-[1.7rem] sm:px-3 sm:pb-4 sm:pt-6 ${styles.podiumCard} ${theme.card} ${champion ? `${styles.championCard} md:-mt-6 md:pb-6 md:pt-9` : ''}`}
       style={{ '--podium-delay': `${podiumEntryDelays[rank]}ms` } as CSSProperties}
       aria-label={`Ver perfil competitivo de ${student.displayName}`}
     >
       <PodiumParticles rank={rank} reduceDensity={reduceParticleDensity} />
       {champion ? (
         <Crown
-          className={`absolute -top-7 h-12 w-12 fill-castillo-400 text-castillo-700 ${styles.crown}`}
+          className={`absolute -top-4 h-8 w-8 fill-castillo-400 text-castillo-700 sm:-top-7 sm:h-12 sm:w-12 ${styles.crown}`}
           aria-hidden
         />
       ) : null}
       <span
-        className={`absolute left-3 top-3 grid h-9 w-9 place-items-center rounded-full border-2 ${styles.medal} ${theme.medal}`}
+        className={`absolute left-1.5 top-1.5 grid h-6 w-6 place-items-center rounded-full border-2 sm:left-3 sm:top-3 sm:h-9 sm:w-9 ${styles.medal} ${theme.medal}`}
       >
-        <Medal className="h-4 w-4" aria-hidden />
+        <Medal className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden />
       </span>
       <PlayerAvatar
         avatarUrl={student.avatarUrl}
         displayName={student.displayName}
         rank={student.rank}
-        className={`rounded-[1.1rem] border-4 border-white text-xl shadow-md ${champion ? 'h-20 w-20 md:h-24 md:w-24' : 'h-17 w-17 md:h-20 md:w-20'}`}
-        imageSizes={champion ? '(max-width: 767px) 80px, 96px' : '(max-width: 767px) 68px, 80px'}
+        className={`rounded-xl border-3 border-white text-base shadow-md sm:rounded-[1.1rem] sm:border-4 sm:text-xl ${champion ? 'h-13 w-13 sm:h-20 sm:w-20 md:h-24 md:w-24' : 'h-12 w-12 sm:h-17 sm:w-17 md:h-20 md:w-20'}`}
+        imageSizes={
+          champion
+            ? '(max-width: 639px) 52px, (max-width: 767px) 80px, 96px'
+            : '(max-width: 639px) 48px, (max-width: 767px) 68px, 80px'
+        }
       />
-      <p className="mt-3 w-full truncate font-super-pandora text-base text-gray-800 lg:text-lg">
+      <p className="mt-2 w-full truncate font-super-pandora text-xs text-gray-800 sm:mt-3 sm:text-base lg:text-lg">
         {student.displayName}
       </p>
-      <p className="font-simply-olive text-xs font-bold text-gray-400 lg:text-sm">
+      <p className="font-simply-olive text-[10px] font-bold text-gray-400 sm:text-xs lg:text-sm">
         Nivel {student.level}
       </p>
       <p
-        className={`mt-2 flex items-center gap-1 font-candy-beans text-lg text-desierto-700 lg:text-xl ${styles.xp}`}
+        className={`mt-1 flex items-center gap-0.5 font-candy-beans text-sm text-desierto-700 sm:mt-2 sm:gap-1 sm:text-lg lg:text-xl ${styles.xp}`}
       >
-        <Zap className="h-3.5 w-3.5 fill-desierto-400 text-desierto-500" aria-hidden />
-        {student.xp.toLocaleString('es-AR')} XP
+        <Zap
+          className="h-3 w-3 fill-desierto-400 text-desierto-500 sm:h-3.5 sm:w-3.5"
+          aria-hidden
+        />
+        {student.xp.toLocaleString('es-AR')} <span className="hidden sm:inline">XP</span>
       </p>
-      <span className={`mt-2 rounded-lg px-3 py-1 font-candy-beans text-sm ${theme.pedestal}`}>
+      <span
+        className={`mt-1.5 rounded-md px-2 py-0.5 font-candy-beans text-xs sm:mt-2 sm:rounded-lg sm:px-3 sm:py-1 sm:text-sm ${theme.pedestal}`}
+      >
         #{student.rank}
       </span>
     </Link>
