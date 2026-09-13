@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from '@bprogress/next';
+import Link from 'next/link';
 import {
   ChevronLeft,
   ChevronRight,
@@ -108,42 +109,79 @@ export default function IslandExplorer({
         </p>
       </header>
 
-      <aside className="absolute left-3 top-28 z-10 hidden w-48 rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-md lg:block">
-        <div className="flex items-center gap-2 text-gray-800">
-          <MapIcon className="h-4 w-4 text-pradera-300" />
+      <aside className="absolute left-3 top-28 z-10 hidden w-52 rounded-[1.35rem] border border-slate-200/90 bg-white/94 p-3.5 shadow-[0_5px_0_rgba(15,23,42,0.08)] backdrop-blur-sm lg:block">
+        <div className="flex items-center gap-2 text-slate-800">
+          <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-pradera-50 text-pradera-700">
+            <MapIcon className="h-4 w-4" />
+          </span>
           <span className="font-super-pandora text-sm">Tu expedición</span>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-gray-100">
+        <div className="mt-3.5 h-2.5 overflow-hidden rounded-full bg-slate-100 p-0.5">
           <div
             className="h-full rounded-full bg-pradera-400 transition-[width] duration-700"
             style={{ width: `${totalLessons ? (completedLessons / totalLessons) * 100 : 0}%` }}
           />
         </div>
-        <p className="font-simply-olive mt-2 text-xs text-gray-500">
+        <p className="font-simply-olive mt-2.5 text-xs text-slate-500">
           {completedLessons} de {totalLessons} lecciones
         </p>
       </aside>
 
-      <aside className="absolute right-3 top-28 z-10 hidden w-48 rounded-2xl border border-gray-200 bg-white/95 p-3 shadow-md xl:block">
-        <div className="mb-2 flex items-center gap-2 text-gray-800">
-          <Trophy className="h-4 w-4 text-castillo-400" />
-          <span className="font-super-pandora text-sm">Exploradores</span>
-        </div>
-        {ranking.slice(0, 3).map((player) => (
-          <div key={player.id} className="flex items-center gap-2 py-1.5 text-xs">
-            <span className="w-4 font-bold text-gray-400">{player.rank}</span>
-            <span className="min-w-0 flex-1 truncate text-gray-700">{player.displayName}</span>
-            <span className="font-candy-beans text-castillo-300">{player.xp}</span>
+      <aside className="absolute right-3 top-28 z-10 hidden w-56 rounded-[1.35rem] border border-slate-200/90 bg-white/94 p-3.5 shadow-[0_5px_0_rgba(15,23,42,0.08)] backdrop-blur-sm xl:block">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-slate-800">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-castillo-50 text-castillo-600">
+              <Trophy className="h-4 w-4" />
+            </span>
+            <span className="font-super-pandora text-sm">Ranking</span>
           </div>
-        ))}
+          <Link
+            href="/dashboard/ranking"
+            className="font-simply-olive rounded-lg px-1 py-1 text-[11px] font-semibold text-castillo-700 transition-colors hover:bg-castillo-50 hover:text-castillo-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-castillo-500"
+          >
+            Ver tabla
+          </Link>
+        </div>
+        {ranking.length === 0 ? (
+          <p className="font-simply-olive py-4 text-center text-xs text-slate-500">
+            El ranking se llena con tus primeros desafíos.
+          </p>
+        ) : (
+          <ol className="mt-3 space-y-1.5">
+            {ranking.slice(0, 3).map((player) => (
+              <li
+                key={player.id}
+                className="flex items-center gap-2 rounded-xl border border-transparent px-1.5 py-1.5 transition-colors hover:border-slate-100 hover:bg-slate-50/80"
+              >
+                <span
+                  className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-lg font-candy-beans text-[11px] ${
+                    player.rank === 1
+                      ? 'bg-castillo-100 text-castillo-700'
+                      : player.rank === 2
+                        ? 'bg-slate-100 text-slate-600'
+                        : 'bg-desierto-50 text-desierto-700'
+                  }`}
+                >
+                  {player.rank}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-xs font-semibold text-slate-700">
+                  {player.displayName}
+                </span>
+                <span className="font-candy-beans text-[11px] text-castillo-700">
+                  {player.xp.toLocaleString()}
+                </span>
+              </li>
+            ))}
+          </ol>
+        )}
       </aside>
 
-      <div className="absolute inset-x-0 bottom-16 z-10 px-3 md:bottom-28">
+      <div ref={carouselOverlayRef} className="absolute inset-x-0 bottom-16 z-10 px-3 md:bottom-28">
         <button
           type="button"
           onClick={() => moveIslandCarousel(-1)}
           aria-label="Ver islas anteriores"
-          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
+          className="absolute left-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 cursor-pointer items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
         >
           <ChevronLeft className="h-10 w-10" strokeWidth={3} />
         </button>
@@ -151,7 +189,7 @@ export default function IslandExplorer({
           type="button"
           onClick={() => moveIslandCarousel(1)}
           aria-label="Ver más islas"
-          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
+          className="absolute right-0 top-1/2 z-10 flex h-14 w-14 -translate-y-1/2 cursor-pointer items-center justify-center text-white transition hover:scale-110 hover:text-lagos-300"
         >
           <ChevronRight className="h-10 w-10" strokeWidth={3} />
         </button>
@@ -180,10 +218,10 @@ export default function IslandExplorer({
                 </>
               );
 
-              const className = `flex w-48 shrink-0 items-center gap-2 rounded-2xl border bg-white/95 px-2.5 py-2 shadow-md transition-all duration-300 md:w-56 md:px-3 ${
+              const className = `flex w-48 shrink-0 items-center gap-2 rounded-[1.2rem] border bg-white/94 px-2.5 py-2 shadow-[0_4px_0_rgba(15,23,42,0.1)] transition-all duration-200 md:w-56 md:px-3 ${
                 island.available
-                  ? 'border-gray-200 hover:-translate-y-1 hover:border-pradera-300'
-                  : 'cursor-not-allowed border-gray-200 opacity-75 grayscale'
+                  ? 'cursor-pointer border-slate-200 hover:-translate-y-0.5 hover:border-pradera-300 hover:shadow-[0_6px_0_rgba(15,23,42,0.1)] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-pradera-400'
+                  : 'cursor-not-allowed border-slate-200 opacity-75 grayscale'
               }`;
 
               return island.available ? (
