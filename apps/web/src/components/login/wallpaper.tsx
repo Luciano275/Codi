@@ -9,7 +9,7 @@ export default function FullScreenWallpaper() {
         src="/horizontal_wallpaper.png"
         alt=""
         fill
-        sizes="100vw"
+        sizes="(min-width: 1024px) 100vw, 1px"
         className="hidden lg:block object-cover object-center brightness-[0.35]"
         priority
         aria-hidden="true"
@@ -18,7 +18,7 @@ export default function FullScreenWallpaper() {
         src="/vertical_map.png"
         alt=""
         fill
-        sizes="100vw"
+        sizes="(max-width: 1023px) 100vw, 1px"
         className="block lg:hidden object-cover object-center brightness-[0.35]"
         priority
         aria-hidden="true"
@@ -32,6 +32,7 @@ export default function FullScreenWallpaper() {
             alt="Escuela de Educación Técnica Nº 3117"
             width={300}
             height={250}
+            sizes="60px"
             className="w-full max-w-15 h-auto rounded-xl object-contain"
           />
           <div>
