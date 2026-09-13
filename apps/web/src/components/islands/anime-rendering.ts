@@ -25,7 +25,7 @@ export function configureAnimeRenderer(renderer: THREE.WebGLRenderer) {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = ANIME_RENDERING.exposure;
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.PCFShadowMap;
 }
 
 export function createAnimeLighting() {
