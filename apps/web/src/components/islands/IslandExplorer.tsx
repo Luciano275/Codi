@@ -38,6 +38,8 @@ export default function IslandExplorer({
   const [carouselIndex, setCarouselIndex] = useState(0);
   const [focusedIslandId, setFocusedIslandId] = useState<string | null>(islands[0]?.id ?? null);
   const islandCarouselRef = useRef<HTMLDivElement>(null);
+  const titleOverlayRef = useRef<HTMLElement>(null);
+  const carouselOverlayRef = useRef<HTMLDivElement>(null);
   const islandCardRefs = useRef(new Map<string, HTMLAnchorElement | HTMLDivElement>());
   const router = useRouter();
   const hoveredIsland = islands.find((island) => island.id === hoveredId);
@@ -81,6 +83,8 @@ export default function IslandExplorer({
         islands={islands}
         departingId={departingId}
         focusedIslandId={focusedIslandId}
+        topOverlayRef={titleOverlayRef}
+        bottomOverlayRef={carouselOverlayRef}
         onHover={setHoveredId}
         onSelect={(islandId) => {
           const island = islands.find((candidate) => candidate.id === islandId);
@@ -91,7 +95,10 @@ export default function IslandExplorer({
       <div
         className={`pointer-events-none absolute inset-0 z-30 bg-white transition-opacity duration-500 ${showFlash ? 'opacity-100' : 'opacity-0'}`}
       />
-      <header className="pointer-events-none absolute inset-x-0 top-4 z-10 px-4 text-center md:top-7">
+      <header
+        ref={titleOverlayRef}
+        className="pointer-events-none absolute inset-x-0 top-18 z-10 px-4 text-center lg:top-24"
+      >
         <h1 className="font-super-pandora mx-auto max-w-3xl text-2xl leading-tight text-white drop-shadow-[0_4px_0_#2b7d03] md:text-4xl">
           {hoveredIsland?.title ?? 'Seleccioná una isla de aprendizaje'}
         </h1>

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import type { RefObject } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -14,12 +15,15 @@ import {
   createToonGradient,
   updateAnimeAtmosphere,
 } from './anime-rendering';
+import { getResponsiveCameraFrame } from './camera-framing';
 import type { IslandViewModel } from './types';
 
 interface IslandWorldProps {
   islands: IslandViewModel[];
   departingId: string | null;
   focusedIslandId: string | null;
+  topOverlayRef: RefObject<HTMLElement | null>;
+  bottomOverlayRef: RefObject<HTMLElement | null>;
   onHover: (id: string | null) => void;
   onSelect: (id: string) => void;
 }
@@ -132,6 +136,8 @@ export default function IslandWorld({
   islands,
   departingId,
   focusedIslandId,
+  topOverlayRef,
+  bottomOverlayRef,
   onHover,
   onSelect,
 }: IslandWorldProps) {
@@ -155,6 +161,9 @@ export default function IslandWorld({
     camera.position.set(0, 8.0, 15);
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
     configureAnimeRenderer(renderer);
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.width = '100%';
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -177,7 +186,8 @@ export default function IslandWorld({
     const pointer = new THREE.Vector2();
     const loader = new GLTFLoader();
     const modelRequests = new Map<string, ReturnType<GLTFLoader['loadAsync']>>();
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
+    timer.connect(document);
     let elapsed = 0;
     let frameId = 0;
     let disposed = false;
@@ -190,8 +200,10 @@ export default function IslandWorld({
     const enterTargetPos = new THREE.Vector3();
     let enterIsland: THREE.Object3D | undefined;
     let enterT = 0;
-    const focusCameraPosition = new THREE.Vector3();
-    const focusTargetPosition = new THREE.Vector3();
+    const desiredCameraPosition = new THREE.Vector3();
+    const desiredCameraTarget = new THREE.Vector3();
+    let isFramingTransitionActive = false;
+    let framedIsland: THREE.Object3D | undefined;
 
     const loadIslandModel = (island: IslandViewModel) => {
       const existingRequest = modelRequests.get(island.modelCacheKey);
@@ -230,17 +242,64 @@ export default function IslandWorld({
           }
           islandRoots.push(root);
           scene.add(root);
+          root.userData.frameBounds = new THREE.Box3().setFromObject(root);
         });
         if (results.some((result) => result.status === 'rejected')) setLoadError(true);
-        if (focusedIslandId) focusIslandRef.current?.(focusedIslandId);
+        const initialIslandId = focusedIslandId ?? islandRoots[0]?.userData.islandId;
+        if (initialIslandId) focusIslandRef.current?.(initialIslandId);
       })
       .catch(() => undefined);
 
+    const getOverlayInsets = () => {
+      const containerBounds = container.getBoundingClientRect();
+      const topBounds = topOverlayRef.current?.getBoundingClientRect();
+      const bottomBounds = bottomOverlayRef.current?.getBoundingClientRect();
+      return {
+        top: topBounds
+          ? THREE.MathUtils.clamp(topBounds.bottom - containerBounds.top, 0, containerBounds.height)
+          : 0,
+        bottom: bottomBounds
+          ? THREE.MathUtils.clamp(containerBounds.bottom - bottomBounds.top, 0, containerBounds.height)
+          : 0,
+      };
+    };
+
+    const updateCameraFraming = (island: THREE.Object3D) => {
+      const bounds = island.userData.frameBounds as THREE.Box3 | undefined;
+      const width = container.clientWidth;
+      const height = container.clientHeight;
+      if (!bounds || width === 0 || height === 0) return;
+
+      const direction = camera.position.clone().sub(controls.target);
+      if (direction.lengthSq() === 0) direction.set(0, 8, 15);
+      direction.normalize();
+      const insets = getOverlayInsets();
+      const frame = getResponsiveCameraFrame({
+        bounds,
+        camera,
+        direction,
+        viewportWidth: width,
+        viewportHeight: height,
+        topInset: insets.top,
+        bottomInset: insets.bottom,
+      });
+      if (!frame) return;
+
+      framedIsland = island;
+      desiredCameraPosition.copy(frame.position);
+      desiredCameraTarget.copy(frame.target);
+      controls.minDistance = Math.max(6, frame.distance * 0.58);
+      controls.maxDistance = Math.max(20, frame.distance * 1.7);
+      isFramingTransitionActive = true;
+    };
+
     const resize = () => {
       const { clientWidth, clientHeight } = container;
-      camera.aspect = clientWidth / Math.max(clientHeight, 1);
+      if (clientWidth === 0 || clientHeight === 0) return;
+      camera.aspect = clientWidth / clientHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(clientWidth, clientHeight, false);
+      if (state === 'islands' && framedIsland) updateCameraFraming(framedIsland);
     };
 
     const pickIsland = (event: PointerEvent) => {
@@ -320,8 +379,7 @@ export default function IslandWorld({
     const focusIsland = (id: string) => {
       const island = islandRoots.find((root) => root.userData.islandId === id);
       if (!island || state !== 'islands') return;
-      island.getWorldPosition(focusTargetPosition);
-      focusCameraPosition.set(focusTargetPosition.x, 8.0, 15);
+      updateCameraFraming(island);
     };
     focusIslandRef.current = focusIsland;
 
@@ -331,10 +389,13 @@ export default function IslandWorld({
     renderer.domElement.addEventListener('pointerleave', handlePointerLeave);
     const observer = new ResizeObserver(resize);
     observer.observe(container);
+    if (topOverlayRef.current) observer.observe(topOverlayRef.current);
+    if (bottomOverlayRef.current) observer.observe(bottomOverlayRef.current);
     resize();
 
     const animate = () => {
-      const delta = clock.getDelta();
+      timer.update();
+      const delta = timer.getDelta();
       elapsed += delta;
       updateAnimeAtmosphere(atmosphere, elapsed);
       const smooth = 1 - Math.pow(0.001, delta);
@@ -364,9 +425,17 @@ export default function IslandWorld({
         controls.target.lerpVectors(enterFromTarget, enterWorldPos, eased);
         camera.lookAt(controls.target);
       } else {
-        if (focusCameraPosition.lengthSq() > 0) {
-          camera.position.lerp(focusCameraPosition, smooth);
-          controls.target.lerp(focusTargetPosition, smooth);
+        if (isFramingTransitionActive) {
+          camera.position.lerp(desiredCameraPosition, smooth);
+          controls.target.lerp(desiredCameraTarget, smooth);
+          if (
+            camera.position.distanceToSquared(desiredCameraPosition) < 0.0001 &&
+            controls.target.distanceToSquared(desiredCameraTarget) < 0.0001
+          ) {
+            camera.position.copy(desiredCameraPosition);
+            controls.target.copy(desiredCameraTarget);
+            isFramingTransitionActive = false;
+          }
         }
         controls.update();
       }
@@ -383,6 +452,7 @@ export default function IslandWorld({
       focusIslandRef.current = null;
       notifyHover(null);
       controls.dispose();
+      timer.dispose();
       islandRoots.forEach((root) => {
         const mixer = root.userData.mixer as THREE.AnimationMixer | undefined;
         mixer?.stopAllAction();
