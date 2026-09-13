@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useState, useTransition } from 'react';
 import { CodiMascot } from '@/components/mascot/CodiMascot';
-import { Gem, Lightbulb, LockKeyhole, Sparkles } from '@/components/ui/Icon';
+import { Gem, Lightbulb, LockKeyhole } from '@/components/ui/Icon';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import { unlockLessonSmartHint } from './actions';
 
@@ -110,7 +110,8 @@ export function SmartHintCard({ lessonId, canUnlock, initialHint }: SmartHintCar
             disabled={isPending}
             className="flex shrink-0 cursor-pointer items-center justify-center gap-2 rounded-2xl border-b-4 border-[#4d9705] bg-[#69c507] px-5 py-3 font-super-pandora text-sm text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-[#74d20a] active:translate-y-0.5 active:border-b-2 disabled:cursor-wait disabled:opacity-60 sm:order-3"
           >
-            <Sparkles className="h-4 w-4" /> {isPending ? 'Desbloqueando…' : 'Usar mi pista'}
+            <Lightbulb className="h-4 w-4 fill-[#dfff9f]" />{' '}
+            {isPending ? 'Desbloqueando…' : 'Usar mi pista'}
           </button>
         ) : (
           <Link

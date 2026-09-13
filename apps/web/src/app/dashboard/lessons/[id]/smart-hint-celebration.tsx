@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { CodiMascot } from '@/components/mascot/CodiMascot';
-import { Check, Sparkles, X } from '@/components/ui/Icon';
+import { Check, Lightbulb, X } from '@/components/ui/Icon';
 
 interface SmartHintCelebrationProps {
   open: boolean;
@@ -125,7 +125,7 @@ export function SmartHintCelebration({ open, onClose }: SmartHintCelebrationProp
               className="relative mt-5 flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl border-b-4 border-[#bd9100] bg-[#f5bd00] px-5 py-3 font-super-pandora text-sm text-white transition hover:-translate-y-0.5 hover:bg-[#ffc800] active:translate-y-1 active:border-b-0"
             >
               <Check className="h-4 w-4" strokeWidth={3} /> Ver pista{' '}
-              <Sparkles className="h-4 w-4" />
+              <Lightbulb className="h-4 w-4 fill-[#fff19a]" />
             </button>
           </motion.section>
         </motion.div>
