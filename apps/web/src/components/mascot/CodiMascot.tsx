@@ -52,7 +52,16 @@ export function CodiMascot({
   label = 'Codi',
 }: CodiMascotProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const animationRef = useRef(animation);
+  const loopAfterRef = useRef(loopAfter);
+  const playAnimationRef = useRef<(() => void) | null>(null);
   const [failedToLoad, setFailedToLoad] = useState(false);
+
+  useEffect(() => {
+    animationRef.current = animation;
+    loopAfterRef.current = loopAfter;
+    playAnimationRef.current?.();
+  }, [animation, loopAfter]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -63,12 +72,15 @@ export function CodiMascot({
     let visible = true;
     let mixer: THREE.AnimationMixer | null = null;
     let model: THREE.Object3D | null = null;
+    let clips: THREE.AnimationClip[] = [];
+    let activeAction: THREE.AnimationAction | null = null;
     let finishedHandler: THREE.EventListener<
       THREE.AnimationMixerEventMap['finished'],
       'finished',
       THREE.AnimationMixer
     > | null = null;
-    const clock = new THREE.Clock();
+    const timer = new THREE.Timer();
+    timer.connect(document);
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
     camera.position.set(0, 0.1, 7);
@@ -105,11 +117,52 @@ export function CodiMascot({
     const visibilityObserver = new IntersectionObserver(
       ([entry]) => {
         visible = entry.isIntersecting;
-        if (visible) clock.start();
+        if (visible) timer.reset();
       },
       { threshold: 0.01 },
     );
     visibilityObserver.observe(container);
+
+    const playAnimation = () => {
+      if (!mixer || clips.length === 0) return;
+
+      if (finishedHandler) mixer.removeEventListener('finished', finishedHandler);
+      finishedHandler = null;
+      const nextClip = THREE.AnimationClip.findByName(clips, animationRef.current);
+      if (!nextClip) return;
+
+      const previousAction = activeAction;
+      const nextAction = mixer.clipAction(nextClip);
+      const loopClip = loopAfterRef.current
+        ? THREE.AnimationClip.findByName(clips, loopAfterRef.current)
+        : null;
+      const transitionDuration = previousAction ? 0.14 : 0;
+
+      previousAction?.fadeOut(transitionDuration);
+      nextAction.reset().setEffectiveWeight(1).fadeIn(transitionDuration);
+      activeAction = nextAction;
+
+      if (loopClip && !reducedMotion) {
+        const loopAction = mixer.clipAction(loopClip);
+        nextAction.setLoop(THREE.LoopOnce, 1);
+        nextAction.clampWhenFinished = true;
+        finishedHandler = (event) => {
+          if (event.action !== nextAction) return;
+          loopAction.reset().setLoop(THREE.LoopRepeat, Infinity).fadeIn(0.18).play();
+          nextAction.fadeOut(0.18);
+          mixer?.removeEventListener('finished', finishedHandler!);
+          finishedHandler = null;
+          activeAction = loopAction;
+        };
+        mixer.addEventListener('finished', finishedHandler);
+      } else {
+        nextAction.setLoop(THREE.LoopRepeat, Infinity);
+      }
+
+      nextAction.play();
+      if (reducedMotion) mixer.setTime(0);
+    };
+    playAnimationRef.current = playAnimation;
 
     new GLTFLoader().load(
       '/anims/Codi.glb',
@@ -120,6 +173,7 @@ export function CodiMascot({
         }
 
         model = gltf.scene;
+        clips = gltf.animations;
         const bounds = new THREE.Box3().setFromObject(model);
         const size = bounds.getSize(new THREE.Vector3());
         const largestDimension = Math.max(size.x, size.y, size.z);
@@ -131,32 +185,8 @@ export function CodiMascot({
         model.position.y += 0.08;
         scene.add(model);
 
-        const initialClip = THREE.AnimationClip.findByName(gltf.animations, animation);
-        if (!initialClip) return;
         mixer = new THREE.AnimationMixer(model);
-        const initialAction = mixer.clipAction(initialClip);
-        const loopClip = loopAfter
-          ? THREE.AnimationClip.findByName(gltf.animations, loopAfter)
-          : null;
-
-        if (loopClip && !reducedMotion) {
-          const loopAction = mixer.clipAction(loopClip);
-          initialAction.setLoop(THREE.LoopOnce, 1);
-          initialAction.clampWhenFinished = true;
-          initialAction.play();
-          finishedHandler = (event) => {
-            if (event.action !== initialAction) return;
-            loopAction.reset().setLoop(THREE.LoopRepeat, Infinity).play();
-            initialAction.crossFadeTo(loopAction, 0.18, false);
-            mixer?.removeEventListener('finished', finishedHandler!);
-          };
-          mixer.addEventListener('finished', finishedHandler);
-        } else {
-          initialAction.setLoop(THREE.LoopRepeat, Infinity);
-          initialAction.play();
-        }
-
-        if (reducedMotion) mixer.setTime(0);
+        playAnimation();
       },
       undefined,
       () => {
@@ -167,7 +197,8 @@ export function CodiMascot({
     const render = () => {
       if (!disposed) {
         if (visible) {
-          if (!reducedMotion) mixer?.update(clock.getDelta());
+          timer.update();
+          if (!reducedMotion) mixer?.update(timer.getDelta());
           renderer.render(scene, camera);
         }
         frameId = window.requestAnimationFrame(render);
@@ -178,18 +209,18 @@ export function CodiMascot({
     return () => {
       disposed = true;
       window.cancelAnimationFrame(frameId);
+      playAnimationRef.current = null;
       visibilityObserver.disconnect();
       resizeObserver.disconnect();
-      if (mixer && model) {
-        if (finishedHandler) mixer.removeEventListener('finished', finishedHandler);
-        mixer.stopAllAction();
-        mixer.uncacheRoot(model);
-      }
+      timer.dispose();
+      if (mixer && finishedHandler) mixer.removeEventListener('finished', finishedHandler);
+      if (mixer) mixer.stopAllAction();
+      if (mixer && model) mixer.uncacheRoot(model);
       if (model) disposeModel(model);
       renderer.dispose();
       renderer.domElement.remove();
     };
-  }, [animation, loopAfter]);
+  }, []);
 
   return (
     <div
