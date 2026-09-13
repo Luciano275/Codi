@@ -100,23 +100,16 @@ export class EvaluationCompletionService {
     problemId: string,
     gemsReward: number,
   ): Promise<{ awardXp: boolean; awardGems: boolean }> {
-    const [previousAccepted, gemsAlreadyAwarded] = await Promise.all([
-      transaction.submission.findFirst({
-        where: { userId, problemId, status: 'ACCEPTED', id: { not: submissionId } },
-        select: { id: true },
-      }),
-      transaction.submission.findFirst({
-        where: {
-          userId,
-          problemId,
-          status: 'ACCEPTED',
-          gemsAwarded: true,
-          id: { not: submissionId },
-        },
-        select: { id: true },
-      }),
-    ]);
-    return { awardXp: !previousAccepted, awardGems: !gemsAlreadyAwarded && gemsReward > 0 };
+    const previousCompletion = await transaction.submission.findFirst({
+      where: { userId, problemId, status: 'ACCEPTED', id: { not: submissionId } },
+      select: { id: true },
+    });
+    const isFirstCompletion = !previousCompletion;
+
+    return {
+      awardXp: isFirstCompletion,
+      awardGems: isFirstCompletion && gemsReward > 0,
+    };
   }
 
   private toJson(value: unknown): Prisma.InputJsonValue {

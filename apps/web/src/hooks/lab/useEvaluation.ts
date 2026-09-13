@@ -24,6 +24,7 @@ interface EvaluationResult {
 interface EvaluationSubmission {
   status: string;
   score: number | null;
+  gemsAwarded: boolean;
   cmsResults: EvaluationResult[] | { error?: string } | null;
 }
 
@@ -63,7 +64,6 @@ function formatEvaluationContent(submission: EvaluationSubmission) {
 
 export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
   const [evaluating, setEvaluating] = useState(false);
-  const gemRewardClaimedRef = useRef(false);
   const pollIntervalsRef = useRef<Set<number>>(new Set());
   const pollTimeoutsRef = useRef<Set<number>>(new Set());
 
@@ -139,10 +139,10 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
 
                 if (
                   submission.status === 'ACCEPTED' &&
-                  exercise.gemsReward > 0 &&
-                  !gemRewardClaimedRef.current
+                  score >= 99.999 &&
+                  submission.gemsAwarded &&
+                  exercise.gemsReward > 0
                 ) {
-                  gemRewardClaimedRef.current = true;
                   onGemReward({ amount: exercise.gemsReward, exerciseTitle: exercise.title });
                 }
               } finally {
@@ -174,5 +174,5 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
     [addConsoleTab, clearPolling],
   );
 
-  return { evaluating, handleEvaluate, gemRewardClaimedRef };
+  return { evaluating, handleEvaluate };
 }
