@@ -47,41 +47,46 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
   }, []);
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between bg-transparent px-3 md:h-20 md:px-6">
-      <div className="flex items-center gap-2 md:gap-3">
+    <header className="fixed inset-x-0 top-0 z-50 flex h-16 items-center justify-between bg-transparent px-3 lg:h-20 lg:px-6">
+      <div className="flex items-center gap-2 lg:gap-3">
         <button
           type="button"
           onClick={onMenuOpen}
           aria-label="Abrir menú principal"
-          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border-2 border-[#46a302] bg-[#58cc02] text-white shadow-[0_4px_0_#2b7d03] transition-all hover:-translate-y-0.5 hover:bg-[#65d90b] active:translate-y-1 active:shadow-none"
+          className="flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center rounded-2xl border border-pradera-200 bg-white/95 text-pradera-700 shadow-[0_3px_0_#b7d99f] transition-transform duration-200 hover:-translate-y-0.5 hover:bg-pradera-50 active:translate-y-0.5 active:shadow-none"
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1 shadow-sm backdrop-blur-md md:gap-3">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/92 px-2 py-1 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md md:gap-3">
           <Image
             src="/school_logo.png"
             alt="EET 3117"
             width={44}
             height={44}
             priority
-            className="h-10 w-auto object-contain md:h-13"
+            className="h-10 w-auto object-contain lg:h-13"
           />
-          <div className="hidden md:block">
-            <h1 className="font-super-pandora text-xs leading-tight text-gray-900 md:text-sm">
+          <div className="hidden lg:block">
+            <h1 className="font-super-pandora text-xs leading-tight text-gray-900 lg:text-sm">
               Escuela de Educación
               <br />
               Técnica Nº 3117
             </h1>
-            <p className="font-simply-olive text-[10px] text-gray-500 md:text-[11px]">
+            <p className="font-simply-olive text-[10px] text-gray-500 lg:text-[11px]">
               Maestro Daniel Óscar Reyes
             </p>
           </div>
         </div>
+        {!islandMode ? (
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200/90 bg-white/92 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md lg:hidden">
+            <img src="/logo.png?v=3" alt="Codi" className="h-9 w-9 object-contain drop-shadow-xs" />
+          </div>
+        ) : null}
       </div>
 
       {!islandMode ? (
-        <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-white/70 bg-white/80 px-3 py-1.5 shadow-sm backdrop-blur-md md:flex">
-          <div className="relative h-12 w-12 shrink-0 overflow-hidden md:h-15 md:w-15">
+        <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/92 px-3 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md lg:flex">
+          <div className="relative h-15 w-15 shrink-0 overflow-hidden">
             <img
               src="/logo.png?v=3"
               alt="Codi"
@@ -98,19 +103,27 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
       ) : null}
 
       <div className="flex items-center gap-1.5 md:gap-3">
-        <XPBar totalXp={clientUser.xp} />
+        <div className="hidden sm:block">
+          <XPBar totalXp={clientUser.xp} />
+        </div>
 
-        <StatChip
-          icon={<Gem className="h-3.5 w-3.5 md:h-4 md:w-4" />}
-          value={clientUser.gems}
-          gradient="cyan"
-          label="Gemas"
-        />
+        <div className="hidden sm:block">
+          <StatChip
+            icon={<Gem className="h-4 w-4" />}
+            value={clientUser.gems}
+            gradient="cyan"
+            label="Gemas"
+            appearance="subtle"
+          />
+        </div>
 
         <div className="relative z-50" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
-            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-white/70 bg-white/80 px-2 py-1.5 shadow-sm backdrop-blur-md transition-all duration-200 hover:bg-white"
+            aria-expanded={dropdownOpen}
+            aria-haspopup="menu"
+            aria-label="Abrir menú de usuario"
+            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/92 px-2 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md transition-colors duration-200 hover:bg-white"
           >
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-lagos-100 shadow-xs md:h-9 md:w-9">
               {clientUser.avatarUrl ? (
@@ -136,12 +149,22 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
 
           {dropdownOpen && (
             <div
-              className="absolute right-0 top-full mt-2 w-52 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg animate-scale-in"
+              className="absolute right-0 top-full mt-2 w-64 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-lg animate-scale-in md:w-52"
               style={{ zIndex: 99999 }}
             >
-              <div className="border-b border-gray-100 bg-linear-to-r from-gray-50 to-white px-4 py-3">
+              <div className="border-b border-gray-100 bg-slate-50/70 px-4 py-3">
                 <p className="text-sm font-semibold text-gray-900">{clientUser.displayName}</p>
                 <p className="font-simply-olive text-xs text-gray-500">@{clientUser.username}</p>
+              </div>
+              <div className="grid gap-2 border-b border-gray-100 px-3 py-3 sm:hidden">
+                <XPBar totalXp={clientUser.xp} className="w-full" />
+                <StatChip
+                  icon={<Gem className="h-4 w-4" />}
+                  value={clientUser.gems}
+                  gradient="cyan"
+                  label="Gemas"
+                  appearance="subtle"
+                />
               </div>
               <div className="p-1">
                 <Link
