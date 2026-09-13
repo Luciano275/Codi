@@ -11,6 +11,89 @@
   position: absolute;
 }
 
+.particleField {
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  position: absolute;
+}
+
+.particle {
+  --particle-rotation: 0deg;
+  animation: competitive-particle-float var(--particle-duration) ease-in-out var(--particle-delay)
+    infinite;
+  background: var(--particle-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--particle-color) 70%, transparent);
+  height: var(--particle-size);
+  left: var(--particle-left);
+  opacity: 0.88;
+  position: absolute;
+  top: var(--particle-top);
+  width: var(--particle-size);
+}
+
+.dot {
+  border-radius: 999px;
+}
+
+.diamond {
+  --particle-rotation: 45deg;
+}
+
+.ribbon {
+  border-radius: 999px;
+  --particle-rotation: -32deg;
+  width: calc(var(--particle-size) * 0.38);
+}
+
+.podiumParticleField .particle {
+  opacity: 0.96;
+}
+
+.podiumParticleField::before,
+.podiumParticleField::after {
+  background: var(--profile-accent-soft);
+  border-radius: 999px;
+  content: '';
+  filter: blur(2px);
+  opacity: 0.24;
+  position: absolute;
+}
+
+.podiumParticleField::before {
+  height: 14rem;
+  right: -5rem;
+  top: -7rem;
+  width: 14rem;
+}
+
+.podiumParticleField::after {
+  bottom: -9rem;
+  height: 17rem;
+  left: 32%;
+  width: 17rem;
+}
+
+.rankedParticleField .particle {
+  opacity: 0.58;
+}
+
+@keyframes competitive-particle-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--particle-rotation)) scale(0.86);
+  }
+  50% {
+    transform: translate3d(0, -14px, 0) rotate(calc(var(--particle-rotation) + 150deg)) scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .particle {
+    animation: none;
+  }
+}
+
 .avatarFrame {
   border-radius: 45% 55% 49% 51% / 49% 45% 55% 51%;
   box-shadow: 0 8px 0 var(--profile-accent-ink);

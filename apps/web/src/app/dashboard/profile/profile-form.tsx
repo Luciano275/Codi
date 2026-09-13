@@ -268,7 +268,7 @@ export default function ProfileForm({ user }: ProfileFormProps) {
                   aria-pressed={selected}
                   disabled={savingBanner !== null}
                   onClick={() => void saveProfileBanner(banner.id)}
-                  className={`flex items-center justify-between rounded-xl border-2 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-bosque-200 disabled:cursor-wait disabled:opacity-60 ${banner.surfaceClass} ${selected ? `${banner.borderClass} shadow-[0_3px_0_rgba(42,36,96,.35)]` : 'border-transparent opacity-70 hover:opacity-100'}`}
+                  className={`flex cursor-pointer items-center justify-between rounded-xl border-2 px-3 py-3 text-left transition focus:outline-none focus:ring-2 focus:ring-bosque-200 disabled:cursor-wait disabled:opacity-60 ${banner.surfaceClass} ${selected ? `${banner.borderClass} shadow-[0_3px_0_rgba(42,36,96,.35)]` : 'border-transparent opacity-70 hover:opacity-100'}`}
                 >
                   <span>
                     <span className="block font-super-pandora text-sm text-white">

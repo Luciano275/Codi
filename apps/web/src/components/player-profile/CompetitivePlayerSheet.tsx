@@ -1,5 +1,6 @@
 import { Crown, Flame, Gem, ShieldCheck, Swords, Target, Trophy, Zap } from '@/components/ui/Icon';
 import type { CompetitivePlayerProfile } from '@/lib/server-api';
+import { CompetitiveParticles } from './CompetitiveParticles';
 import { getPlayerBanner } from './player-banner';
 import { PlayerAvatar } from './PlayerAvatar';
 import styles from './competitive-player.module.css';
@@ -102,6 +103,7 @@ export function CompetitivePlayerSheet({ player, successRate }: CompetitivePlaye
       <section
         className={`${styles.heroSheet} relative overflow-hidden border-4 px-5 py-8 sm:px-8 sm:py-10 ${banner.surfaceClass} ${banner.borderClass}`}
       >
+        <CompetitiveParticles rank={player.rank} />
         <div aria-hidden className={styles.heroStitching} />
         <div className="relative grid gap-8 lg:grid-cols-[minmax(0,1fr)_23rem] lg:items-center">
           <div className="flex flex-col items-center gap-6 text-center sm:flex-row sm:items-end sm:text-left">

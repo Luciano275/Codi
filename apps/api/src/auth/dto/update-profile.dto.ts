@@ -1,6 +1,14 @@
 import { IsBoolean, IsIn, IsInt, IsOptional, IsString, MaxLength, Min } from 'class-validator';
 
-const profileBanners = ['BOSQUE', 'DESIERTO', 'CASTILLO', 'PRADERA'] as const;
+const profileBanners = [
+  'BOSQUE',
+  'DESIERTO',
+  'CASTILLO',
+  'PRADERA',
+  'ROSAL',
+  'LAVANDA',
+  'CORAL',
+] as const;
 
 export class UpdateProfileDto {
   @IsOptional()
