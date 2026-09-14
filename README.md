@@ -90,7 +90,7 @@ Sincronización con un sistema externo de gestión de competencias mediante webh
 
 ## 🏗️ Arquitectura
 
-<img width="900" alt="architecture" src="https://github.com/user-attachments/assets/4e62717a-89bf-4930-a994-0aeed46d4741" />
+<img width="900" alt="architecture" src="architecture/codi-dark.png" />
 
 | Módulo                        | Stack                            | Puerto       | Descripción                         |
 | ----------------------------- | -------------------------------- | ------------ | ----------------------------------- |
