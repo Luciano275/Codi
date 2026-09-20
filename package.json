@@ -14,6 +14,8 @@
     "db:migrate:dev": "pnpm --filter @codi/database db:migrate:dev",
     "db:seed": "pnpm --filter @codi/database db:seed",
     "db:studio": "pnpm --filter @codi/database db:studio",
+    "db:create:admin": "pnpm --filter @codi/database db:create:admin",
+    "db:create:student": "pnpm --filter @codi/database db:create:student",
     "audit": "pnpm audit --prod",
     "audit:all": "pnpm audit"
   },
