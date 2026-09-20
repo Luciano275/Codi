@@ -41,7 +41,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
   const responseHeaders = new Headers({
     'Content-Type': modelResponse.headers.get('content-type') || 'model/gltf-binary',
-    'Cache-Control': 'private, max-age=3600',
+    'Cache-Control': 'private, max-age=86400, stale-while-revalidate=604800',
   });
   ['accept-ranges', 'content-length', 'content-range', 'etag', 'last-modified'].forEach(
     (header) => {
