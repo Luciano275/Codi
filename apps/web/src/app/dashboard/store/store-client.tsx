@@ -27,7 +27,7 @@ import type {
   StoreReward,
 } from '@codi/types';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import diamondChestImage from '@/assets/diamonds_chest.webp';
 import shopImage from '@/assets/shop.webp';
 import shopWallpaperImage from '@/assets/shop_wallpaper.webp';
@@ -147,7 +147,7 @@ const RewardCard = memo(function RewardCard({
 
   return (
     <article
-      className="relative flex min-h-[410px] flex-col overflow-hidden rounded-[1.8rem] border-2 p-4 shadow-md transition-transform duration-200 hover:-translate-y-1"
+      className="deferred-card relative flex min-h-[410px] flex-col overflow-hidden rounded-[1.8rem] border-2 p-4 shadow-md transition-transform duration-200 hover:-translate-y-1"
       style={cardStyle}
     >
       <RewardIllustration
@@ -466,7 +466,7 @@ export default function StoreClient({
               store.recentRewards.map((item) => <RecentRewardItem key={item.id} item={item} />)
             ) : (
               <li className="flex min-h-36 flex-col items-center justify-center text-center font-simply-olive text-sm text-gray-500 md:col-span-2 xl:col-span-3">
-                <CodiMascot
+                <DynamicCodiMascot
                   animation="Codi_Rest"
                   label="Codi descansa mientras esperás tu primera recompensa"
                   className="h-28 w-28"

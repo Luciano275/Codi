@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { observeRenderVisibility } from '@/lib/render-visibility';
+import { getWebGlRenderQuality } from '@/lib/webgl-performance';
 
 export const CODI_ANIMATIONS = [
   'Codi_Correct_Small',
@@ -20,7 +22,7 @@ export const CODI_ANIMATIONS = [
 
 export type CodiAnimation = (typeof CODI_ANIMATIONS)[number];
 
-interface CodiMascotProps {
+export interface CodiMascotProps {
   animation: CodiAnimation;
   loopAfter?: CodiAnimation;
   className?: string;
@@ -69,7 +71,7 @@ export function CodiMascot({
 
     let frameId = 0;
     let disposed = false;
-    let visible = true;
+    let canRender = true;
     let mixer: THREE.AnimationMixer | null = null;
     let model: THREE.Object3D | null = null;
     let clips: THREE.AnimationClip[] = [];
@@ -86,8 +88,13 @@ export function CodiMascot({
     camera.position.set(0, 0.1, 7);
     camera.lookAt(0, 0.25, 0);
 
-    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderQuality = getWebGlRenderQuality();
+    const renderer = new THREE.WebGLRenderer({
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance',
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, renderQuality.pixelRatioCap));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.setClearAlpha(0);
     container.appendChild(renderer.domElement);
@@ -114,14 +121,18 @@ export function CodiMascot({
     resize();
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const visibilityObserver = new IntersectionObserver(
-      ([entry]) => {
-        visible = entry.isIntersecting;
-        if (visible) timer.reset();
-      },
-      { threshold: 0.01 },
-    );
-    visibilityObserver.observe(container);
+
+    function scheduleRender() {
+      if (!disposed && canRender && frameId === 0) frameId = requestAnimationFrame(render);
+    }
+
+    function render() {
+      frameId = 0;
+      timer.update();
+      if (!reducedMotion) mixer?.update(timer.getDelta());
+      renderer.render(scene, camera);
+      if (!reducedMotion) scheduleRender();
+    }
 
     const playAnimation = () => {
       if (!mixer || clips.length === 0) return;
@@ -161,6 +172,7 @@ export function CodiMascot({
 
       nextAction.play();
       if (reducedMotion) mixer.setTime(0);
+      scheduleRender();
     };
     playAnimationRef.current = playAnimation;
 
@@ -187,6 +199,7 @@ export function CodiMascot({
 
         mixer = new THREE.AnimationMixer(model);
         playAnimation();
+        scheduleRender();
       },
       undefined,
       () => {
@@ -194,23 +207,22 @@ export function CodiMascot({
       },
     );
 
-    const render = () => {
-      if (!disposed) {
-        if (visible) {
-          timer.update();
-          if (!reducedMotion) mixer?.update(timer.getDelta());
-          renderer.render(scene, camera);
-        }
-        frameId = window.requestAnimationFrame(render);
+    const stopObservingVisibility = observeRenderVisibility(container, (visible) => {
+      canRender = visible;
+      if (visible) {
+        timer.reset();
+        scheduleRender();
+      } else if (frameId !== 0) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
       }
-    };
-    render();
+    });
 
     return () => {
       disposed = true;
       window.cancelAnimationFrame(frameId);
       playAnimationRef.current = null;
-      visibilityObserver.disconnect();
+      stopObservingVisibility();
       resizeObserver.disconnect();
       timer.dispose();
       if (mixer && finishedHandler) mixer.removeEventListener('finished', finishedHandler);
@@ -218,6 +230,7 @@ export function CodiMascot({
       if (mixer && model) mixer.uncacheRoot(model);
       if (model) disposeModel(model);
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, []);

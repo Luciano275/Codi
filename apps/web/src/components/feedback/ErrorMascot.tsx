@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 
 interface ErrorMascotProps {
   title: string;
@@ -35,7 +35,7 @@ export function ErrorMascot({ title, description, score, reducedMotion }: ErrorM
           }}
           className="relative z-10 h-64 w-[min(19rem,72vw)] origin-bottom sm:h-72"
         >
-          <CodiMascot
+          <DynamicCodiMascot
             animation={hasNoCorrectAnswers ? 'Codi_Frustrated' : 'Codi_Wrong_Small'}
             loopAfter={hasNoCorrectAnswers ? 'Codi_Crying' : undefined}
             label={

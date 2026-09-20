@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { Check, Gem, X } from '@/components/ui/Icon';
 
 const confetti = [
@@ -66,7 +66,7 @@ function RedemptionMascot({ label }: { label: string }) {
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ type: 'spring', stiffness: 340, damping: 16, delay: 0.16 }}
     >
-      <CodiMascot
+      <DynamicCodiMascot
         animation="Codi_Excited"
         label={`Codi celebra ${label}`}
         className="h-full w-full drop-shadow-[0_13px_0_rgba(38,102,59,0.16)]"

@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { useCallback, useState, useTransition } from 'react';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { Gem, Lightbulb, LockKeyhole } from '@/components/ui/Icon';
 import MarkdownRenderer from '@/components/dashboard/MarkdownRenderer';
 import { unlockLessonSmartHint } from './actions';
@@ -94,7 +94,7 @@ export function SmartHintCard({ lessonId, canUnlock, initialHint }: SmartHintCar
             </p>
           </div>
         </div>
-        <CodiMascot
+        <DynamicCodiMascot
           animation={canUnlock ? 'Codi_Thinking' : 'Codi_Frustrated'}
           label={
             canUnlock

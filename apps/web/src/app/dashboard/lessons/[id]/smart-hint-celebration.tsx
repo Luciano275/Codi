@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { Check, Lightbulb, X } from '@/components/ui/Icon';
 
 interface SmartHintCelebrationProps {
@@ -27,7 +27,7 @@ function HintMascot() {
       animate={{ opacity: 1, scale: 1, rotate: 0 }}
       transition={{ type: 'spring', stiffness: 330, damping: 17, delay: 0.16 }}
     >
-      <CodiMascot
+      <DynamicCodiMascot
         animation="Codi_Happy_Alt"
         label="Codi celebra que la pista fue desbloqueada"
         className="h-full w-full drop-shadow-[0_12px_0_rgba(108,86,0,0.16)]"

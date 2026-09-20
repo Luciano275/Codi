@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { Gem, X, Zap } from '@/components/ui/Icon';
 import { useAnimatedValue } from '@/hooks/useAnimatedValue';
 import { RewardBurst } from './RewardBurst';
@@ -174,7 +174,7 @@ function RewardCelebrationCard({
           }}
           className="relative mx-auto mt-1 h-32 w-32"
         >
-          <CodiMascot
+          <DynamicCodiMascot
             animation="Codi_Happy"
             label="Codi celebra la recompensa obtenida"
             className="h-full w-full"

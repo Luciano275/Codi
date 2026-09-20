@@ -1,7 +1,7 @@
 'use client';
 
 import { BookOpen, X, Zap, FileCode2, CheckCircle2 } from '@/components/ui/Icon';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: 'text-pradera-600 bg-pradera-50',
@@ -112,7 +112,7 @@ export function ExerciseStatement({
             <div className="max-h-48 overflow-y-auto">
               {submissions.length === 0 ? (
                 <div className="flex items-center justify-center gap-2 px-4 py-2 text-center text-xs text-gray-400">
-                  <CodiMascot
+                  <DynamicCodiMascot
                     animation="Codi_Idle"
                     label="Codi espera tu primer envío"
                     className="h-13 w-13 shrink-0"

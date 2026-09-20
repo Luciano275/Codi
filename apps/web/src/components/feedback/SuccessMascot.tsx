@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'motion/react';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { MascotParticles } from './mascot-particles';
 
 interface SuccessMascotProps {
@@ -35,7 +35,7 @@ export function SuccessMascot({ title, description, score, reducedMotion }: Succ
           }}
           className="relative z-10 h-64 w-[min(19rem,72vw)] sm:h-72"
         >
-          <CodiMascot
+          <DynamicCodiMascot
             animation="Codi_Correct_Small"
             loopAfter={isPerfectScore ? 'Codi_Excited' : undefined}
             label={

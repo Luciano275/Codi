@@ -2,10 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Fredoka, Quicksand, Patrick_Hand } from 'next/font/google';
 import { config } from '@codi/config';
 import './globals.css';
-import 'katex/dist/katex.min.css';
 import SkipLink from '@/components/skip-link';
-import ProgressBarProvider from '@/components/progress-bar';
-import { Providers } from './providers';
 
 const superPandora = Fredoka({
   subsets: ['latin'],
@@ -81,15 +78,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body suppressHydrationWarning className="min-h-screen font-sans antialiased">
         <SkipLink />
-        <Providers>
-          <ProgressBarProvider>
-            <main id="main-content">{children}</main>
-            <script
-              type="application/ld+json"
-              dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-            />
-          </ProgressBarProvider>
-        </Providers>
+        <main id="main-content">{children}</main>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </body>
     </html>
   );
