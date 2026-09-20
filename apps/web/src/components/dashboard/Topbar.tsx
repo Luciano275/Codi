@@ -57,7 +57,7 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
         >
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/92 px-2 py-1 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md md:gap-3">
+        <div className="flex items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/96 px-2 py-1 shadow-[0_3px_0_rgba(15,23,42,0.06)] md:gap-3">
           <Image
             src="/school_logo.png"
             alt="EET 3117"
@@ -78,14 +78,14 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
           </div>
         </div>
         {!islandMode ? (
-          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200/90 bg-white/92 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md lg:hidden">
+          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200/90 bg-white/96 shadow-[0_3px_0_rgba(15,23,42,0.06)] lg:hidden">
             <img src="/logo.png?v=3" alt="Codi" className="h-9 w-9 object-contain drop-shadow-xs" />
           </div>
         ) : null}
       </div>
 
       {!islandMode ? (
-        <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/92 px-3 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md lg:flex">
+        <div className="absolute left-1/2 hidden w-full max-w-[300px] -translate-x-1/2 items-center gap-3 rounded-2xl border border-slate-200/90 bg-white/96 px-3 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] lg:flex">
           <div className="relative h-15 w-15 shrink-0 overflow-hidden">
             <img
               src="/logo.png?v=3"
@@ -123,7 +123,7 @@ export default function Topbar({ user, islandMode = false, onMenuOpen }: TopbarP
             aria-expanded={dropdownOpen}
             aria-haspopup="menu"
             aria-label="Abrir menú de usuario"
-            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/92 px-2 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] backdrop-blur-md transition-colors duration-200 hover:bg-white"
+            className="flex cursor-pointer items-center gap-2 rounded-2xl border border-slate-200/90 bg-white/96 px-2 py-1.5 shadow-[0_3px_0_rgba(15,23,42,0.06)] transition-colors duration-200 hover:bg-white"
           >
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-lagos-100 shadow-xs md:h-9 md:w-9">
               {clientUser.avatarUrl ? (

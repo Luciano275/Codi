@@ -27,7 +27,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
       <Menubar open={menuOpen} userRole={user.role} onClose={() => setMenuOpen(false)} />
       <main
         id="main-content"
-        className={`relative h-dvh min-w-0 overflow-x-hidden overflow-y-auto ${isIslandSelection ? 'overflow-hidden' : ''} ${isIslandExperience ? '' : 'pt-16 md:pt-20'}`}
+        className={`app-scroll-area relative h-dvh min-w-0 overflow-x-hidden overflow-y-auto ${isIslandSelection ? 'overflow-hidden' : ''} ${isIslandExperience ? '' : 'pt-16 md:pt-20'}`}
       >
         <PageTransition animateTransform={!isIslandPath}>
           {isIslandSelection ? (

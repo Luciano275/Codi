@@ -1,13 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
-import { CodiMascot } from '@/components/mascot/CodiMascot';
+import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from '@/components/ui/Icon';
 
 export default function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -47,27 +44,17 @@ export default function LoginForm() {
   };
 
   return (
-    <motion.div
-      className="w-full max-w-112.5 mx-auto px-4"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-    >
+    <div className="login-panel-enter w-full max-w-112.5 mx-auto px-4">
       <div className="bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10">
         <div className="flex flex-col items-center text-center mb-7">
-          <motion.div
-            className="relative mb-3 h-40 w-40 md:h-44 md:w-44"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
-          >
-            <CodiMascot
+          <div className="login-mascot-enter relative mb-3 h-40 w-40 md:h-44 md:w-44">
+            <DynamicCodiMascot
               animation={error ? 'Codi_Frustrated' : loading ? 'Codi_Idle' : 'Codi_Wave'}
               loopAfter={error ? 'Codi_Crying' : loading ? undefined : 'Codi_Rest'}
               label={error ? 'Codi acompaña el error de inicio de sesión' : 'Codi saluda'}
               className="h-full w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.3)]"
             />
-          </motion.div>
+          </div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">
             ¡Bienvenido!
           </h1>
@@ -161,12 +148,10 @@ export default function LoginForm() {
           )}
 
           <div aria-live="polite" aria-atomic="true">
-            <motion.button
+            <button
               type="submit"
               disabled={loading}
-              className="w-full py-3.5 text-white font-bold text-base rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] shadow-lg shadow-[#00D2D3]/30 hover:shadow-xl hover:shadow-[#73CE09]/40 transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed relative overflow-hidden group hover:cursor-pointer"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              className="group relative w-full overflow-hidden rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] py-3.5 text-base font-bold text-white shadow-lg shadow-[#00D2D3]/30 transition-[transform,box-shadow] duration-300 hover:scale-[1.02] hover:cursor-pointer hover:shadow-xl hover:shadow-[#73CE09]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {loading ? (
@@ -179,10 +164,10 @@ export default function LoginForm() {
                 )}
               </span>
               <div className="absolute inset-0 bg-linear-to-r from-[#00d335] to-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            </motion.button>
+            </button>
           </div>
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 }

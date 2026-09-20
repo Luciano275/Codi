@@ -104,9 +104,19 @@ html {
   scroll-margin-top: 2rem;
 }
 
+.app-scroll-area {
+  overscroll-behavior-y: contain;
+  scrollbar-gutter: stable;
+}
+
 .ranking-row {
   content-visibility: auto;
   contain-intrinsic-size: auto 5.5rem;
+}
+
+.deferred-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 26rem;
 }
 
 *:focus-visible {
@@ -317,6 +327,137 @@ html {
   100% {
     transform: scale(1) rotate(0deg);
   }
+}
+
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes game-fade-enter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes learning-node-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 16px, 0) scale(0.45);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes learning-node-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -3px, 0);
+  }
+}
+
+@keyframes learning-node-pulse {
+  0%,
+  100% {
+    opacity: 0.56;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.35);
+  }
+}
+
+@keyframes login-panel-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes login-mascot-enter {
+  0% {
+    opacity: 0;
+    transform: scale(0.35);
+  }
+  68% {
+    opacity: 1;
+    transform: scale(1.06);
+  }
+  84% {
+    transform: scale(0.98);
+  }
+  100% {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.page-enter {
+  animation: page-enter 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-panel-enter {
+  animation: login-panel-enter 520ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.login-mascot-enter {
+  animation: login-mascot-enter 620ms 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.page-fade-enter,
+.game-fade-enter {
+  animation: game-fade-enter 280ms ease-out both;
+}
+
+.learning-node-enter {
+  animation: learning-node-enter 420ms var(--node-enter-delay) cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.learning-node-float {
+  animation: learning-node-float var(--node-float-duration) var(--node-float-delay) ease-in-out
+    infinite;
+}
+
+.learning-node-core {
+  transform: translateZ(0);
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.learning-node-core:hover {
+  transform: translateZ(0) scale(1.12);
+}
+
+.learning-node-core:active {
+  transform: translateZ(0) scale(0.92);
+}
+
+.learning-node-available::before {
+  border: 2px solid var(--node-pulse-color);
+  border-radius: inherit;
+  content: '';
+  inset: -3px;
+  pointer-events: none;
+  position: absolute;
+  animation: learning-node-pulse 2.5s ease-in-out infinite;
 }
 
 .animate-float {

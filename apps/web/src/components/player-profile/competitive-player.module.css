@@ -12,6 +12,7 @@
 }
 
 .particleField {
+  contain: paint;
   inset: 0;
   overflow: hidden;
   pointer-events: none;
@@ -30,6 +31,12 @@
   position: absolute;
   top: var(--particle-top);
   width: var(--particle-size);
+}
+
+@media (max-width: 640px), (pointer: coarse), (update: slow) {
+  .particle:nth-child(n + 13) {
+    display: none;
+  }
 }
 
 .dot {

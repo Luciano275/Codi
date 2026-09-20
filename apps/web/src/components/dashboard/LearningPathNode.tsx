@@ -1,6 +1,4 @@
-'use client';
-
-import { motion } from 'framer-motion';
+import type { CSSProperties } from 'react';
 import Link from 'next/link';
 import { Check, Play, Lock } from '@/components/ui/Icon';
 
@@ -48,24 +46,9 @@ function NodeInner({ stage }: { stage: StageData }) {
 
   return (
     <div className="group relative flex flex-col items-center">
-      <motion.div
-        className={`relative flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-br ${style.bg} ${style.border} border-2 shadow-lg ${style.shadow} ${style.iconColor} transition-all duration-300 sm:h-8 sm:w-8 sm:rounded-xl md:h-9 md:w-9 md:rounded-xl lg:h-10 lg:w-10 lg:rounded-xl xl:h-12 xl:w-12 xl:rounded-2xl 2xl:h-14 2xl:w-14 2xl:rounded-2xl`}
-        animate={
-          stage.status === 'available'
-            ? {
-                boxShadow: [
-                  `0 0 0 0 ${style.glow}`,
-                  `0 0 0 8px ${style.glow}`,
-                  `0 0 0 0 ${style.glow}`,
-                ],
-              }
-            : {}
-        }
-        transition={
-          stage.status === 'available' ? { duration: 2.5, repeat: Infinity, ease: 'easeInOut' } : {}
-        }
-        whileHover={{ scale: 1.12 }}
-        whileTap={{ scale: 0.92 }}
+      <div
+        className={`learning-node-core relative flex h-7 w-7 items-center justify-center rounded-lg bg-linear-to-br ${style.bg} ${style.border} border-2 shadow-lg ${style.shadow} ${style.iconColor} sm:h-8 sm:w-8 sm:rounded-xl md:h-9 md:w-9 md:rounded-xl lg:h-10 lg:w-10 lg:rounded-xl xl:h-12 xl:w-12 xl:rounded-2xl 2xl:h-14 2xl:w-14 2xl:rounded-2xl ${stage.status === 'available' ? 'learning-node-available' : ''}`}
+        style={{ '--node-pulse-color': style.glow } as CSSProperties}
       >
         <NodeIcon status={stage.status} />
         <span
@@ -80,7 +63,7 @@ function NodeInner({ stage }: { stage: StageData }) {
           {stage.id}
         </span>
         <div className="absolute -inset-0.5 rounded-lg bg-white/10 opacity-0 transition-opacity duration-300 group-hover:opacity-100 sm:-inset-1 sm:rounded-xl md:-inset-1 md:rounded-xl lg:-inset-1 lg:rounded-xl xl:-inset-1.5 xl:rounded-2xl" />
-      </motion.div>
+      </div>
 
       <div
         className={`pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full px-1.5 py-0.5 text-[7px] font-semibold leading-tight text-white shadow-xs opacity-0 transition-all duration-200 group-hover:opacity-100 sm:text-[8px] md:px-2 md:text-[9px] lg:text-[10px] xl:text-[11px] ${
@@ -108,34 +91,28 @@ export function Node({
 }) {
   const isClickable = stage.status !== 'locked' && !!stage.courseId;
 
-  const floatDelay = (index % 5) * 0.6;
+  const animationStyle = {
+    left: `${position.x}%`,
+    top: `${position.y}%`,
+    '--node-enter-delay': `${0.08 + index * 0.05}s`,
+    '--node-float-delay': `${(index % 5) * -0.6}s`,
+    '--node-float-duration': `${3 + (index % 3)}s`,
+  } as CSSProperties;
 
   return (
-    <motion.div
-      className="absolute"
-      style={{ left: `${position.x}%`, top: `${position.y}%` }}
-      initial={{ opacity: 0, scale: 0.3, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{ delay: 0.08 + index * 0.05, duration: 0.5, ease: 'easeOut' }}
-    >
-      <motion.div
-        animate={{ y: [0, -3, 0] }}
-        transition={{
-          duration: 3 + (index % 3),
-          repeat: Infinity,
-          ease: 'easeInOut',
-          delay: floatDelay,
-        }}
-      >
-        {isClickable ? (
-          <Link href={`/dashboard/courses/${stage.courseId}`} className="block">
+    <div className="absolute" style={animationStyle}>
+      <div className="learning-node-enter">
+        <div className="learning-node-float">
+          {isClickable ? (
+            <Link href={`/dashboard/courses/${stage.courseId}`} className="block">
+              <NodeInner stage={stage} />
+            </Link>
+          ) : (
             <NodeInner stage={stage} />
-          </Link>
-        ) : (
-          <NodeInner stage={stage} />
-        )}
-      </motion.div>
-    </motion.div>
+          )}
+        </div>
+      </div>
+    </div>
   );
 }
 

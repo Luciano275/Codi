@@ -1,11 +1,16 @@
 'use client';
 
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import horizontalMap from '@/assets/horizontal_map.png';
 import verticalMap from '@/assets/vertical_map.png';
-import { BASE_DESKTOP, BASE_MOBILE, extendPositions, buildPath, buildLockedPath } from '@/lib/learning-path/positions';
+import {
+  BASE_DESKTOP,
+  BASE_MOBILE,
+  extendPositions,
+  buildPath,
+  buildLockedPath,
+} from '@/lib/learning-path/positions';
 import { Node, MapLegend } from './LearningPathNode';
 
 export interface StageData {
@@ -36,9 +41,7 @@ function MapSection({
 }) {
   const path = buildPath(positions, activeStageIds);
   const lockedPath =
-    activeCount > 0 && activeCount < totalCount
-      ? buildLockedPath(positions, activeCount + 1)
-      : '';
+    activeCount > 0 && activeCount < totalCount ? buildLockedPath(positions, activeCount + 1) : '';
 
   return (
     <div className="relative h-full w-full" style={{ overflow: 'visible' }}>
@@ -52,16 +55,42 @@ function MapSection({
           sizes="100vw"
         />
       </div>
-      <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none" style={{ overflow: 'visible' }}>
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        style={{ overflow: 'visible' }}
+      >
         {path && (
-          <path d={path} stroke="#58CC02" strokeWidth={isMobile ? '0.8' : '0.6'} fill="none" strokeLinecap="round" strokeDasharray="2 1.5" opacity="0.6" />
+          <path
+            d={path}
+            stroke="#58CC02"
+            strokeWidth={isMobile ? '0.8' : '0.6'}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray="2 1.5"
+            opacity="0.6"
+          />
         )}
         {lockedPath && (
-          <path d={lockedPath} stroke="#CBD5E1" strokeWidth={isMobile ? '0.8' : '0.6'} fill="none" strokeLinecap="round" strokeDasharray="1.5 2" opacity="0.4" />
+          <path
+            d={lockedPath}
+            stroke="#CBD5E1"
+            strokeWidth={isMobile ? '0.8' : '0.6'}
+            fill="none"
+            strokeLinecap="round"
+            strokeDasharray="1.5 2"
+            opacity="0.4"
+          />
         )}
       </svg>
       {stages.map((stage, i) => (
-        <Node key={stage.id} stage={stage} position={positions[stage.id - 1] || { x: 50, y: 50 }} index={i} />
+        <Node
+          key={stage.id}
+          stage={stage}
+          position={positions[stage.id - 1] || { x: 50, y: 50 }}
+          index={i}
+        />
       ))}
     </div>
   );
@@ -75,11 +104,8 @@ export default function LearningPath({ stages }: LearningPathProps) {
   const mPositions = useMemo(() => extendPositions(BASE_MOBILE, stages.length), [stages.length]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="relative flex w-full items-center justify-center"
+    <div
+      className="game-fade-enter relative flex w-full items-center justify-center"
       style={{ overflow: 'visible' }}
     >
       <div className="relative hidden aspect-video w-full md:block" style={{ overflow: 'visible' }}>
@@ -105,6 +131,6 @@ export default function LearningPath({ stages }: LearningPathProps) {
         />
         <MapLegend />
       </div>
-    </motion.div>
+    </div>
   );
 }
