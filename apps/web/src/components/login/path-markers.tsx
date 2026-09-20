@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion } from 'motion/react';
 
 const regions = [
   // { id: 2, name: 'Árboles', x: '68%', y: '16%', color: '#FF6B6B' },
@@ -55,7 +55,13 @@ export default function PathMarkers() {
         >
           <motion.div
             className="group relative flex items-center justify-center"
-            animate={{ boxShadow: [`0 0 0 0 ${region.color}40`, `0 0 0 8px ${region.color}10`, `0 0 0 0 ${region.color}40`] }}
+            animate={{
+              boxShadow: [
+                `0 0 0 0 ${region.color}40`,
+                `0 0 0 8px ${region.color}10`,
+                `0 0 0 0 ${region.color}40`,
+              ],
+            }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: i * 0.3 }}
           >
             <div
@@ -64,8 +70,10 @@ export default function PathMarkers() {
             >
               {region.id}
             </div>
-            <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-2 py-0.5 rounded-md text-xs font-semibold text-white pointer-events-none"
-              style={{ backgroundColor: region.color }}>
+            <div
+              className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 px-2 py-0.5 rounded-md text-xs font-semibold text-white pointer-events-none"
+              style={{ backgroundColor: region.color }}
+            >
               {region.name}
             </div>
           </motion.div>
