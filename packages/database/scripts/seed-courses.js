@@ -32,7 +32,6 @@ const courses = [
     title: 'Fundamentos de Programación',
     slug: 'fundamentos',
     level: 1,
-    region: 'pradera',
     xpReward: 100,
     order: 1,
     modules: [
@@ -46,7 +45,6 @@ const courses = [
     title: 'Control de Flujo',
     slug: 'control-de-flujo',
     level: 2,
-    region: 'desierto',
     xpReward: 120,
     order: 2,
     modules: [
@@ -60,7 +58,6 @@ const courses = [
     title: 'Funciones y Modularidad',
     slug: 'funciones',
     level: 3,
-    region: 'lagos',
     xpReward: 120,
     order: 3,
     modules: [
@@ -74,7 +71,6 @@ const courses = [
     title: 'Estructuras de Datos Básicas',
     slug: 'estructuras-de-datos',
     level: 4,
-    region: 'bosque',
     xpReward: 150,
     order: 4,
     modules: [
@@ -88,7 +84,6 @@ const courses = [
     title: 'Algoritmos Básicos',
     slug: 'algoritmos-basicos',
     level: 5,
-    region: 'montana',
     xpReward: 150,
     order: 5,
     modules: [
@@ -102,7 +97,6 @@ const courses = [
     title: 'Pilas y Colas',
     slug: 'pilas-y-colas',
     level: 6,
-    region: 'volcan',
     xpReward: 180,
     order: 6,
     modules: [
@@ -116,7 +110,6 @@ const courses = [
     title: 'Grafos',
     slug: 'grafos',
     level: 7,
-    region: 'valle',
     xpReward: 200,
     order: 7,
     modules: [
@@ -130,7 +123,6 @@ const courses = [
     title: 'Árboles',
     slug: 'arboles',
     level: 8,
-    region: 'bosque',
     xpReward: 200,
     order: 8,
     modules: [
@@ -144,7 +136,6 @@ const courses = [
     title: 'Técnicas Avanzadas',
     slug: 'tecnicas-avanzadas',
     level: 9,
-    region: 'montana',
     xpReward: 250,
     order: 9,
     modules: [
@@ -158,7 +149,6 @@ const courses = [
     title: 'Preparación OIA',
     slug: 'preparacion-oia',
     level: 10,
-    region: 'castillo',
     xpReward: 300,
     order: 10,
     modules: [
@@ -195,8 +185,8 @@ async function findIslandId(client, island) {
 
 async function seedCourse(client, course, islandId) {
   const { rows } = await client.query(
-    `INSERT INTO "codi_course" ("id", "title", "slug", "level", "region", "xpReward", "order", "islandId", "createdAt", "updatedAt")
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now(), now())
+    `INSERT INTO "codi_course" ("id", "title", "slug", "level", "xpReward", "order", "islandId", "createdAt", "updatedAt")
+     VALUES ($1, $2, $3, $4, $5, $6, $7, now(), now())
      ON CONFLICT ("slug") DO NOTHING
      RETURNING "id"`,
     [
@@ -204,7 +194,6 @@ async function seedCourse(client, course, islandId) {
       course.title,
       course.slug,
       course.level,
-      course.region,
       course.xpReward,
       course.order,
       islandId,

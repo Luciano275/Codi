@@ -142,7 +142,6 @@ model Course {
   title    String
   slug     String   @unique
   level    Int
-  region   String
   xpReward Int      @default(100)
   order    Int
   islandId String?
