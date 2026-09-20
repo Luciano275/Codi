@@ -174,3 +174,15 @@ Finalmente, configurá `EVALUATOR_URL` y el mismo `WORKER_EVALUATOR_TOKEN` en el
 `pnpm db:setup` aplica todas las migraciones versionadas, genera Prisma Client y carga el catálogo inicial de
 islas, cursos y módulos. Para una base ya inicializada o remota, usá `pnpm db:migrate`; no uses `db:push`
 como mecanismo de despliegue.
+
+### Crear cuentas de Codi
+
+Los siguientes comandos solicitan usuario, nombre, correo opcional y contraseña de forma interactiva. La
+contraseña no se muestra en pantalla y se almacena con bcrypt.
+
+```bash
+pnpm db:create:admin     # crea un docente (rol TEACHER)
+pnpm db:create:student   # crea un estudiante (rol STUDENT)
+```
+
+Estas cuentas pertenecen solo a Codi: no crean ni modifican usuarios del CMS externo.
