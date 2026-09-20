@@ -58,7 +58,6 @@ export class AdminIslandsService {
             title: true,
             slug: true,
             level: true,
-            region: true,
             xpReward: true,
             order: true,
             modules: {

@@ -8,10 +8,6 @@ export class CreateCourseDto {
   @IsInt()
   level!: number;
 
-  @IsString()
-  @MaxLength(100)
-  region!: string;
-
   @IsOptional() @IsInt() @Min(0) xpReward?: number;
 
   @IsInt() @Min(1) order!: number;
