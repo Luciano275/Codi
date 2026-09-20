@@ -108,16 +108,6 @@ export function CreateModuleDialog({
               min={1}
               onChange={(level) => setForm({ ...form, level })}
             />
-            <label className="block">
-              <span className="mb-2 block font-super-pandora text-base text-gray-800">Región</span>
-              <input
-                required
-                maxLength={100}
-                value={form.region}
-                onChange={(event) => setForm({ ...form, region: event.target.value })}
-                className={inputClassName}
-              />
-            </label>
             <NumberField
               label="Recompensa XP"
               value={form.xpReward}
@@ -143,7 +133,7 @@ export function CreateModuleDialog({
           </button>
           <button
             type="submit"
-            disabled={isSaving || !form.title.trim() || !form.region.trim()}
+            disabled={isSaving || !form.title.trim()}
             className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl border-b-4 border-pradera-700 bg-pradera-500 px-6 py-3 text-sm font-bold text-white transition hover:translate-y-0.5 hover:border-b-2 hover:bg-pradera-600 disabled:cursor-not-allowed disabled:border-pradera-300 disabled:bg-pradera-300"
           >
             {isSaving ? (
@@ -160,7 +150,7 @@ export function CreateModuleDialog({
 }
 
 function createInitialForm(order: number): CourseMutationData {
-  return { title: '', level: 1, region: 'intro', xpReward: 100, order };
+  return { title: '', level: 1, xpReward: 100, order };
 }
 
 function NumberField({

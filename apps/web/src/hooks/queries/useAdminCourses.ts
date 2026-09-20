@@ -9,7 +9,6 @@ export interface AdminCourse {
   title: string;
   slug: string;
   level: number;
-  region: string;
   xpReward: number;
   order: number;
   islandId: string | null;
@@ -19,7 +18,6 @@ export interface AdminCourse {
 export interface CourseMutationData {
   title: string;
   level: number;
-  region: string;
   xpReward: number;
   order: number;
   islandId?: string;

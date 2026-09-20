@@ -10,7 +10,6 @@ interface CourseDetail {
   title: string;
   slug: string;
   level: number;
-  region: string;
   xpReward: number;
   order: number;
   modules: {

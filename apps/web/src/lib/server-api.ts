@@ -36,7 +36,6 @@ export interface Course {
   title: string;
   slug: string;
   level: number;
-  region: string;
   xpReward: number;
   order: number;
   islandId: string | null;
@@ -73,7 +72,6 @@ export interface IslandPath {
     title: string;
     order: number;
     level: number;
-    region: string;
     xpReward: number;
     _count: { modules: number };
   }[];
@@ -241,7 +239,6 @@ export interface AdminIslandCourse {
   title: string;
   slug: string;
   level: number;
-  region: string;
   xpReward: number;
   order: number;
   modules: {

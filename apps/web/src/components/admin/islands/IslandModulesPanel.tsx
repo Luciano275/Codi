@@ -14,7 +14,7 @@ const CreateModuleDialog = dynamic(
   { ssr: false },
 );
 
-type CourseFormData = Pick<AdminIslandCourse, 'title' | 'level' | 'region' | 'xpReward' | 'order'>;
+type CourseFormData = Pick<AdminIslandCourse, 'title' | 'level' | 'xpReward' | 'order'>;
 
 export function IslandModulesPanel({ island }: { island: AdminIsland }) {
   const router = useRouter();
@@ -91,7 +91,6 @@ export function IslandModulesPanel({ island }: { island: AdminIsland }) {
                     </h2>
                     <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-gray-500">
                       <span>Nivel {course.level}</span>
-                      <span>{course.region}</span>
                       <span>{course.xpReward} XP</span>
                     </div>
                   </div>
@@ -244,7 +243,6 @@ function CourseEditor({
   const [form, setForm] = useState<CourseFormData>({
     title: course.title,
     level: course.level,
-    region: course.region,
     xpReward: course.xpReward,
     order: course.order,
   });
@@ -295,11 +293,6 @@ function CourseEditor({
             min={1}
             value={form.level}
             onChange={(level) => setForm({ ...form, level: Number(level) })}
-          />
-          <CourseField
-            label="Región"
-            value={form.region}
-            onChange={(region) => setForm({ ...form, region })}
           />
           <CourseField
             label="XP"
