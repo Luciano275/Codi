@@ -10,6 +10,8 @@ import {
   createAnimeLighting,
   createToonGradient,
 } from '@/components/islands/anime-rendering';
+import { observeRenderVisibility } from '@/lib/render-visibility';
+import { getWebGlRenderQuality } from '@/lib/webgl-performance';
 
 interface IslandModelPreviewProps {
   sourceUrl: string;
@@ -29,8 +31,13 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
     camera.position.set(3.8, 2.8, 5.2);
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    configureAnimeRenderer(renderer);
+    const renderQuality = getWebGlRenderQuality();
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      powerPreference: 'high-performance',
+    });
+    configureAnimeRenderer(renderer, renderQuality);
     container.appendChild(renderer.domElement);
 
     const controls = new OrbitControls(camera, renderer.domElement);
@@ -39,7 +46,7 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     controls.minDistance = 2;
     controls.maxDistance = 12;
 
-    scene.add(createAnimeLighting());
+    scene.add(createAnimeLighting(renderQuality));
     const toonGradient = createToonGradient();
 
     const ground = new THREE.Mesh(
@@ -54,6 +61,7 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     let model: THREE.Object3D | null = null;
     let animationFrame = 0;
     let disposed = false;
+    let canRender = true;
     const resize = () => {
       const width = container.clientWidth;
       const height = container.clientHeight;
@@ -77,23 +85,38 @@ export function IslandModelPreview({ sourceUrl, fileName }: IslandModelPreviewPr
     observer.observe(container);
     resize();
 
+    const scheduleRender = () => {
+      if (!disposed && canRender && animationFrame === 0) {
+        animationFrame = requestAnimationFrame(render);
+      }
+    };
     const render = () => {
+      animationFrame = 0;
       controls.update();
       renderer.render(scene, camera);
-      animationFrame = requestAnimationFrame(render);
+      scheduleRender();
     };
-    render();
+    const stopObservingVisibility = observeRenderVisibility(container, (visible) => {
+      canRender = visible;
+      if (visible) scheduleRender();
+      else if (animationFrame !== 0) {
+        cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      }
+    });
 
     return () => {
       disposed = true;
       observer.disconnect();
       cancelAnimationFrame(animationFrame);
+      stopObservingVisibility();
       controls.dispose();
       if (model) disposeModel(model);
       ground.geometry.dispose();
       (ground.material as THREE.Material).dispose();
       toonGradient.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, [sourceUrl]);

@@ -16,6 +16,8 @@ import {
   updateAnimeAtmosphere,
 } from './anime-rendering';
 import { getResponsiveCameraFrame } from './camera-framing';
+import { observeRenderVisibility } from '@/lib/render-visibility';
+import { getWebGlRenderQuality } from '@/lib/webgl-performance';
 import type { IslandViewModel } from './types';
 
 interface IslandWorldProps {
@@ -159,8 +161,13 @@ export default function IslandWorld({
 
     const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100);
     camera.position.set(0, 8.0, 15);
-    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-    configureAnimeRenderer(renderer);
+    const renderQuality = getWebGlRenderQuality();
+    const renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: false,
+      powerPreference: 'high-performance',
+    });
+    configureAnimeRenderer(renderer, renderQuality);
     renderer.domElement.style.display = 'block';
     renderer.domElement.style.height = '100%';
     renderer.domElement.style.width = '100%';
@@ -176,7 +183,7 @@ export default function IslandWorld({
     controls.maxPolarAngle = Math.PI * 0.47;
     controls.target.set(0, 0, 0);
 
-    scene.add(createAnimeLighting());
+    scene.add(createAnimeLighting(renderQuality));
     const toonGradient = createToonGradient();
     const atmosphere = createAnimeAtmosphere();
     scene.add(atmosphere.root);
@@ -191,6 +198,7 @@ export default function IslandWorld({
     let elapsed = 0;
     let frameId = 0;
     let disposed = false;
+    let canRender = true;
     let state: 'islands' | 'entering' = 'islands';
     let hoveredIsland: THREE.Object3D | undefined;
     let pressedAt = { x: 0, y: 0 };
@@ -259,7 +267,11 @@ export default function IslandWorld({
           ? THREE.MathUtils.clamp(topBounds.bottom - containerBounds.top, 0, containerBounds.height)
           : 0,
         bottom: bottomBounds
-          ? THREE.MathUtils.clamp(containerBounds.bottom - bottomBounds.top, 0, containerBounds.height)
+          ? THREE.MathUtils.clamp(
+              containerBounds.bottom - bottomBounds.top,
+              0,
+              containerBounds.height,
+            )
           : 0,
       };
     };
@@ -393,7 +405,12 @@ export default function IslandWorld({
     if (bottomOverlayRef.current) observer.observe(bottomOverlayRef.current);
     resize();
 
+    const scheduleFrame = () => {
+      if (!disposed && canRender && frameId === 0) frameId = requestAnimationFrame(animate);
+    };
+
     const animate = () => {
+      frameId = 0;
       timer.update();
       const delta = timer.getDelta();
       elapsed += delta;
@@ -440,13 +457,23 @@ export default function IslandWorld({
         controls.update();
       }
       renderer.render(scene, camera);
-      frameId = requestAnimationFrame(animate);
+      scheduleFrame();
     };
-    animate();
+    const stopObservingVisibility = observeRenderVisibility(container, (visible) => {
+      canRender = visible;
+      if (visible) {
+        timer.reset();
+        scheduleFrame();
+      } else if (frameId !== 0) {
+        cancelAnimationFrame(frameId);
+        frameId = 0;
+      }
+    });
 
     return () => {
       disposed = true;
       cancelAnimationFrame(frameId);
+      stopObservingVisibility();
       observer.disconnect();
       startEnterRef.current = null;
       focusIslandRef.current = null;
@@ -467,6 +494,7 @@ export default function IslandWorld({
       atmosphere.cloudTexture.dispose();
       skyTexture.dispose();
       renderer.dispose();
+      renderer.forceContextLoss();
       renderer.domElement.remove();
     };
   }, [islands]);

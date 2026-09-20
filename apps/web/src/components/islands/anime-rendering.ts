@@ -1,12 +1,11 @@
 import * as THREE from 'three';
+import { getWebGlRenderQuality, type WebGlRenderQuality } from '@/lib/webgl-performance';
 
 export const ANIME_RENDERING = {
   exposure: 1.18,
-  maxPixelRatio: 2,
   sun: { color: 0xffedc1, intensity: 5.4, position: [-28, 15, 16] as const },
   fill: { skyColor: 0x9ad9ff, groundColor: 0x315a3d, intensity: 0.92 },
   rim: { color: 0x8eeaff, strength: 0.1 },
-  shadowMapSize: 2048,
   shadowBias: -0.00035,
   shadowNormalBias: 0.015,
   saturation: 1.28,
@@ -19,8 +18,11 @@ export interface AnimeAtmosphere {
   cloudTexture: THREE.CanvasTexture;
 }
 
-export function configureAnimeRenderer(renderer: THREE.WebGLRenderer) {
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, ANIME_RENDERING.maxPixelRatio));
+export function configureAnimeRenderer(
+  renderer: THREE.WebGLRenderer,
+  quality: WebGlRenderQuality = getWebGlRenderQuality(),
+) {
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, quality.pixelRatioCap));
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = ANIME_RENDERING.exposure;
@@ -28,7 +30,7 @@ export function configureAnimeRenderer(renderer: THREE.WebGLRenderer) {
   renderer.shadowMap.type = THREE.PCFShadowMap;
 }
 
-export function createAnimeLighting() {
+export function createAnimeLighting(quality = getWebGlRenderQuality()) {
   const lights = new THREE.Group();
   lights.name = 'AnimeLighting';
 
@@ -44,7 +46,7 @@ export function createAnimeLighting() {
   sun.position.set(...ANIME_RENDERING.sun.position);
   sun.target.position.set(0, 0, 0);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(ANIME_RENDERING.shadowMapSize, ANIME_RENDERING.shadowMapSize);
+  sun.shadow.mapSize.set(quality.shadowMapSize, quality.shadowMapSize);
   sun.shadow.camera.near = 1;
   sun.shadow.camera.far = 70;
   sun.shadow.camera.left = -20;
