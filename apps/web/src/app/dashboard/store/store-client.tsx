@@ -3,6 +3,7 @@
 import { memo, useCallback, useEffect, useMemo, useState, useTransition } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import {
   BookOpenCheck,
   CircleGauge,
@@ -261,6 +262,7 @@ export default function StoreClient({
   initialAdminRedemptions,
   canManageCatalog,
 }: StoreClientProps) {
+  const router = useRouter();
   const [store, setStore] = useState(initialStore);
   const [isRedeeming, startRedeemTransition] = useTransition();
   const [category, setCategory] = useState<Category>('ALL');
@@ -270,6 +272,10 @@ export default function StoreClient({
   const [guideOpen, setGuideOpen] = useState(false);
   const [celebratedReward, setCelebratedReward] = useState<StoreReward | null>(null);
   const [activeTab, setActiveTab] = useState<StoreTab>('STORE');
+
+  useEffect(() => {
+    setStore(initialStore);
+  }, [initialStore]);
 
   const rewards = useMemo(
     () =>
@@ -283,6 +289,7 @@ export default function StoreClient({
     setTrimester(null);
   }, []);
   const closeCelebration = useCallback(() => setCelebratedReward(null), []);
+  const refreshStore = useCallback(() => router.refresh(), [router]);
   const closeDialog = () => {
     if (!isRedeeming) {
       setSelectedReward(null);
@@ -480,7 +487,7 @@ export default function StoreClient({
 
       {activeTab === 'ADMIN' && canManageCatalog && initialAdminRedemptions && (
         <div className="space-y-5">
-          <RewardAdminPanel initialCatalog={initialCatalog} />
+          <RewardAdminPanel initialCatalog={initialCatalog} onCatalogChanged={refreshStore} />
           <RewardRedemptionsAdminPanel initialData={initialAdminRedemptions} />
         </div>
       )}

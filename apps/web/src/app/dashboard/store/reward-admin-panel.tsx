@@ -10,9 +10,10 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 interface RewardAdminPanelProps {
   initialCatalog: AdminReward[];
+  onCatalogChanged: () => void;
 }
 
-export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
+export function RewardAdminPanel({ initialCatalog, onCatalogChanged }: RewardAdminPanelProps) {
   const [catalog, setCatalog] = useState(initialCatalog);
   const [editingReward, setEditingReward] = useState<AdminReward | null | undefined>(undefined);
   const [notice, setNotice] = useState<string | null>(null);
@@ -30,6 +31,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
             ? current.map((reward) => (reward.id === saved.id ? saved : reward))
             : [...current, saved],
         );
+        onCatalogChanged();
         setEditingReward(undefined);
         setNotice('Catálogo actualizado.');
       } catch (error) {
@@ -43,6 +45,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
       try {
         const saved = await updateReward({ ...reward, isActive: !reward.isActive });
         setCatalog((current) => current.map((item) => (item.id === saved.id ? saved : item)));
+        onCatalogChanged();
         setNotice(saved.isActive ? 'Recompensa activada.' : 'Recompensa desactivada.');
       } catch (error) {
         setNotice(error instanceof Error ? error.message : 'No se pudo actualizar la recompensa.');
@@ -56,6 +59,7 @@ export function RewardAdminPanel({ initialCatalog }: RewardAdminPanelProps) {
       try {
         await deleteReward(rewardToDelete.id);
         setCatalog((current) => current.filter((item) => item.id !== rewardToDelete.id));
+        onCatalogChanged();
         setRewardToDelete(null);
         setNotice('Recompensa eliminada.');
       } catch (error) {
