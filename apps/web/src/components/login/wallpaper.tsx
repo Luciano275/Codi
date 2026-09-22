@@ -2,42 +2,33 @@ import Image from 'next/image';
 
 export default function FullScreenWallpaper() {
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#0f0f1a]">
+    <div className="absolute inset-0 overflow-hidden bg-[#b9f5d1]">
       <Image
-        src="/horizontal_wallpaper.png"
+        src="/login-background.svg"
         alt=""
         fill
-        sizes="(min-width: 1024px) 100vw, 1px"
-        className="hidden lg:block object-cover object-center brightness-[0.35]"
+        sizes="100vw"
+        className="object-cover object-center"
         priority
         aria-hidden="true"
       />
-      <Image
-        src="/vertical_map.png"
-        alt=""
-        fill
-        sizes="(max-width: 1023px) 100vw, 1px"
-        className="block lg:hidden object-cover object-center brightness-[0.35]"
-        priority
-        aria-hidden="true"
-      />
-      <div className="absolute inset-0 bg-linear-to-b from-black/30 via-transparent to-black/10" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(19,70,54,0.12)_100%)]" />
 
-      <div className="absolute top-0 left-0 right-0 p-6 md:p-8 z-10">
-        <div className="flex items-center gap-3">
+      <div className="absolute top-0 left-0 right-0 z-10 p-4 sm:p-6 md:p-8">
+        <div className="flex w-fit items-center gap-3 rounded-2xl bg-white/55 px-3 py-2 shadow-sm backdrop-blur-md sm:px-4">
           <Image
             src="/school_logo.png"
             alt="Escuela de Educación Técnica Nº 3117"
             width={300}
             height={250}
             sizes="60px"
-            className="w-full max-w-15 h-auto rounded-xl object-contain"
+            className="h-11 w-11 rounded-xl object-contain sm:h-13 sm:w-13"
           />
           <div>
-            <p className="text-white text-[16px] font-bold uppercase drop-shadow-sm">
+            <p className="text-sm font-bold text-[#153e36] sm:text-base">
               Escuela de Educación Técnica Nº 3117
             </p>
-            <p className="text-white/70 text-[13px] font-bold uppercase drop-shadow-sm">
+            <p className="text-xs font-semibold text-[#276957] sm:text-[13px]">
               Maestro Daniel Óscar Reyes
             </p>
           </div>

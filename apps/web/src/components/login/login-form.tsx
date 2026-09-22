@@ -44,21 +44,21 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="login-panel-enter w-full max-w-112.5 mx-auto px-4">
-      <div className="bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10">
-        <div className="flex flex-col items-center text-center mb-7">
-          <div className="login-mascot-enter relative mb-3 h-40 w-40 md:h-44 md:w-44">
+    <div className="login-panel-enter mx-auto w-full max-w-130">
+      <div className="rounded-[2.25rem] border border-white/15 bg-[#101522]/92 px-6 py-7 shadow-[0_30px_90px_rgba(12,53,43,0.3)] backdrop-blur-xl sm:px-10 sm:py-9">
+        <div className="mb-7 flex flex-col items-center text-center">
+          <div className="login-mascot-enter relative -mt-3 mb-1 h-40 w-58 sm:h-44 sm:w-68">
             <DynamicCodiMascot
               animation={error ? 'Codi_Frustrated' : loading ? 'Codi_Idle' : 'Codi_Wave'}
               loopAfter={error ? 'Codi_Crying' : loading ? undefined : 'Codi_Rest'}
               label={error ? 'Codi acompaña el error de inicio de sesión' : 'Codi saluda'}
-              className="h-full w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.3)]"
+              className="h-full w-full -translate-x-4 drop-shadow-[0_14px_22px_rgba(0,0,0,0.32)] sm:-translate-x-5"
             />
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">
+          <h1 className="font-super-pandora text-3xl font-bold text-white drop-shadow-sm sm:text-4xl">
             ¡Bienvenido!
           </h1>
-          <p className="text-white/60 mt-1.5 text-sm md:text-base font-medium">
+          <p className="mt-2 text-sm font-medium text-white/65 sm:text-base">
             Iniciá sesión para continuar tu aventura.
           </p>
         </div>
@@ -82,7 +82,7 @@ export default function LoginForm() {
                 style={{
                   outline: 'none',
                 }}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
+                className="w-full rounded-2xl border border-white/15 bg-white/8 py-3.5 pr-4 pl-10 text-sm text-white placeholder:text-white/30 transition-all duration-200 focus:border-[#72e5a2]/70 focus:ring-2 focus:ring-[#72e5a2]/35 focus:outline-none"
                 required
                 aria-required="true"
                 autoComplete="email"
@@ -108,7 +108,7 @@ export default function LoginForm() {
                 style={{
                   outline: 'none',
                 }}
-                className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
+                className="w-full rounded-2xl border border-white/15 bg-white/8 py-3.5 pr-12 pl-10 text-sm text-white placeholder:text-white/30 transition-all duration-200 focus:border-[#72e5a2]/70 focus:ring-2 focus:ring-[#72e5a2]/35 focus:outline-none"
                 required
                 aria-required="true"
                 autoComplete="current-password"
@@ -131,7 +131,7 @@ export default function LoginForm() {
           <div className="flex items-center justify-between">
             <a
               href="/forgot-password"
-              className="text-sm font-semibold text-[#55C703] hover:text-[#6aff00] transition-colors"
+              className="text-sm font-semibold text-[#72e5a2] transition-colors hover:text-[#a2f5c3]"
             >
               ¿Olvidaste tu contraseña?
             </a>
@@ -151,7 +151,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full overflow-hidden rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] py-3.5 text-base font-bold text-white shadow-lg shadow-[#00D2D3]/30 transition-[transform,box-shadow] duration-300 hover:scale-[1.02] hover:cursor-pointer hover:shadow-xl hover:shadow-[#73CE09]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+              className="group relative w-full overflow-hidden rounded-2xl bg-linear-to-r from-[#57d98d] to-[#28cda0] py-3.5 text-base font-bold text-[#10251f] shadow-lg shadow-[#42d797]/20 transition-[transform,box-shadow] duration-300 hover:scale-[1.015] hover:cursor-pointer hover:shadow-xl hover:shadow-[#42d797]/30 active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {loading ? (
@@ -163,7 +163,7 @@ export default function LoginForm() {
                   'Iniciar sesión'
                 )}
               </span>
-              <div className="absolute inset-0 bg-linear-to-r from-[#00d335] to-[#00ff9d] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-linear-to-r from-[#7ae9a8] to-[#4ee6bc] opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
             </button>
           </div>
         </form>
