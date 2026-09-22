@@ -20,6 +20,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
   const isIslandPath = pathname.startsWith('/dashboard/islands/');
   const isRankingPath = pathname === '/dashboard/ranking';
   const isIslandExperience = isIslandSelection || isIslandPath;
+  const isLabPath = pathname.startsWith('/dashboard/lab');
 
   return (
     <div className="h-dvh overflow-hidden bg-gray-50">
@@ -36,7 +37,7 @@ export default function DashboardShell({ user, children }: DashboardShellProps) 
             <div className="min-h-0 w-full">{children}</div>
           ) : (
             <div
-              className={`mx-auto min-h-0 w-full p-3 md:p-5 lg:p-6 ${isRankingPath ? 'max-w-[2400px] 2xl:p-8' : 'max-w-[1600px]'}`}
+              className={`mx-auto min-h-0 w-full p-3 md:p-5 lg:p-6 ${isRankingPath ? 'max-w-[2400px] 2xl:p-8' : isLabPath ? 'max-w-none' : 'max-w-[1600px]'}`}
             >
               {children}
             </div>
