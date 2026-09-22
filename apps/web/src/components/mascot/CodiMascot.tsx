@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { observeRenderVisibility } from '@/lib/render-visibility';
 import { getWebGlRenderQuality } from '@/lib/webgl-performance';
+import { getModelCameraFrame } from './camera-framing';
 
 export const CODI_ANIMATIONS = [
   'Codi_Correct_Small',
@@ -25,6 +26,7 @@ export type CodiAnimation = (typeof CODI_ANIMATIONS)[number];
 export interface CodiMascotProps {
   animation: CodiAnimation;
   loopAfter?: CodiAnimation;
+  cameraFov?: number;
   className?: string;
   label?: string;
 }
@@ -50,6 +52,7 @@ function disposeModel(model: THREE.Object3D) {
 export function CodiMascot({
   animation,
   loopAfter,
+  cameraFov = 30,
   className = '',
   label = 'Codi',
 }: CodiMascotProps) {
@@ -84,9 +87,26 @@ export function CodiMascot({
     const timer = new THREE.Timer();
     timer.connect(document);
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 100);
+    const camera = new THREE.PerspectiveCamera(cameraFov, 1, 0.1, 100);
     camera.position.set(0, 0.1, 7);
     camera.lookAt(0, 0.25, 0);
+    const cameraDirection = new THREE.Vector3(0, 0.1, 7).normalize();
+    let modelBounds: THREE.Box3 | null = null;
+    let frameTarget = new THREE.Vector3(0, 0, 0);
+
+    const updateCameraFrame = () => {
+      if (!modelBounds) return;
+      const frame = getModelCameraFrame({
+        bounds: modelBounds,
+        camera,
+        direction: cameraDirection,
+        margin: 1.16,
+        target: frameTarget,
+      });
+      if (!frame) return;
+      camera.position.copy(frame.position);
+      camera.lookAt(frame.target);
+    };
 
     const renderQuality = getWebGlRenderQuality();
     const renderer = new THREE.WebGLRenderer({
@@ -113,6 +133,7 @@ export function CodiMascot({
       const height = Math.max(clientHeight, 1);
       camera.aspect = width / height;
       camera.updateProjectionMatrix();
+      updateCameraFrame();
       renderer.setSize(width, height, false);
     };
 
@@ -191,10 +212,12 @@ export function CodiMascot({
         const largestDimension = Math.max(size.x, size.y, size.z);
         model.scale.setScalar(3.25 / largestDimension);
 
-        const centeredBounds = new THREE.Box3().setFromObject(model);
+        const bodyRoot = model.getObjectByName('Codi_Body') ?? model;
+        const centeredBounds = new THREE.Box3().setFromObject(bodyRoot);
         const center = centeredBounds.getCenter(new THREE.Vector3());
         model.position.sub(center);
-        model.position.y += 0.08;
+        modelBounds = new THREE.Box3().setFromObject(model);
+        updateCameraFrame();
         scene.add(model);
 
         mixer = new THREE.AnimationMixer(model);
@@ -233,7 +256,7 @@ export function CodiMascot({
       renderer.forceContextLoss();
       renderer.domElement.remove();
     };
-  }, []);
+  }, [cameraFov]);
 
   return (
     <div
