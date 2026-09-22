@@ -45,27 +45,28 @@ export default function LoginForm() {
 
   return (
     <div className="login-panel-enter w-full max-w-112.5 mx-auto px-4">
-      <div className="bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl p-8 md:p-10">
-        <div className="flex flex-col items-center text-center mb-7">
-          <div className="login-mascot-enter relative mb-3 h-40 w-40 md:h-44 md:w-44">
+      <div className="login-card bg-[#0f0f1a]/85 rounded-3xl border border-white/10 shadow-2xl">
+        <div className="login-intro flex flex-col items-center text-center">
+          <div className="login-mascot login-mascot-enter relative">
             <DynamicCodiMascot
               animation={error ? 'Codi_Frustrated' : loading ? 'Codi_Idle' : 'Codi_Wave'}
               loopAfter={error ? 'Codi_Crying' : loading ? undefined : 'Codi_Rest'}
+              cameraFov={36}
               label={error ? 'Codi acompaña el error de inicio de sesión' : 'Codi saluda'}
               className="h-full w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.3)]"
             />
           </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white drop-shadow-sm">
+          <h1 className="login-title font-extrabold text-white drop-shadow-sm">
             ¡Bienvenido!
           </h1>
-          <p className="text-white/60 mt-1.5 text-sm md:text-base font-medium">
+          <p className="login-subtitle text-white/60 font-medium">
             Iniciá sesión para continuar tu aventura.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4" aria-busy={loading}>
+        <form onSubmit={handleSubmit} className="login-fields" aria-busy={loading}>
           <div>
-            <label htmlFor="email" className="block text-sm font-semibold text-white/80 mb-1.5">
+            <label htmlFor="email" className="login-label block font-semibold text-white/80">
               Nombre de Usuario
             </label>
             <div className="relative">
@@ -82,7 +83,7 @@ export default function LoginForm() {
                 style={{
                   outline: 'none',
                 }}
-                className="w-full pl-10 pr-4 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
+                className="login-input w-full pl-10 pr-4 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
                 aria-required="true"
                 autoComplete="email"
@@ -91,7 +92,7 @@ export default function LoginForm() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-semibold text-white/80 mb-1.5">
+            <label htmlFor="password" className="login-label block font-semibold text-white/80">
               Contraseña
             </label>
             <div className="relative">
@@ -108,7 +109,7 @@ export default function LoginForm() {
                 style={{
                   outline: 'none',
                 }}
-                className="w-full pl-10 pr-12 py-3 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
+                className="login-input w-full pl-10 pr-12 bg-white/10 border border-white/20 rounded-xl text-sm text-white placeholder:text-white/30 focus:outline-none focus:ring-2 focus:ring-[#55C703]/50 focus:border-[#55C703]/50 transition-all duration-200"
                 required
                 aria-required="true"
                 autoComplete="current-password"
@@ -128,7 +129,7 @@ export default function LoginForm() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between">
+          <div className="login-recovery flex items-center justify-between">
             <a
               href="/forgot-password"
               className="text-sm font-semibold text-[#55C703] hover:text-[#6aff00] transition-colors"
@@ -151,7 +152,7 @@ export default function LoginForm() {
             <button
               type="submit"
               disabled={loading}
-              className="group relative w-full overflow-hidden rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] py-3.5 text-base font-bold text-white shadow-lg shadow-[#00d382]/30 transition-all duration-300 hover:scale-[1.02] hover:cursor-pointer hover:shadow-xl hover:shadow-[#00d382]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
+              className="login-submit group relative w-full overflow-hidden rounded-xl bg-linear-to-r from-[#73CE09] to-[#00d382] text-base font-bold text-white shadow-lg shadow-[#00d382]/30 transition-all duration-300 hover:scale-[1.02] hover:cursor-pointer hover:shadow-xl hover:shadow-[#00d382]/40 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-70"
             >
               <span className="relative z-10 flex items-center justify-center gap-2">
                 {loading ? (

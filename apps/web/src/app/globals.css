@@ -423,6 +423,87 @@ html {
   animation: login-mascot-enter 620ms 160ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+.login-card {
+  padding: clamp(1.25rem, 4vh, 2.5rem);
+}
+
+.login-intro {
+  margin-bottom: clamp(1rem, 3vh, 1.75rem);
+}
+
+.login-mascot {
+  width: clamp(6.75rem, 18vh, 11rem);
+  height: clamp(6.75rem, 18vh, 11rem);
+  margin-bottom: clamp(0.5rem, 1.5vh, 0.75rem);
+}
+
+.login-title {
+  font-size: clamp(1.5rem, 3.2vh, 1.875rem);
+  line-height: 1.15;
+}
+
+.login-subtitle {
+  margin-top: clamp(0.25rem, 0.8vh, 0.375rem);
+  font-size: clamp(0.8125rem, 1.7vh, 1rem);
+}
+
+.login-fields {
+  display: grid;
+  gap: clamp(0.75rem, 2vh, 1rem);
+}
+
+.login-label {
+  margin-bottom: clamp(0.25rem, 0.8vh, 0.375rem);
+  font-size: clamp(0.75rem, 1.6vh, 0.875rem);
+}
+
+.login-input {
+  padding-top: clamp(0.625rem, 1.7vh, 0.75rem);
+  padding-bottom: clamp(0.625rem, 1.7vh, 0.75rem);
+}
+
+.login-recovery {
+  min-height: clamp(1.25rem, 2.5vh, 1.5rem);
+}
+
+.login-submit {
+  padding-top: clamp(0.75rem, 2vh, 0.875rem);
+  padding-bottom: clamp(0.75rem, 2vh, 0.875rem);
+}
+
+.login-school-brand {
+  padding: clamp(0.75rem, 2.5vh, 1.5rem) clamp(1rem, 3vw, 2rem);
+}
+
+.login-school-logo {
+  width: clamp(2.75rem, 8vh, 5rem);
+  height: clamp(2.75rem, 8vh, 5rem);
+}
+
+.login-school-name {
+  font-size: clamp(0.875rem, 2vh, 1.125rem);
+}
+
+.login-school-subtitle {
+  font-size: clamp(0.75rem, 1.6vh, 0.875rem);
+}
+
+.login-footer {
+  padding-top: clamp(0.5rem, 1.5vh, 1rem);
+  padding-bottom: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.login-footer p {
+  font-size: clamp(0.6875rem, 1.6vh, 0.875rem);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-panel-enter,
+  .login-mascot-enter {
+    animation: none;
+  }
+}
+
 .page-fade-enter,
 .game-fade-enter {
   animation: game-fade-enter 280ms ease-out both;

@@ -15,7 +15,7 @@ export default function FullScreenWallpaper() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(19,70,54,0.12)_100%)]" />
       <div className="absolute inset-0 bg-black/60" />
 
-      <div className="absolute top-0 left-0 right-0 z-10 p-4 sm:p-6 md:px-8">
+      <div className="login-school-brand absolute top-0 left-0 right-0 z-10">
         <div className="flex w-fit items-center gap-3 rounded-2xl px-3 py-2 sm:px-4">
           <Image
             src="/school_logo.png"
@@ -23,13 +23,13 @@ export default function FullScreenWallpaper() {
             width={300}
             height={250}
             sizes="300px"
-            className="h-11 w-11 rounded-xl object-contain sm:h-20 sm:w-20"
+            className="login-school-logo rounded-xl object-contain"
           />
           <div>
-            <p className="text-sm font-bold text-white tracking-tighter sm:text-lg">
+            <p className="login-school-name font-bold text-white tracking-tighter">
               Escuela de Educación Técnica Nº 3117
             </p>
-            <p className="text-xs font-semibold text-slate-100 sm:text-sm">
+            <p className="login-school-subtitle font-semibold text-slate-100">
               Maestro Daniel Óscar Reyes
             </p>
           </div>

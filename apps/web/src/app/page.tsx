@@ -4,11 +4,11 @@ import MinimalFooter from '@/components/minimal_footer';
 
 export default function Home() {
   return (
-    <section className="relative min-h-screen overflow-hidden bg-[#b9f5d1]">
+    <section className="relative min-h-[100dvh] overflow-x-hidden bg-[#b9f5d1]">
       <FullScreenWallpaper />
-      <div className="relative z-20 flex min-h-screen items-center justify-center px-4 py-28 sm:px-6 sm:py-30">
+      <main className="relative z-20 flex min-h-[100dvh] items-center justify-center px-4 py-[clamp(5.25rem,11vh,7.5rem)] sm:px-6">
         <LoginForm />
-      </div>
+      </main>
 
       <MinimalFooter />
     </section>
