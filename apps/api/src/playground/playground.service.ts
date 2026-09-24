@@ -1,10 +1,11 @@
-import { Injectable, OnApplicationShutdown } from '@nestjs/common';
+import { BadRequestException, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import type { SandboxCommand } from '@codi/evaluator-contract';
 import { CloudflareSandboxClientService } from '../sandbox/cloudflare-sandbox-client.service';
 import { PlaygroundSession } from './playground-session';
 
 const FINISHED_SESSION_RETENTION_MS = 60_000;
 const MAX_SOURCE_SIZE = 100 * 1024;
+const MAX_COMPILER_DIAGNOSTIC_LENGTH = 16_000;
 const COMPILE_LIMITS = {
   timeSeconds: 30,
   wallSeconds: 60,
@@ -96,7 +97,7 @@ export class PlaygroundService implements OnApplicationShutdown {
       limits: COMPILE_LIMITS,
     });
     if (result.timedOut || result.exitCode !== 0) {
-      throw new Error(result.stderr.trim() || 'C++ compilation failed');
+      throw new BadRequestException(this.compilerDiagnostic(result.stderr, result.timedOut));
     }
   }
 
@@ -112,6 +113,15 @@ export class PlaygroundService implements OnApplicationShutdown {
     if (Buffer.byteLength(code, 'utf8') > MAX_SOURCE_SIZE) {
       throw new Error(`Source code exceeds ${MAX_SOURCE_SIZE} bytes`);
     }
+  }
+
+  private compilerDiagnostic(stderr: string, timedOut: boolean): string {
+    if (timedOut) return 'La compilación excedió el tiempo permitido.';
+
+    const diagnostic = stderr.trim();
+    if (!diagnostic) return 'La compilación de C++ falló sin diagnóstico.';
+
+    return diagnostic.slice(0, MAX_COMPILER_DIAGNOSTIC_LENGTH);
   }
 
   private expireFinishedSession(sessionId: string): void {
