@@ -1,7 +1,9 @@
 import { BadRequestException, Injectable, OnApplicationShutdown } from '@nestjs/common';
 import type { SandboxCommand } from '@codi/evaluator-contract';
 import { CloudflareSandboxClientService } from '../sandbox/cloudflare-sandbox-client.service';
+import { resolvePlaygroundExecutionLimits } from './playground-execution-limits';
 import { PlaygroundSession } from './playground-session';
+import { PlaygroundTaskLimitsService } from './playground-task-limits.service';
 
 const FINISHED_SESSION_RETENTION_MS = 60_000;
 const MAX_SOURCE_SIZE = 100 * 1024;
@@ -13,14 +15,6 @@ const COMPILE_LIMITS = {
   outputKb: 1024,
   processes: 5,
 } as const;
-const EXECUTION_LIMITS = {
-  timeSeconds: 30,
-  wallSeconds: 61,
-  memoryKb: 262_144,
-  outputKb: 1024,
-  processes: 5,
-} as const;
-
 interface OwnedPlaygroundSession {
   ownerId: string;
   session: PlaygroundSession;
@@ -30,10 +24,21 @@ interface OwnedPlaygroundSession {
 export class PlaygroundService implements OnApplicationShutdown {
   private readonly sessions = new Map<string, OwnedPlaygroundSession>();
 
-  constructor(private readonly sandbox: CloudflareSandboxClientService) {}
+  constructor(
+    private readonly sandbox: CloudflareSandboxClientService,
+    private readonly taskLimits: PlaygroundTaskLimitsService,
+  ) {}
 
-  async createSession(userId: string, code: string, language: string): Promise<string> {
+  async createSession(
+    userId: string,
+    code: string,
+    language: string,
+    problemId?: string,
+  ): Promise<string> {
     this.validateSource(code, language);
+    const limits = resolvePlaygroundExecutionLimits(
+      problemId ? await this.taskLimits.find(problemId) : undefined,
+    );
     const filename = language === 'python' ? 'source.py' : 'source.cpp';
     const sandboxSessionId = await this.sandbox.createSession(
       userId,
@@ -45,13 +50,14 @@ export class PlaygroundService implements OnApplicationShutdown {
       const terminalId = await this.sandbox.createTerminal(
         userId,
         sandboxSessionId,
-        this.executionCommand(language),
+        this.executionCommand(language, limits),
       );
       const session = new PlaygroundSession(
         this.sandbox,
         userId,
         sandboxSessionId,
         terminalId,
+        limits.wallSeconds * 1000,
         () => {
           this.expireFinishedSession(sandboxSessionId);
         },
@@ -101,10 +107,10 @@ export class PlaygroundService implements OnApplicationShutdown {
     }
   }
 
-  private executionCommand(language: string): SandboxCommand {
+  private executionCommand(language: string, limits: SandboxCommand['limits']): SandboxCommand {
     return {
       command: language === 'python' ? ['/usr/bin/python3', '-u', 'source.py'] : ['./a.out'],
-      limits: EXECUTION_LIMITS,
+      limits,
     };
   }
 

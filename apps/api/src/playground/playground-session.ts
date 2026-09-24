@@ -1,7 +1,6 @@
 import { ReplaySubject, type Observable } from 'rxjs';
 import { CloudflareSandboxClientService } from '../sandbox/cloudflare-sandbox-client.service';
 
-const EXECUTION_TIMEOUT_MS = 30_000;
 const MAX_OUTPUT_BYTES = 1024 * 1024;
 
 export interface PlaygroundEvent {
@@ -20,6 +19,7 @@ export class PlaygroundSession {
     private readonly userId: string,
     private readonly sandboxSessionId: string,
     private readonly terminalId: string,
+    private readonly executionTimeoutMs: number,
     private readonly onDisposed: () => void,
   ) {}
 
@@ -28,7 +28,7 @@ export class PlaygroundSession {
   }
 
   start(): void {
-    this.timer = setTimeout(() => this.timeout(), EXECUTION_TIMEOUT_MS);
+    this.timer = setTimeout(() => this.timeout(), this.executionTimeoutMs);
     void this.consumeOutput().catch((error: unknown) => this.fail(this.errorMessage(error)));
   }
 
@@ -76,7 +76,10 @@ export class PlaygroundSession {
   private timeout(): void {
     if (this.finished) return;
     this.finished = true;
-    this.events.next({ type: 'timeout', data: 'Execution timed out (30s limit)' });
+    this.events.next({
+      type: 'timeout',
+      data: `Execution timed out (${this.executionTimeoutMs / 1000}s limit)`,
+    });
     this.complete();
   }
 
