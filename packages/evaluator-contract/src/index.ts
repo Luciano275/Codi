@@ -1,6 +1,9 @@
 import { z } from 'zod';
 
 const MAX_ENCODED_FILE_LENGTH = 6 * 1024 * 1024;
+export const MAX_SANDBOX_TIME_SECONDS = 60;
+export const MAX_SANDBOX_WALL_SECONDS = 120;
+export const MAX_SANDBOX_MEMORY_KB = 512 * 1024;
 
 export const sandboxFilenameSchema = z.enum([
   'grader.cpp',
@@ -20,9 +23,9 @@ export const sandboxFilenameSchema = z.enum([
 
 export const sandboxLimitsSchema = z
   .object({
-    timeSeconds: z.number().positive().max(60),
-    wallSeconds: z.number().positive().max(120),
-    memoryKb: z.number().int().min(16_384).max(1_048_576),
+    timeSeconds: z.number().positive().max(MAX_SANDBOX_TIME_SECONDS),
+    wallSeconds: z.number().positive().max(MAX_SANDBOX_WALL_SECONDS),
+    memoryKb: z.number().int().min(1).max(MAX_SANDBOX_MEMORY_KB),
     outputKb: z.number().int().positive().max(102_400),
     processes: z.number().int().positive().max(64),
   })
