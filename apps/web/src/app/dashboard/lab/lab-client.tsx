@@ -105,12 +105,12 @@ export default function LabClient({
     const handler = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
         e.preventDefault();
-        handleRun(code, language);
+        handleRun(code, language, problemId);
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [handleRun, code, language]);
+  }, [handleRun, code, language, problemId]);
 
   useEffect(() => cleanup, [cleanup]);
 
@@ -247,7 +247,7 @@ export default function LabClient({
             }
             running={running}
             evaluating={evaluating}
-            onRun={() => handleRun(code, language)}
+            onRun={() => handleRun(code, language, problemId)}
             onEvaluate={exercise ? evaluateAndReward : undefined}
           />
 
