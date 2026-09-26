@@ -1,6 +1,7 @@
 import {
   MAX_SANDBOX_MEMORY_KB,
   MAX_SANDBOX_TIME_SECONDS,
+  MAX_SANDBOX_WALL_SECONDS,
   type SandboxCommand,
 } from '@codi/evaluator-contract';
 
@@ -18,7 +19,7 @@ export function resolvePlaygroundExecutionLimits(
   const timeSeconds = normalizeTimeLimit(taskLimits?.timeLimit);
   return {
     timeSeconds,
-    wallSeconds: timeSeconds,
+    wallSeconds: MAX_SANDBOX_WALL_SECONDS,
     memoryKb: normalizeMemoryLimit(taskLimits?.memoryLimitBytes),
     outputKb: 1024,
     processes: 5,
