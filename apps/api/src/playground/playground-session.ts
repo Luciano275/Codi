@@ -78,7 +78,7 @@ export class PlaygroundSession {
     this.finished = true;
     this.events.next({
       type: 'timeout',
-      data: `Execution timed out (${this.executionTimeoutMs / 1000}s limit)`,
+      data: `La ejecución excedió el límite de ${this.executionTimeoutMs / 1000} segundos.`,
     });
     this.complete();
   }
