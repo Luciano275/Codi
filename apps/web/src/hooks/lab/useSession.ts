@@ -11,7 +11,7 @@ export function useSession(addConsoleTab: (tab: ConsoleTab) => void) {
   const consoleOutputRef = useRef('');
 
   const handleRun = useCallback(
-    async (code: string, language: string) => {
+    async (code: string, language: string, problemId: string | null) => {
       setRunning(true);
       const tabId = `run_${Date.now()}`;
       consoleOutputRef.current = '';
@@ -23,7 +23,7 @@ export function useSession(addConsoleTab: (tab: ConsoleTab) => void) {
       });
 
       try {
-        await startPlaygroundSession(code, language);
+        await startPlaygroundSession(code, language, problemId);
         sessionActiveRef.current = true;
         setSessionActive(true);
 
@@ -129,11 +129,15 @@ export function useSession(addConsoleTab: (tab: ConsoleTab) => void) {
   };
 }
 
-async function startPlaygroundSession(code: string, language: string): Promise<void> {
+async function startPlaygroundSession(
+  code: string,
+  language: string,
+  problemId: string | null,
+): Promise<void> {
   const response = await fetch('/api/playground/start', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ code, language }),
+    body: JSON.stringify({ code, language, ...(problemId ? { problemId } : {}) }),
   });
   if (response.ok) return;
 

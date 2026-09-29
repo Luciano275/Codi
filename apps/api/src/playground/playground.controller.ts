@@ -1,7 +1,7 @@
 import { Controller, Post, Get, Body, Param, Res, UseGuards } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
 import type { User } from '@codi/database';
-import { IsString, MaxLength, IsIn } from 'class-validator';
+import { IsString, MaxLength, IsIn, IsOptional, IsUUID } from 'class-validator';
 import type { Response } from 'express';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -15,6 +15,10 @@ class StartDto {
   @IsString()
   @IsIn(['python', 'cpp'])
   language!: string;
+
+  @IsOptional()
+  @IsUUID('4')
+  problemId?: string;
 }
 
 class InputDto {
@@ -31,7 +35,12 @@ export class PlaygroundController {
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   async start(@CurrentUser() user: User, @Body() dto: StartDto) {
-    const sessionId = await this.playground.createSession(user.id, dto.code, dto.language);
+    const sessionId = await this.playground.createSession(
+      user.id,
+      dto.code,
+      dto.language,
+      dto.problemId,
+    );
     return { sessionId };
   }
 

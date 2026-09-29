@@ -108,7 +108,7 @@ export function ConsolePanel({
         <div className="flex-1 overflow-y-auto p-3 font-mono text-xs leading-relaxed text-[#d4d4d4]">
           {activeConsole ? (
             activeConsole.error ? (
-              <div className="text-volcan-400">
+              <div className="whitespace-pre-wrap text-volcan-400">
                 <span className="font-semibold">Error:</span> {activeConsole.error}
               </div>
             ) : activeConsole.score !== undefined ? (

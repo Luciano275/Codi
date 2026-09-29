@@ -137,7 +137,10 @@ export class SandboxSessionService {
       command: [
         '/bin/bash',
         '-c',
-        buildRestrictedShellCommand(request, { disableInputEcho: true }),
+        buildRestrictedShellCommand(request, {
+          runAs: 'evaluator',
+          disableInputEcho: true,
+        }),
       ],
       cwd: this.workspaceFor(sessionId),
       cols: 120,

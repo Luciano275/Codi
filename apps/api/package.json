@@ -8,7 +8,7 @@
     "start": "node dist/main",
     "start:dev": "nest start --watch",
     "lint": "tsc --noEmit",
-    "test": "pnpm build && node --test dist/evaluation/score-calculator.spec.js dist/evaluation/submission-compiler.service.spec.js dist/evaluation/white-diff.spec.js"
+    "test": "pnpm build && node --test dist/evaluation/score-calculator.spec.js dist/evaluation/submission-compiler.service.spec.js dist/evaluation/white-diff.spec.js dist/playground/playground-execution-limits.spec.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1109.0",

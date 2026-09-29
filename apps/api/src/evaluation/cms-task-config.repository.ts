@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@codi/database';
+import { MAX_SANDBOX_MEMORY_KB, MAX_SANDBOX_TIME_SECONDS } from '@codi/evaluator-contract';
 import { evaluationSettings } from './evaluation.constants';
 import type { CmsTaskConfiguration, CmsTestcase, EvaluationLanguage } from './evaluation.types';
 
@@ -86,8 +87,8 @@ export class CmsTaskConfigRepository {
     if (testcaseRows.length === 0) throw new Error(`CMS task ${cmsTaskId} has no testcases`);
     return {
       datasetId: dataset.id,
-      timeLimit: dataset.timeLimit ?? 1,
-      memoryLimitKb: Number(dataset.memoryLimit ?? 268435456n) / 1024,
+      timeLimit: this.normalizeTimeLimit(dataset.timeLimit),
+      memoryLimitKb: this.normalizeMemoryLimit(dataset.memoryLimit),
       taskType: dataset.taskType,
       taskTypeParameters: dataset.taskTypeParameters,
       scoreType: dataset.scoreType,
@@ -108,6 +109,18 @@ export class CmsTaskConfigRepository {
     if (!Array.isArray(parameters) || parameters.at(-1) !== 'diff') {
       throw new Error(`CMS task ${cmsTaskId} does not use the supported diff comparator`);
     }
+  }
+
+  private normalizeTimeLimit(value: number | null): number {
+    if (!value || !Number.isFinite(value) || value < 0) return 1;
+    return Math.min(Math.ceil(value), MAX_SANDBOX_TIME_SECONDS);
+  }
+
+  private normalizeMemoryLimit(value: bigint | null): number {
+    if (!value || value <= 0n) return MAX_SANDBOX_MEMORY_KB;
+    const memoryKb = Number(value / 1024n);
+    if (!Number.isSafeInteger(memoryKb) || memoryKb < 1) return MAX_SANDBOX_MEMORY_KB;
+    return Math.min(memoryKb, MAX_SANDBOX_MEMORY_KB);
   }
 
   private readonly toTestcase = (row: TestcaseRow): CmsTestcase => ({
