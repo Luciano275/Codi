@@ -2,6 +2,7 @@ from pathlib import Path
 
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
 
@@ -37,6 +38,24 @@ def reset_contents_page(document: Document) -> None:
     title.runs[0].font.size = Pt(12)
     placeholder = document.add_paragraph()
     title._p.addnext(placeholder._p)
+    add_toc_field(placeholder)
+
+
+def add_toc_field(paragraph) -> None:
+    run = paragraph.add_run()
+    begin = OxmlElement('w:fldChar')
+    begin.set(qn('w:fldCharType'), 'begin')
+    instruction = OxmlElement('w:instrText')
+    instruction.set('{http://www.w3.org/XML/1998/namespace}space', 'preserve')
+    instruction.text = ' TOC \\o "1-3" \\h \\z \\u '
+    separate = OxmlElement('w:fldChar')
+    separate.set(qn('w:fldCharType'), 'separate')
+    message = OxmlElement('w:t')
+    message.text = 'Actualizar tabla de contenido'
+    end = OxmlElement('w:fldChar')
+    end.set(qn('w:fldCharType'), 'end')
+    for element in (begin, instruction, separate, message, end):
+        run._r.append(element)
 
 
 def add_text(document: Document, text: str) -> None:
@@ -122,11 +141,11 @@ def build_report(document: Document, table_style) -> None:
     )
     add_text(
         document,
-        'El relevamiento institucional medirá cantidad de cursos, estudiantes, docentes, entregas por práctica y '
-        'demora de devolución. Estos datos no se consignan todavía porque deben provenir de encuestas y registros '
-        'reales; la metodología y el espacio para sus resultados se presentan en el capítulo 9. Durante el cursado, '
-        'la necesidad fue observada por el equipo al enfrentar ejercicios cuya corrección manual demoraba la '
-        'retroalimentación y reducía el tiempo disponible para explicar estrategias y errores particulares.'
+        'El instrumento de relevamiento fue preparado y probado para medir contexto, acceso, conocimiento previo y '
+        'experiencia con Codi. Sus datos de prueba no se utilizan como evidencia de usuarios reales; la aplicación '
+        'definitiva debe conservar respuestas auténticas separadas. Durante el cursado, la necesidad fue observada al enfrentar '
+        'ejercicios cuya corrección manual demoraba la retroalimentación y reducía el tiempo disponible para explicar '
+        'estrategias y errores particulares.'
     )
     document.add_heading('1.3 Fundamentación', level=2)
     add_text(
@@ -250,6 +269,12 @@ def build_report(document: Document, table_style) -> None:
         'Figura 2. Preparación del medio de instalación de Ubuntu Server.',
         5.0,
     )
+    add_figure(
+        document,
+        'resgistrofotografico/rack.jpeg',
+        'Figura 3. Rack institucional con switch, panel de conexiones y servidor recuperado.',
+        5.5,
+    )
     add_text(
         document,
         'La recuperación fue compleja porque no existía un servidor armado: gabinete, fuente de alimentación, '
@@ -271,8 +296,14 @@ def build_report(document: Document, table_style) -> None:
     add_figure(
         document,
         'resgistrofotografico/cableado.jpeg',
-        'Figura 3. Cableado y switch utilizados para renovar la conectividad de prueba.',
+        'Figura 4. Cableado y switch utilizados para renovar la conectividad de prueba.',
         3.5,
+    )
+    add_figure(
+        document,
+        'red-fisica-hibrida.png',
+        'Figura 5. Diagrama físico simplificado de la arquitectura local e híbrida.',
+        6.2,
     )
     document.add_heading('5.3 Software', level=2)
     add_table(
@@ -296,12 +327,12 @@ def build_report(document: Document, table_style) -> None:
     )
     add_text(
         document,
-        'Codi y EVA 3117 parten de Contest Management System (CMS), software libre distribuido bajo GNU Affero '
-        'General Public License. El equipo no lo presenta como una creación desde cero: reutiliza su estructura y '
-        'la transforma para una escuela secundaria mediante el despliegue institucional, una interfaz y flujos de '
-        'uso propios, la configuración de usuarios y concursos, la carga de problemas, datasets, casos de prueba '
-        'y graders. Ambos componentes forman un solo sistema y comparten la misma base de datos, por lo que los '
-        'usuarios, actividades, envíos y resultados se sincronizan de forma total.'
+        'EVA 3117 se construye sobre Contest Management System (CMS), software libre distribuido bajo GNU Affero '
+        'General Public License. Codi, en cambio, fue desarrollado íntegramente por el equipo con Next.js, React y '
+        'NestJS como plataforma pedagógica para integrarse con EVA mediante infraestructura y datos compartidos. '
+        'El aporte sobre EVA comprende despliegue, adecuación de interfaz y flujos, usuarios, concursos, problemas, '
+        'datasets, casos de prueba y graders. Juntos forman un ecosistema institucional sincronizado, sin confundir '
+        'la autoría propia de Codi con la base abierta utilizada por EVA 3117.'
     )
     document.add_heading('5.4 Costos', level=2)
     add_table(
@@ -317,8 +348,15 @@ def build_report(document: Document, table_style) -> None:
             ['Servidor web (Nginx)', 'Software libre, instalación desde repositorios', '$0'],
             ['Instalación y configuración (150 horas)', 'Realizada por alumnos del equipo del proyecto', '$0'],
             ['Costo total', '', '$27.000'],
+            ['Servidor nuevo equivalente (Xeon, 32 GB RAM)', 'Referencia comercial argentina consultada el 24/09/2026', 'Aproximadamente $1.421.200'],
         ],
         table_style,
+    )
+    add_text(
+        document,
+        'La comparación con un servidor rack Intel Xeon de 32 GB publicado a aproximadamente $1.421.200 muestra '
+        'un ahorro estimado de $1.394.200 frente a los $27.000 efectivamente invertidos, equivalente al 98,1 %. '
+        'La cotización es orientativa y puede variar; se utiliza para dimensionar el beneficio económico del reciclaje.'
     )
 
     document.add_heading('6. Funcionamiento', level=1)
@@ -327,12 +365,13 @@ def build_report(document: Document, table_style) -> None:
         document,
         'La innovación central es articular aprendizaje y evaluación dentro de un solo sistema. Codi presenta el '
         'recorrido de aprendizaje, contenidos, progreso, laboratorio, recompensas y ranking; EVA 3117 administra '
-        'concursos, tareas, casos de prueba, graders y veredictos. Ambos componentes nacen de CMS y comparten la '
-        'misma base de datos: usuarios, actividades, envíos y resultados se mantienen sincronizados. La diferencia '
+        'concursos, tareas, casos de prueba, graders y veredictos. EVA se construye sobre CMS; Codi fue desarrollado '
+        'por el equipo con Next.js y NestJS para integrarse con EVA. Comparten infraestructura y datos: usuarios, '
+        'actividades, envíos y resultados se mantienen sincronizados. La diferencia '
         'no se limita a la apariencia: transforma la forma de organizar y utilizar la información de un juez de '
         'competencias para adecuarla al aprendizaje de estudiantes de una escuela secundaria.'
     )
-    add_figure(document, 'images/dashboard.png', 'Figura 4. Codi organiza el recorrido del estudiante mediante islas y módulos.')
+    add_figure(document, 'images/login.png', 'Figura 6. Inicio de sesión de Codi con identidad visual institucional.')
     document.add_heading('6.2 Arquitectura', level=2)
     add_text(
         document,
@@ -340,14 +379,16 @@ def build_report(document: Document, table_style) -> None:
         'La API valida identidad y permisos; la cola evita bloquear la interfaz; el worker recupera la configuración '
         'de la tarea; y el sandbox ejecuta solamente comandos permitidos, sin acceso a Internet. La configuración '
         'de cada dataset define los límites de tiempo y memoria. En los problemas de prueba Amás B y Ecuación '
-        'cuadrática se configuraron 1 segundo de ejecución y 256 MiB de memoria. La memoria RAM disponible del '
-        'servidor limita la operación actual a 24 usuarios simultáneos; la ampliación de RAM permite aumentar esa '
-        'capacidad en una etapa posterior.'
+        'cuadrática se configuraron 1 segundo de ejecución y 256 MiB de memoria. En el examen previo del 23 de agosto '
+        'de 2026 participaron 23 estudiantes y todos los envíos fueron procesados sin pérdida ni fallas funcionales observadas. '
+        'La limitación detectada no es un corte fijo de usuarios: a medida que aumenta la cantidad de evaluaciones '
+        'simultáneas, crece el tiempo necesario para procesar la cola y devolver cada resultado. Ampliar la memoria '
+        'RAM y medir la latencia por niveles de concurrencia permitirá dimensionar la capacidad definitiva.'
     )
     add_figure(
         document,
         'codi-runtime-architecture.visual-check.2048x1320.dark.png',
-        'Figura 5. Arquitectura de ejecución: Codi, API, cola, worker y sandbox de evaluación.',
+        'Figura 7. Arquitectura de ejecución: Codi, API, cola, worker y sandbox de evaluación.',
     )
     document.add_heading('6.3 Recorrido del estudiante en Codi', level=2)
     add_text(
@@ -360,7 +401,14 @@ def build_report(document: Document, table_style) -> None:
         'concursos individuales y grupales. Estos elementos no reemplazan la evaluación académica: hacen visible '
         'el progreso y sostienen la motivación.'
     )
-    add_figure(document, 'images/laboratorio.png', 'Figura 6. Laboratorio de Codi para leer, practicar y revisar una solución.')
+    add_figure(document, 'images/dashboard.png', 'Figura 8. Panel principal de Codi con acceso a las islas de aprendizaje.')
+    add_figure(document, 'images/modulos.png', 'Figura 9. Módulos progresivos desde fundamentos hasta preparación OIA.')
+    add_figure(document, 'images/leccion.png', 'Figura 10. Lección de Codi con contenido visual y recompensa de experiencia.')
+    add_figure(document, 'images/laboratorio.png', 'Figura 11. Laboratorio de Codi para leer, practicar y revisar una solución.')
+    add_figure(document, 'images/python.png', 'Figura 12. Ejecución interactiva de una solución en Python desde Codi.')
+    add_figure(document, 'images/cpp.png', 'Figura 13. Ejecución interactiva de una solución en C++ desde Codi.')
+    add_figure(document, 'images/ranking.png', 'Figura 14. Ranking de Codi con XP, niveles, rachas y recompensas por posición.')
+    add_figure(document, 'images/tienda.png', 'Figura 15. Tienda de canjes de Codi para utilizar gemas en recompensas educativas.')
     document.add_heading('6.4 Evaluación en EVA 3117', level=2)
     add_text(
         document,
@@ -371,17 +419,17 @@ def build_report(document: Document, table_style) -> None:
         'tiempo y límite de memoria. Las capturas incorporadas identifican explícitamente a EVA 3117 como una '
         'interfaz institucional construida sobre CMS, no como una plataforma de juez creada desde cero.'
     )
-    add_figure(document, 'eva/dashboard.png', 'Figura 7. EVA 3117: panel de un simulacro institucional basado en CMS.')
-    add_figure(document, 'eva/task.png', 'Figura 8. EVA 3117: envío e historial de una tarea evaluada en C++.')
+    add_figure(document, 'eva/dashboard.png', 'Figura 16. EVA 3117: panel de un simulacro institucional basado en CMS.')
+    add_figure(document, 'eva/task.png', 'Figura 17. EVA 3117: envío e historial de una tarea evaluada en C++.')
     add_text(
         document,
         'La evidencia visual de veredictos de Python, C++ y Java debe obtenerse en una prueba controlada. En la '
         'versión actual de Codi, la evaluación integrada soporta Python y C++; Java se administra como lenguaje '
         'permitido en CMS, pero no debe declararse integrado a Codi hasta completar esa implementación y prueba.'
     )
-    add_figure(document, 'images/100puntos.png', 'Figura 9. Codi: solución aceptada con 100 puntos.')
-    add_figure(document, 'images/0puntos.png', 'Figura 10. Codi: devolución ante una solución no aceptada.')
-    add_figure(document, 'eva/compilation_error.png', 'Figura 11. EVA 3117: detalle de compilación y consumo de memoria.')
+    add_figure(document, 'images/100puntos.png', 'Figura 18. Codi: solución aceptada con 100 puntos.')
+    add_figure(document, 'images/0puntos.png', 'Figura 19. Codi: devolución ante una solución no aceptada.')
+    add_figure(document, 'eva/compilation_error.png', 'Figura 20. EVA 3117: detalle de compilación y consumo de memoria.')
     document.add_heading('6.5 Administración docente', level=2)
     add_text(
         document,
@@ -390,8 +438,10 @@ def build_report(document: Document, table_style) -> None:
         'entregas. El procedimiento documentado es: crear concurso, registrar usuarios, crear tarea, cargar '
         'dataset y casos, definir límites, habilitar lenguajes, publicar y revisar resultados.'
     )
-    add_figure(document, 'eva/contest.png', 'Figura 12. EVA 3117: configuración de concurso en CMS adaptado bajo licencia AGPL.')
-    add_figure(document, 'eva/users.png', 'Figura 13. EVA 3117: administración de usuarios para el uso institucional.')
+    add_figure(document, 'images/administracion_islas.png', 'Figura 21. Codi: administración de islas, disponibilidad y cursos asociados.')
+    add_figure(document, 'images/administracion_modulos.png', 'Figura 22. Codi: administración de módulos, submódulos y lecciones.')
+    add_figure(document, 'eva/contest.png', 'Figura 23. EVA 3117: configuración de concurso en CMS adaptado bajo licencia AGPL.')
+    add_figure(document, 'eva/users.png', 'Figura 24. EVA 3117: administración de usuarios para el uso institucional.')
     document.add_heading('6.6 Modo de uso', level=2)
     for step in [
         'El docente prepara contenidos en Codi y configura el concurso, problema, casos y límites en EVA 3117.',
@@ -418,20 +468,34 @@ def build_report(document: Document, table_style) -> None:
     add_text(
         document,
         'Los roles se distribuyeron entre diseño de experiencia, integración de servicios, configuración de EVA, '
-        'pruebas, infraestructura y documentación. La nómina de esta sección debe coincidir con los cuatro '
-        'integrantes definidos oficialmente en la portada antes de la presentación final.'
+        'pruebas, infraestructura y documentación. Los cinco integrantes que figuran en la portada participaron '
+        'en tareas técnicas y de validación del proyecto.'
+    )
+    add_table(
+        document,
+        ['Integrante', 'Responsabilidades y aportes'],
+        [
+            ['Santiago Alberti', 'Diseño de la experiencia de Codi, interfaz de islas, investigación y pruebas de navegación.'],
+            ['Fernando Gutierrez', 'Seguimiento del proyecto, organización de evidencias, pruebas de uso y documentación del proceso.'],
+            ['Enzo Guzman', 'Recuperación de hardware, armado del servidor, cableado, red y configuración de infraestructura.'],
+            ['Luciano Luna', 'Arquitectura, desarrollo e integración de Codi con EVA, laboratorio y flujo de evaluación.'],
+            ['Maitena Padilla', 'Documentación técnica, presentación, relevamiento pedagógico y apoyo en pruebas con usuarios.'],
+        ],
+        table_style,
     )
     document.add_heading('7.3 Etapas y cronograma', level=2)
     add_table(
         document,
         ['Etapa', 'Evidencia', 'Dificultad y respuesta'],
         [
-            ['7 de mayo de 2026: inicio de EVA 3117', 'Necesidad de juez institucional y base CMS.', 'Completar bitácora de recuperación y despliegue.'],
-            ['Mayo-junio de 2026: configuración EVA', 'Concursos, usuarios, tareas, datasets y graders.', 'Documentar casos y límites por problema.'],
-            ['9 de junio de 2026: piloto con usuarios', 'Uso del sistema en el laboratorio de Informática.', 'Registrar opiniones y métricas de los participantes.'],
-            ['7 de julio de 2026: inicio de Codi', 'Islas, módulos, laboratorio, progreso y administración.', 'Separar experiencia pedagógica de la ejecución de código.'],
-            ['Integración Codi + EVA 3117', 'Usuarios, actividades, envíos y resultados compartidos.', 'Mantener la sincronización y documentar cambios sobre CMS.'],
-            ['Pruebas y documentación', 'Resultados técnicos y de usuarios.', 'Incorporar evidencias y gráficos del piloto.'],
+            ['7 de mayo de 2026: inicio de EVA 3117', 'Selección de CMS como base del evaluador.', 'El acceso a la sala dependía de docentes autorizados; se coordinaron jornadas específicas de trabajo.'],
+            ['12 de mayo de 2026: recuperación', 'Relevamiento de gabinete, fuente, placa y memorias.', 'Los componentes estaban repartidos entre talleres; se localizaron, verificaron y reunieron.'],
+            ['16 de mayo de 2026: armado', 'Servidor ensamblado y encendido.', 'Se probaron piezas de distintas procedencias hasta lograr una configuración estable.'],
+            ['20 de mayo de 2026: sistema operativo', 'Ubuntu Server instalado y servicios iniciales configurados.', 'Se preparó un medio de arranque y se resolvieron controladores y configuración de red.'],
+            ['Mayo-junio de 2026: red y EVA', 'Cableado renovado, concursos, tareas, datasets y graders.', 'Las PC y la red presentaban fallas; se repararon equipos, UTP, fichas y switch. El acceso administrativo total al router requirió gestión institucional.'],
+            ['9 de junio de 2026: piloto', 'Uso real en el laboratorio con respuestas menores a cuatro segundos.', 'Se asistió a usuarios y se ajustaron cuentas, problemas y parámetros de evaluación.'],
+            ['7 de julio de 2026: inicio de Codi', 'Desarrollo propio con Next.js/NestJS: islas, módulos, laboratorio y progreso.', 'Se diseñó una capa pedagógica nueva sin convertir a Codi en un fork de CMS.'],
+            ['Integración y documentación', 'Datos compartidos, capturas, pruebas y descripción de autoría.', 'Se distinguió con precisión el CMS de EVA y el desarrollo propio de Codi.'],
         ],
         table_style,
     )
@@ -441,17 +505,87 @@ def build_report(document: Document, table_style) -> None:
         'Evitar ejecutar código en la aplicación principal: se separó la evaluación mediante cola, worker y sandbox.',
         'Adecuar CMS a una escuela secundaria: se transformaron la interfaz, los flujos de uso y el aprovechamiento de los datos.',
         'Convertir prácticas aisladas en recorrido: se incorporaron islas, módulos, lecciones, progreso y motivadores.',
+        'Acceder a la sala y al router: se coordinaron horarios con docentes y autoridades que podían autorizar el trabajo.',
+        'Recuperar infraestructura dispersa: se reunieron piezas de distintos talleres y se repararon computadoras y red.',
     ]:
         add_bullet(document, item)
+
+    document.add_page_break()
+    document.add_heading('7.5 Guía operativa: carga de problemas y uso estudiantil', level=2)
+    add_text(
+        document,
+        'El flujo operativo comienza en el portal docente de EVA 3117 y termina con la devolución automática al '
+        'estudiante. Antes de publicar una actividad, el problema debe quedar configurado, sus entradas y salidas '
+        'deben probarse con una solución correcta y otra incorrecta, y luego debe asociarse a un concurso.'
+    )
+
+    document.add_heading('7.5.1 Paso a paso para cargar un problema', level=3)
+    add_text(document, '1. Ingresar al portal de administración con una cuenta docente y, en Tareas, seleccionar “crear tarea”. Escribir un nombre técnico único y confirmar el alta.')
+    add_text(document, '2. Completar nombre visible, título y enunciado. Adjuntar soluciones de referencia o materiales cuando corresponda y definir el formato de entrega, por ejemplo solution.%l, donde la extensión identifica el lenguaje.')
+    add_text(document, '3. Establecer el nivel de retroalimentación, el uso de tokens, la cantidad máxima de envíos, los intervalos entre intentos y el modo de cálculo del puntaje.')
+    add_figure(document, 'eva/problema1.png', 'Figura 25. Alta del problema: título, enunciado, adjuntos y formato de entrega.', 6.2)
+    add_figure(document, 'eva/problema2.png', 'Figura 26. Configuración de retroalimentación, tokens y límites de intentos.', 6.2)
+    add_text(document, '4. Crear o seleccionar el conjunto de datos activo. Definir límite de tiempo, memoria, tipo de tarea Batch, forma de compilación, archivos de entrada/salida si se utilizan y método de comparación de resultados.')
+    add_figure(document, 'eva/problema3.png', 'Figura 27. Dataset activo con límites de un segundo y 256 MiB, compilación y modalidad de entrada/salida.', 6.2)
+    add_text(document, '5. Seleccionar el tipo de puntaje y sus parámetros. En la configuración documentada se utiliza GroupMin para agrupar casos y asignar puntajes por subtarea.')
+    add_text(document, '6. En Casos de prueba, elegir “Añadir un caso de prueba” o “Añadir múltiples casos de prueba”. Para cada caso se registra un codename único, un archivo o texto de entrada y la salida esperada. La opción Público determina si el estudiante puede consultar ese ejemplo.')
+    add_figure(document, 'eva/problema4.png', 'Figura 28. Configuración del grader, puntaje y listado de casos con columnas de entrada y salida.', 6.2)
+
+    document.add_heading('7.5.2 Cómo se construyen las entradas y salidas', level=3)
+    add_text(
+        document,
+        'La entrada de cada caso representa exactamente los datos que el programa recibe por la entrada estándar '
+        '(stdin). Debe respetar el orden, la cantidad de valores, las líneas y las restricciones indicadas en el '
+        'enunciado. La salida esperada contiene únicamente el resultado correcto para esa entrada, tal como debe '
+        'escribirse en la salida estándar (stdout). No se agregan mensajes como “Ingrese un número” porque el juez '
+        'compara la salida del programa con la respuesta esperada.'
+    )
+    add_table(
+        document,
+        ['Elemento', 'Contenido', 'Validación'],
+        [
+            ['Codename', 'Identificador correlativo, por ejemplo 000, 001 o 002.', 'No debe repetirse dentro del dataset.'],
+            ['Entrada', 'Valores que recibirá el programa, separados por espacios o saltos de línea según el enunciado.', 'Debe incluir casos normales, bordes y valores límite.'],
+            ['Salida', 'Resultado correcto correspondiente a una única entrada.', 'Debe coincidir con el formato solicitado, sin texto adicional.'],
+            ['Público', 'Indica si entrada y salida se muestran como ejemplo.', 'Los casos privados verifican la solución sin revelar datos.'],
+            ['Subtarea', 'Grupo de casos asociado a una condición y a una parte del puntaje.', 'Debe validarse según la regla de puntaje configurada.'],
+        ],
+        table_style,
+    )
+    add_text(
+        document,
+        'Después de cargar los casos, el docente guarda con Actualizar, ejecuta una solución de referencia y '
+        'comprueba que obtenga el puntaje completo. Luego envía una solución incompleta o incorrecta para confirmar '
+        'que los casos discriminan errores y que el puntaje parcial funciona. Solo entonces incorpora la tarea al '
+        'concurso desde Tareas > Añadir una nueva tarea y ordena los ejercicios.'
+    )
+
+    document.add_heading('7.5.3 Guía del estudiante', level=3)
+    add_text(document, '1. Ingresar al portal de alumnos con la cuenta autorizada y seleccionar el examen disponible.')
+    add_figure(document, 'eva/login.png', 'Figura 29. Inicio de sesión en la interfaz de EVA 3117 para estudiantes.', 6.0)
+    add_text(document, '2. Revisar en la carátula el estado del examen, tiempo restante y ejercicios. Abrir Enunciado para leer el problema, su formato de entrada y salida, restricciones y ejemplos públicos.')
+    add_text(document, '3. Preparar el archivo con el nombre y la extensión admitidos. En Envíos, seleccionar el archivo y elegir el lenguaje, o conservar la detección automática si está habilitada.')
+    add_figure(document, 'eva/languages.png', 'Figura 30. Selección de archivo y lenguaje antes de enviar una solución.', 6.2)
+    add_text(document, '4. Presionar Enviar y esperar la evaluación. El sistema registra hora, estado, puntaje y archivo; el resultado visible depende de la retroalimentación configurada por el docente.')
+    add_figure(document, 'eva/success.png', 'Figura 31. Devolución de una solución aceptada y registro de envíos anteriores.', 6.2)
+    add_text(document, '5. Si el resultado es parcial o nulo, abrir Detalles para identificar las subtareas o casos no superados, corregir el programa y realizar un nuevo envío cuando las reglas del examen lo permitan.')
+    add_figure(document, 'eva/wrong_answer.png', 'Figura 32. Devolución de una solución parcialmente correcta para orientar la revisión.', 6.2)
+    add_text(
+        document,
+        'La guía operativa completa utilizada como fuente de este procedimiento se conserva en '
+        'architecture/images/guia-operativa-cms.pdf. Incluye además la creación del concurso, asociación y orden '
+        'de tareas, seguimiento consolidado docente y lista de verificación previa a la publicación.'
+    )
 
     document.add_heading('8. Impacto esperado', level=1)
     document.add_heading('8.1 Beneficios para alumnos, docentes e institución', level=2)
     add_text(
         document,
-        'Para el estudiante se espera una devolución más cercana al intento y mayor autonomía para revisar una '
-        'solución. Para el docente, menos corrección repetitiva y más información para acompañar dificultades. '
-        'Para la institución, un entorno propio que combina formación, práctica, simulacros y competencias. El '
-        'impacto se medirá con tiempos de veredicto, reintentos, tasa de aprobación, encuestas y testimonios.'
+        'Para el estudiante, la devolución cercana al intento y la posibilidad de reenviar favorecen la autonomía. '
+        'Para el docente, el sistema reduce correcciones repetitivas y aporta información para acompañar dificultades. '
+        'Para la institución, ofrece un entorno propio que combina formación, práctica, simulacros y competencias. '
+        'Este impacto fue contrastado mediante un piloto y un examen previo con 23 estudiantes realizado el 23 de agosto de 2026. La validación '
+        'cuantitativa de percepción requiere una exportación de encuestas auténticas sin datos de prueba mezclados.'
     )
     document.add_heading('8.2 Sostenibilidad y replicabilidad', level=2)
     add_text(
@@ -468,9 +602,10 @@ def build_report(document: Document, table_style) -> None:
         document,
         ['Limitación actual', 'Próximo paso verificable'],
         [
-            ['Datos de uso todavía no consolidados.', 'Aplicar encuestas y registrar métricas del piloto.'],
+            ['La latencia aumenta cuando crecen los envíos simultáneos.', 'Ejecutar pruebas de carga escalonadas, medir percentiles de respuesta y ampliar RAM según los resultados.'],
             ['Ampliar el alcance del sistema.', 'Incorporar más cursos, problemas, competencias y escuelas usuarias.'],
-            ['Evidencia visual limitada de veredictos.', 'Capturar pruebas controladas para cada lenguaje y resultado esperado.'],
+            ['El catálogo y la orientación inicial pueden ampliarse.', 'Agregar más islas, ejercicios graduados, ejemplos resueltos, pistas y una guía interactiva.'],
+            ['La navegación y las recompensas requieren mayor explicación.', 'Mejorar búsqueda, filtros, visibilidad del progreso y explicación de gemas, ranking y tienda.'],
             ['Mantenimiento del servidor recuperado.', 'Registrar respaldos, actualizaciones y revisiones preventivas.'],
         ],
         table_style,
@@ -490,7 +625,10 @@ def build_report(document: Document, table_style) -> None:
         'El 23 de septiembre de 2026 se ejecutaron las pruebas automatizadas disponibles del módulo de evaluación '
         'con el comando pnpm --filter @codi/api test. El resultado fue 5 de 5 pruebas aprobadas: cálculo GroupMin, '
         'selectores de CMS, compilación estática de C++ y dos verificaciones del comparador white diff. Estas pruebas '
-        'respaldan componentes internos; no reemplazan las pruebas de carga, límites ni usuarios que siguen previstas.'
+        'respaldan componentes internos. Se complementaron con el piloto del 9 de junio y el examen del 23 de agosto '
+        'de 2026, en el que participaron 23 estudiantes. Los formularios también fueron probados, pero sus cargas de ensayo se mantienen fuera de '
+        'los resultados empíricos. Continúa pendiente una prueba escalonada que mida la latencia con cantidades '
+        'crecientes de envíos simultáneos.'
     )
     document.add_heading('9.2 Tabla de pruebas técnicas', level=2)
     add_table(
@@ -498,13 +636,13 @@ def build_report(document: Document, table_style) -> None:
         ['Caso', 'Esperado', 'Resultado y evidencia'],
         [
             ['Pruebas automatizadas del evaluador', 'Cálculo, compilación y comparador sin fallas.', '23/09/2026: 5 de 5 pruebas aprobadas.'],
-            ['Solución correcta', 'Aceptado y puntaje correspondiente.', 'Aceptado con 100 puntos; Figuras 9 y 10.'],
-            ['Respuesta incorrecta', 'Puntaje parcial o nulo sin bloquear la plataforma.', 'Resultado de 30 y 0 puntos; Figuras 9 y 11.'],
-            ['Error de compilación', 'Veredicto de compilación sin bloquear la plataforma.', 'Detalle de compilación y memoria; Figura 12.'],
+            ['Solución correcta', 'Aceptado y puntaje correspondiente.', 'Historial aceptado en EVA y 100 puntos en Codi; Figuras 17 y 18.'],
+            ['Respuesta incorrecta', 'Puntaje parcial o nulo sin bloquear la plataforma.', 'Devolución no aceptada con 0 puntos; Figura 19.'],
+            ['Error de compilación', 'Veredicto de compilación sin bloquear la plataforma.', 'Detalle de compilación y memoria; Figura 20.'],
             ['Bucle infinito', 'Límite de tiempo y terminación controlada.', 'Límite configurado de 1 segundo; captura de TLE pendiente.'],
             ['Exceso de memoria', 'Límite de memoria y veredicto controlado.', 'Límite configurado de 256 MiB; captura pendiente.'],
             ['Intento de acceso a red', 'Acceso denegado por sandbox.', 'El sandbox no habilita Internet; prueba visual pendiente.'],
-            ['Envíos simultáneos', 'Cola procesa sin perder trabajos ni bloquear interfaz.', 'Capacidad actual estimada: 24 usuarios simultáneos por RAM.'],
+            ['Examen del 23/08/2026 con 23 estudiantes', 'Cola procesa sin perder trabajos ni bloquear interfaz.', 'Todos los envíos fueron evaluados; al aumentar la concurrencia también aumentó el tiempo de respuesta.'],
         ],
         table_style,
     )
@@ -514,24 +652,49 @@ def build_report(document: Document, table_style) -> None:
         'El 9 de junio de 2026 se realizó una prueba con usuarios en el laboratorio de Informática. Los participantes '
         'realizaron varios intentos sobre las actividades propuestas y recibieron respuestas en menos de cuatro '
         'segundos, tanto desde Codi como desde EVA 3117. Los reintentos pueden configurarse desde la administración '
-        'de EVA según el objetivo de cada instancia. La cantidad consolidada de participantes, envíos, reintentos '
-        'hasta aprobar y opiniones se incorporará junto con los gráficos del relevamiento; cada gráfico indicará '
-        'número de respuestas, fecha y pregunta asociada.'
+        'de EVA según el objetivo de cada instancia. El 23 de agosto de 2026 se realizó un examen previo con 23 '
+        'estudiantes: el sistema funcionó sin pérdida de entregas ni fallas funcionales observadas. La experiencia '
+        'permitió detectar que el procesamiento no mantiene un tiempo constante: cuando se concentran más envíos '
+        'simultáneos, la cola necesita más tiempo para ejecutar los casos y devolver los resultados.'
     )
     add_figure(
         document,
         'resgistrofotografico/prueba.jpeg',
-        'Figura 14. Prueba con usuarios realizada el 9 de junio de 2026 en el laboratorio de Informática.',
+        'Figura 33. Prueba con usuarios realizada el 9 de junio de 2026 en el laboratorio de Informática.',
         5.9,
     )
-    document.add_heading('9.4 Verificación de la hipótesis', level=2)
+
+    document.add_heading('9.4 Estado del relevamiento', level=2)
     add_text(
         document,
-        'La hipótesis se confirma parcialmente con la prueba de usuarios del 9 de junio de 2026 y las pruebas '
-        'técnicas documentadas: los participantes recibieron un veredicto en menos de cuatro segundos tanto en '
-        'Codi como en EVA 3117, y pudieron reenviar una solución luego de revisar el resultado. La confirmación '
-        'cuantitativa completa se consolidará cuando se incorporen los gráficos de encuesta, cantidad de envíos y '
-        'opiniones de estudiantes y docentes.'
+        'Los formularios de caracterización y experiencia fueron configurados y probados. Sin embargo, los archivos '
+        'disponibles combinan cargas de prueba con respuestas posteriores y no permiten separar su procedencia de '
+        'manera confiable. Para preservar la validez del informe, esos gráficos no se presentan como evidencia de '
+        'estudiantes reales. La aplicación definitiva debe realizarse sobre un formulario limpio y exportarse con '
+        'fecha, cantidad de participantes y respuestas originales.'
+    )
+    document.add_heading('9.5 Mejoras previstas', level=2)
+    add_table(
+        document,
+        ['Área', 'Posibilidad o modificación futura'],
+        [
+            ['Contenidos y práctica', 'Agregar nuevas islas, más ejercicios por nivel, ejemplos resueltos, casos de entrada/salida, pistas y videos breves.'],
+            ['Orientación y navegación', 'Incorporar una guía inicial, simplificar menús, mejorar búsqueda y filtros, y hacer más visible el progreso.'],
+            ['Laboratorio y evaluación', 'Incorporar guardado automático, ampliar lenguajes y optimizar la corrección y el rendimiento en equipos antiguos.'],
+            ['Motivación y personalización', 'Explicar mejor gemas y recompensas, sumar desafíos semanales y explorar ambientaciones diferentes por isla.'],
+            ['Accesibilidad', 'Revisar claridad de enunciados, dificultad progresiva y acceso directo a actividades y ayuda.'],
+        ],
+        table_style,
+    )
+
+    document.add_heading('9.6 Verificación de la hipótesis', level=2)
+    add_text(
+        document,
+        'La hipótesis queda respaldada parcialmente por las pruebas técnicas, el piloto y el examen del 23 de agosto '
+        'de 2026 con 23 estudiantes. Los participantes del piloto recibieron un veredicto en menos de cuatro segundos y pudieron '
+        'reenviar después de revisar el resultado. El examen confirmó el funcionamiento bajo uso concurrente y '
+        'delimitó el próximo desafío técnico: medir y reducir el aumento de latencia cuando crece la cantidad de '
+        'envíos simultáneos. La percepción cuantitativa se incorporará cuando exista un relevamiento auténtico y limpio.'
     )
 
     document.add_heading('10. Bibliografía consultada', level=1)
@@ -544,7 +707,9 @@ def build_report(document: Document, table_style) -> None:
         'Mumuki. (2026). Mumuki. https://mumuki.io/',
         'NestJS. (2026). Documentation. https://docs.nestjs.com/',
         'Next.js. (2026). Documentation. https://nextjs.org/docs',
+        'Olimpíada Informática Argentina. (2026). Sitio oficial y OIAJuez. https://www.oia.unsam.edu.ar/',
         'OmegaUp. (2026). OmegaUp. https://omegaup.com/',
+        'Mercado Libre Argentina. (2026). Servidor Intel Xeon 32 GB rackeable 4U [Referencia comercial consultada el 24 de septiembre de 2026]. https://www.mercadolibre.com.ar/',
         'República Argentina. (2000). Ley 25.326: Protección de los datos personales. https://www.argentina.gob.ar/normativa/nacional/ley-25326-64790',
     ]:
         add_text(document, reference)

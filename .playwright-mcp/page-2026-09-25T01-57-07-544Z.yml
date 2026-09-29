@@ -1,0 +1,222 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - generic [ref=e6]:
+      - generic [ref=e8]:
+        - generic [ref=e10]:
+          - heading "Encuesta Sobre Codi" [level=1] [ref=e12]
+          - generic [ref=e13]: Encuesta anónima para estudiantes que ya utilizaron Codi
+        - generic [ref=e17]:
+          - link "Iniciar sesión en Google" [ref=e18] [cursor=pointer]:
+            - /url: https://accounts.google.com/AccountChooser?continue=https://docs.google.com/forms/d/e/1FAIpQLScOuNwKmYuvZwItSj6zhsyq1oiRAP6wryotd8gO7FQHytFAgA/viewform?usp%3Dheader&service=wise
+          - text: para guardar lo que llevas hecho.
+          - button "Más información" [ref=e19] [cursor=pointer]
+      - list [ref=e20]:
+        - listitem [ref=e21]:
+          - generic [ref=e23]:
+            - heading "¿Qué tan fácil te resultó utilizar Codi?" [level=3] [ref=e26]
+            - radiogroup "¿Qué tan fácil te resultó utilizar Codi?" [ref=e30]:
+              - generic [ref=e31]:
+                - generic [ref=e34]:
+                  - generic [ref=e35]:
+                    - radio "Muy fácil." [disabled]
+                  - generic [ref=e36]: Muy fácil.
+                - generic [ref=e41]:
+                  - generic [ref=e42]:
+                    - radio "Fácil." [disabled]
+                  - generic [ref=e43]: Fácil.
+                - generic [ref=e48]:
+                  - generic [ref=e49]:
+                    - radio "Regular." [disabled]
+                  - generic [ref=e50]: Regular.
+                - generic [ref=e55]:
+                  - generic [ref=e56]:
+                    - radio "Difícil." [disabled]
+                  - generic [ref=e57]: Difícil.
+                - generic [ref=e62]:
+                  - generic [ref=e63]:
+                    - radio "Muy difícil." [disabled]
+                  - generic [ref=e64]: Muy difícil.
+        - listitem [ref=e67]:
+          - generic [ref=e69]:
+            - heading "¿Qué función de Codi te resultó más útil?" [level=3] [ref=e72]
+            - radiogroup "¿Qué función de Codi te resultó más útil?" [ref=e76]:
+              - generic [ref=e77]:
+                - generic [ref=e80]:
+                  - generic [ref=e81]:
+                    - radio "Islas y módulos." [disabled]
+                  - generic [ref=e82]: Islas y módulos.
+                - generic [ref=e87]:
+                  - generic [ref=e88]:
+                    - radio "Lecciones." [disabled]
+                  - generic [ref=e89]: Lecciones.
+                - generic [ref=e94]:
+                  - generic [ref=e95]:
+                    - radio "Ejercicios." [disabled]
+                  - generic [ref=e96]: Ejercicios.
+                - generic [ref=e101]:
+                  - generic [ref=e102]:
+                    - radio "Laboratorio de programación." [disabled]
+                  - generic [ref=e103]: Laboratorio de programación.
+                - generic [ref=e108]:
+                  - generic [ref=e109]:
+                    - radio "Seguimiento del progreso." [disabled]
+                  - generic [ref=e110]: Seguimiento del progreso.
+                - generic [ref=e115]:
+                  - generic [ref=e116]:
+                    - radio "Ranking y recompensas." [disabled]
+                  - generic [ref=e117]: Ranking y recompensas.
+        - listitem [ref=e120]:
+          - generic [ref=e122]:
+            - heading "¿Las lecciones te ayudaron a comprender los temas de programación?" [level=3] [ref=e125]
+            - radiogroup "¿Las lecciones te ayudaron a comprender los temas de programación?" [ref=e129]:
+              - generic [ref=e130]:
+                - generic [ref=e133]:
+                  - generic [ref=e134]:
+                    - radio "Mucho." [disabled]
+                  - generic [ref=e135]: Mucho.
+                - generic [ref=e140]:
+                  - generic [ref=e141]:
+                    - radio "Bastante." [disabled]
+                  - generic [ref=e142]: Bastante.
+                - generic [ref=e147]:
+                  - generic [ref=e148]:
+                    - radio "Poco." [disabled]
+                  - generic [ref=e149]: Poco.
+                - generic [ref=e154]:
+                  - generic [ref=e155]:
+                    - radio "Nada." [disabled]
+                  - generic [ref=e156]: Nada.
+                - generic [ref=e161]:
+                  - generic [ref=e162]:
+                    - radio "No utilicé las lecciones." [disabled]
+                  - generic [ref=e163]: No utilicé las lecciones.
+        - listitem [ref=e166]:
+          - generic [ref=e168]:
+            - heading "¿Que tan facil fue encontar las actividades ?" [level=3] [ref=e171]
+            - radiogroup "¿Que tan facil fue encontar las actividades ?" [ref=e175]:
+              - generic [ref=e176]:
+                - generic [ref=e179]:
+                  - generic [ref=e180]:
+                    - radio "Muy facil" [disabled]
+                  - generic [ref=e181]: Muy facil
+                - generic [ref=e186]:
+                  - generic [ref=e187]:
+                    - radio "Facil" [disabled]
+                  - generic [ref=e188]: Facil
+                - generic [ref=e193]:
+                  - generic [ref=e194]:
+                    - radio "Regular" [disabled]
+                  - generic [ref=e195]: Regular
+                - generic [ref=e200]:
+                  - generic [ref=e201]:
+                    - radio "Dificil" [disabled]
+                  - generic [ref=e202]: Dificil
+                - generic [ref=e207]:
+                  - generic [ref=e208]:
+                    - radio "Muy dificil" [disabled]
+                  - generic [ref=e209]: Muy dificil
+        - listitem [ref=e212]:
+          - generic [ref=e214]:
+            - heading "¿Codi te ayudó a trabajar con mayor autonomía?" [level=3] [ref=e217]
+            - radiogroup "¿Codi te ayudó a trabajar con mayor autonomía?" [ref=e221]:
+              - generic [ref=e222]:
+                - generic [ref=e225]:
+                  - generic [ref=e226]:
+                    - radio "Mucho." [disabled]
+                  - generic [ref=e227]: Mucho.
+                - generic [ref=e232]:
+                  - generic [ref=e233]:
+                    - radio "Bastante." [disabled]
+                  - generic [ref=e234]: Bastante.
+                - generic [ref=e239]:
+                  - generic [ref=e240]:
+                    - radio "Poco." [disabled]
+                  - generic [ref=e241]: Poco.
+                - generic [ref=e246]:
+                  - generic [ref=e247]:
+                    - radio "Nada." [disabled]
+                  - generic [ref=e248]: Nada.
+        - listitem [ref=e251]:
+          - generic [ref=e253]:
+            - heading "¿El sistema de puntos, niveles y recompensas te motivó a continuar?" [level=3] [ref=e256]
+            - radiogroup "¿El sistema de puntos, niveles y recompensas te motivó a continuar?" [ref=e260]:
+              - generic [ref=e261]:
+                - generic [ref=e264]:
+                  - generic [ref=e265]:
+                    - radio "Mucho." [disabled]
+                  - generic [ref=e266]: Mucho.
+                - generic [ref=e271]:
+                  - generic [ref=e272]:
+                    - radio "Bastante." [disabled]
+                  - generic [ref=e273]: Bastante.
+                - generic [ref=e278]:
+                  - generic [ref=e279]:
+                    - radio "Poco." [disabled]
+                  - generic [ref=e280]: Poco.
+                - generic [ref=e285]:
+                  - generic [ref=e286]:
+                    - radio "Nada." [disabled]
+                  - generic [ref=e287]: Nada.
+                - generic [ref=e292]:
+                  - generic [ref=e293]:
+                    - radio "No conocía esas funciones." [disabled]
+                  - generic [ref=e294]: No conocía esas funciones.
+        - listitem [ref=e297]:
+          - generic [ref=e299]:
+            - heading "¿Volverías a utilizar Codi para aprender y practicar programación?" [level=3] [ref=e302]
+            - radiogroup "¿Volverías a utilizar Codi para aprender y practicar programación?" [ref=e306]:
+              - generic [ref=e307]:
+                - generic [ref=e310]:
+                  - generic [ref=e311]:
+                    - radio "Sí." [disabled]
+                  - generic [ref=e312]: Sí.
+                - generic [ref=e317]:
+                  - generic [ref=e318]:
+                    - radio "Tal vez." [disabled]
+                  - generic [ref=e319]: Tal vez.
+                - generic [ref=e324]:
+                  - generic [ref=e325]:
+                    - radio "No." [disabled]
+                  - generic [ref=e326]: No.
+        - listitem [ref=e329]:
+          - generic [ref=e331]:
+            - heading "¿Qué fue lo que más te gustó de Codi?" [level=3] [ref=e334]
+            - generic [ref=e338]:
+              - generic [aria-hidden]: Tu respuesta
+              - textbox "¿Qué fue lo que más te gustó de Codi?" [disabled] [ref=e340]
+        - listitem [ref=e342]:
+          - generic [ref=e344]:
+            - heading "¿Qué dificultad encontraste al utilizar Codi?" [level=3] [ref=e347]
+            - generic [ref=e351]:
+              - generic [aria-hidden]: Tu respuesta
+              - textbox "¿Qué dificultad encontraste al utilizar Codi?" [disabled] [ref=e353]
+        - listitem [ref=e355]:
+          - generic [ref=e357]:
+            - heading "¿Qué cambiarías o agregarías para mejorar Codi?" [level=3] [ref=e360]
+            - generic [ref=e364]:
+              - generic [aria-hidden]: Tu respuesta
+              - textbox "¿Qué cambiarías o agregarías para mejorar Codi?" [disabled] [ref=e366]
+      - generic [ref=e368]:
+        - generic [ref=e369]:
+          - button "Enviar" [ref=e371] [cursor=pointer]
+          - button "Borrar formulario" [ref=e376] [cursor=pointer]
+        - generic [ref=e380]: Nunca envíes contraseñas a través de Formularios de Google.
+    - generic [ref=e381]:
+      - generic [ref=e382]:
+        - text: Este contenido no ha sido creado ni aprobado por Google. -
+        - link "Términos del Servicio" [ref=e383] [cursor=pointer]:
+          - /url: https://policies.google.com/terms
+        - text: "-"
+        - link "Política de Privacidad" [ref=e384] [cursor=pointer]:
+          - /url: https://policies.google.com/privacy
+        - paragraph [ref=e385]:
+          - text: ¿Parece sospechoso este formulario?
+          - link "Informe" [ref=e386] [cursor=pointer]:
+            - /url: https://docs.google.com/forms/d/e/1FAIpQLScOuNwKmYuvZwItSj6zhsyq1oiRAP6wryotd8gO7FQHytFAgA/abuse
+      - link [ref=e388] [cursor=pointer]:
+        - /url: //www.google.com/forms/about/?utm_source=product&utm_medium=forms_logo&utm_campaign=forms
+        - img "Google" [ref=e389]
+        - text: Formularios
+  - generic [ref=e393]:
+    - button "ayuda y comentarios" [ref=e394] [cursor=pointer]
+    - tooltip [aria-hidden] [ref=e397]: Ayuda y comentarios

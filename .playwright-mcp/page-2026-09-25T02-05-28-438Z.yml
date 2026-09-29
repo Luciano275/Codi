@@ -1,0 +1,42 @@
+- generic [ref=f44e1]:
+  - generic [ref=f44e3]:
+    - generic [ref=f44e4]:
+      - generic [aria-hidden] [ref=f44e6]:
+        - generic [ref=f44e7]: Cargando
+        - progressbar [aria-hidden] [ref=f44e8]
+      - main [ref=f44e15]:
+        - generic [ref=f44e20]:
+          - heading "Inicia sesión" [level=1] [ref=f44e21]
+          - generic [ref=f44e22]: con tu cuenta de Google para ir a Formularios de Google. Esta cuenta estará disponible para otras apps de Google en el navegador.
+        - generic [ref=f44e25]:
+          - generic [ref=f44e30]:
+            - generic [ref=f44e35]:
+              - textbox "Correo electrónico o teléfono" [active] [ref=f44e36]
+              - generic [aria-hidden]: Correo electrónico o teléfono
+            - button "¿Has olvidado tu correo electrónico?" [ref=f44e40] [cursor=pointer]
+          - generic [ref=f44e43]:
+            - text: ¿No es tu ordenador? Usa el modo Invitado para iniciar sesión de forma privada.
+            - link "Más información sobre cómo usar el modo Invitado (enlace externo, se abre en una ventana nueva)" [ref=f44e44] [cursor=pointer]:
+              - /url: https://support.google.com/chrome/answer/6130773?hl=es
+              - text: Más información sobre cómo usar el modo Invitado
+        - generic [ref=f44e46]:
+          - button "Siguiente" [ref=f44e50]
+          - button "Crear cuenta" [ref=f44e59]
+    - contentinfo [ref=f44e66]:
+      - combobox "Cómo cambiar de idioma Español (España)" [ref=f44e70] [cursor=pointer]:
+        - generic [aria-hidden]:
+          - generic: Español (España)
+      - list [ref=f44e72]:
+        - listitem [ref=f44e73]:
+          - link "Abrir el Centro de Ayuda de Cuenta de Google (enlace externo, se abre en una ventana nueva)" [ref=f44e74] [cursor=pointer]:
+            - /url: https://support.google.com/accounts?hl=es&p=account_iph
+            - text: Ayuda
+        - listitem [ref=f44e75]:
+          - link "Política de Privacidad (enlace externo, se abre en una ventana nueva)" [ref=f44e76] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=AR&hl=es&privacy=true
+            - text: Privacidad
+        - listitem [ref=f44e77]:
+          - link "Términos del Servicio de Google (enlace externo, se abre en una ventana nueva)" [ref=f44e78] [cursor=pointer]:
+            - /url: https://accounts.google.com/TOS?loc=AR&hl=es
+            - text: Términos
+  - iframe [ref=f44e79]

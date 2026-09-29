@@ -1,0 +1,240 @@
+- generic [ref=e2]:
+  - button "Editar este formulario" [ref=e4] [cursor=pointer]
+  - generic [ref=e11]:
+    - generic [ref=e14]:
+      - generic [ref=e16]:
+        - generic [ref=e18]:
+          - heading "Encuesta sobre experiencia y acceso a Codi y EVA 3117Encuesta sobre experiencia y acceso a Codi y EVA 3117" [level=1] [ref=e20]
+          - generic [ref=e21]: Encuesta anónima para conocer la experiencia previa de los estudiantes con programación, dispositivos, conectividad y las plataformas Codi y EVA 3117. No se recopilan nombres ni direcciones de correo electrónico.
+        - generic [ref=e24]:
+          - generic [ref=e25]:
+            - generic [ref=e27]:
+              - text: maximoguanca279@gmail.com
+              - link "Cambiar cuenta" [ref=e28] [cursor=pointer]:
+                - /url: https://accounts.google.com/AccountChooser?continue=https://docs.google.com/forms/d/e/1FAIpQLSf8OY4M1n53dFRXqMirYHP85-FmopQqfNrTQk0HUOI8IEw60Q/viewform?usp%3Dheader&service=wise
+            - generic [ref=e29]:
+              - img "Tu correo electrónico y Cuenta de Google no forman parte de tu respuesta" [ref=e30]
+              - generic [ref=e34]: No compartido
+          - generic [ref=e35] [cursor=pointer]
+      - list [ref=e38]:
+        - listitem [ref=e39]:
+          - generic [ref=e41]:
+            - heading "¿Qué año estás cursando?" [level=3] [ref=e44]
+            - list "¿Qué año estás cursando?" [ref=e47]:
+              - listitem [ref=e48]:
+                - generic [ref=e50]:
+                  - checkbox "2.º año C.S." [disabled] [ref=e51]
+                  - generic [ref=e54]: 2.º año C.S.
+              - listitem [ref=e57]:
+                - generic [ref=e59]:
+                  - checkbox "3.º año C.S." [disabled] [ref=e60]
+                  - generic [ref=e63]: 3.º año C.S.
+              - listitem [ref=e66]:
+                - generic [ref=e68]:
+                  - checkbox "4.º año C.S." [disabled] [ref=e69]
+                  - generic [ref=e72]: 4.º año C.S.
+              - listitem [ref=e75]:
+                - generic [ref=e77]:
+                  - checkbox "Prefiero no responder C.S." [disabled] [ref=e78]
+                  - generic [ref=e81]: Prefiero no responder C.S.
+        - listitem [ref=e84]:
+          - generic [ref=e86]:
+            - heading "¿Cómo describirías tus conocimientos actuales de programación?" [level=3] [ref=e89]
+            - radiogroup "¿Cómo describirías tus conocimientos actuales de programación?" [ref=e93]:
+              - generic [ref=e94]:
+                - generic [ref=e97]:
+                  - generic [ref=e98]:
+                    - radio "Nunca programé." [disabled]
+                  - generic [ref=e99]: Nunca programé.
+                - generic [ref=e104]:
+                  - generic [ref=e105]:
+                    - radio "Estoy comenzando a aprender." [disabled]
+                  - generic [ref=e106]: Estoy comenzando a aprender.
+                - generic [ref=e111]:
+                  - generic [ref=e112]:
+                    - radio "Tengo conocimientos básicos." [disabled]
+                  - generic [ref=e113]: Tengo conocimientos básicos.
+                - generic [ref=e118]:
+                  - generic [ref=e119]:
+                    - radio "Tengo conocimientos intermedios." [disabled]
+                  - generic [ref=e120]: Tengo conocimientos intermedios.
+                - generic [ref=e125]:
+                  - generic [ref=e126]:
+                    - radio "Tengo conocimientos avanzados." [disabled]
+                  - generic [ref=e127]: Tengo conocimientos avanzados.
+                - generic [ref=e132]:
+                  - generic [ref=e133]:
+                    - radio "No estoy seguro/a." [disabled]
+                  - generic [ref=e134]: No estoy seguro/a.
+        - listitem [ref=e137]:
+          - generic [ref=e139]:
+            - heading "¿Con qué frecuencia programás dentro o fuera de la escuela?" [level=3] [ref=e142]
+            - radiogroup "¿Con qué frecuencia programás dentro o fuera de la escuela?" [ref=e146]:
+              - generic [ref=e147]:
+                - generic [ref=e150]:
+                  - generic [ref=e151]:
+                    - radio "Todos los días." [disabled]
+                  - generic [ref=e152]: Todos los días.
+                - generic [ref=e157]:
+                  - generic [ref=e158]:
+                    - radio "Varias veces por semana." [disabled]
+                  - generic [ref=e159]: Varias veces por semana.
+                - generic [ref=e164]:
+                  - generic [ref=e165]:
+                    - radio "Una vez por semana." [disabled]
+                  - generic [ref=e166]: Una vez por semana.
+                - generic [ref=e171]:
+                  - generic [ref=e172]:
+                    - radio "Algunas veces al mes." [disabled]
+                  - generic [ref=e173]: Algunas veces al mes.
+                - generic [ref=e178]:
+                  - generic [ref=e179]:
+                    - radio "Casi nunca." [disabled]
+                  - generic [ref=e180]: Casi nunca.
+                - generic [ref=e185]:
+                  - generic [ref=e186]:
+                    - radio "Nunca." [disabled]
+                  - generic [ref=e187]: Nunca.
+        - listitem [ref=e190]:
+          - generic [ref=e192]:
+            - heading "¿Qué lenguajes de programación utilizaste?" [level=3] [ref=e195]
+            - radiogroup "¿Qué lenguajes de programación utilizaste?" [ref=e199]:
+              - generic [ref=e200]:
+                - generic [ref=e203]:
+                  - generic [ref=e204]:
+                    - radio "C." [disabled]
+                  - generic [ref=e205]: C.
+                - generic [ref=e210]:
+                  - generic [ref=e211]:
+                    - radio "C++" [disabled]
+                  - generic [ref=e212]: C++
+                - generic [ref=e217]:
+                  - generic [ref=e218]:
+                    - radio "JavaScript" [disabled]
+                  - generic [ref=e219]: JavaScript
+                - generic [ref=e224]:
+                  - generic [ref=e225]:
+                    - radio "Java" [disabled]
+                  - generic [ref=e226]: Java
+                - generic [ref=e231]:
+                  - generic [ref=e232]:
+                    - radio "Otro lenguaje" [disabled]
+                  - generic [ref=e233]: Otro lenguaje
+                - generic [ref=e238]:
+                  - generic [ref=e239]:
+                    - radio "Todavía no utilice ningún lenguaje" [disabled]
+                  - generic [ref=e240]: Todavía no utilice ningún lenguaje
+        - listitem [ref=e243]:
+          - generic [ref=e245]:
+            - heading "¿Qué dispositivos utilizás habitualmente para estudiar?" [level=3] [ref=e248]
+            - radiogroup "¿Qué dispositivos utilizás habitualmente para estudiar?" [ref=e252]:
+              - generic [ref=e253]:
+                - generic [ref=e256]:
+                  - generic [ref=e257]:
+                    - radio "Computadora de escritorio." [disabled]
+                  - generic [ref=e258]: Computadora de escritorio.
+                - generic [ref=e263]:
+                  - generic [ref=e264]:
+                    - radio "Notebook." [disabled]
+                  - generic [ref=e265]: Notebook.
+                - generic [ref=e270]:
+                  - generic [ref=e271]:
+                    - radio "Netbook escolar." [disabled]
+                  - generic [ref=e272]: Netbook escolar.
+                - generic [ref=e277]:
+                  - generic [ref=e278]:
+                    - radio "Teléfono celular." [disabled]
+                  - generic [ref=e279]: Teléfono celular.
+                - generic [ref=e284]:
+                  - generic [ref=e285]:
+                    - radio "Tablet." [disabled]
+                  - generic [ref=e286]: Tablet.
+                - generic [ref=e291]:
+                  - generic [ref=e292]:
+                    - radio "No tengo un dispositivo propio." [disabled]
+                  - generic [ref=e293]: No tengo un dispositivo propio.
+                - generic [ref=e298]:
+                  - generic [ref=e299]:
+                    - radio "Otro." [disabled]
+                  - generic [ref=e300]: Otro.
+        - listitem [ref=e303]:
+          - generic [ref=e305]:
+            - heading "¿Tenés conexión a Internet disponible fuera de la escuela?" [level=3] [ref=e308]
+            - radiogroup "¿Tenés conexión a Internet disponible fuera de la escuela?" [ref=e312]:
+              - generic [ref=e313]:
+                - generic [ref=e316]:
+                  - generic [ref=e317]:
+                    - radio "Sí, siempre." [disabled]
+                  - generic [ref=e318]: Sí, siempre.
+                - generic [ref=e323]:
+                  - generic [ref=e324]:
+                    - radio "Sí, pero es inestable." [disabled]
+                  - generic [ref=e325]: Sí, pero es inestable.
+                - generic [ref=e330]:
+                  - generic [ref=e331]:
+                    - radio "Solamente algunas veces." [disabled]
+                  - generic [ref=e332]: Solamente algunas veces.
+                - generic [ref=e337]:
+                  - generic [ref=e338]:
+                    - radio "No." [disabled]
+                  - generic [ref=e339]: No.
+                - generic [ref=e344]:
+                  - generic [ref=e345]:
+                    - radio "Prefiero no responder." [disabled]
+                  - generic [ref=e346]: Prefiero no responder.
+        - listitem [ref=e349]:
+          - generic [ref=e351]:
+            - heading "Antes de esta encuesta, ¿conocías Codi o EVA 3117?" [level=3] [ref=e354]
+            - list "Antes de esta encuesta, ¿conocías Codi o EVA 3117?" [ref=e357]:
+              - listitem [ref=e358]:
+                - generic [ref=e360]:
+                  - checkbox "Conocía y utilicé los dos sistemas." [disabled] [ref=e361]
+                  - generic [ref=e364]: Conocía y utilicé los dos sistemas.
+              - listitem [ref=e367]:
+                - generic [ref=e369]:
+                  - checkbox "Conocía los dos, pero solo utilicé Codi." [disabled] [ref=e370]
+                  - generic [ref=e373]: Conocía los dos, pero solo utilicé Codi.
+              - listitem [ref=e376]:
+                - generic [ref=e378]:
+                  - checkbox "Conocía los dos, pero solo utilicé EVA 3117." [disabled] [ref=e379]
+                  - generic [ref=e382]: Conocía los dos, pero solo utilicé EVA 3117.
+              - listitem [ref=e385]:
+                - generic [ref=e387]:
+                  - checkbox "Conocía los dos, pero no los utilicé." [disabled] [ref=e388]
+                  - generic [ref=e391]: Conocía los dos, pero no los utilicé.
+              - listitem [ref=e394]:
+                - generic [ref=e396]:
+                  - checkbox "Conocía solamente Codi." [disabled] [ref=e397]
+                  - generic [ref=e400]: Conocía solamente Codi.
+              - listitem [ref=e403]:
+                - generic [ref=e405]:
+                  - checkbox "Conocía solamente EVA 3117." [disabled] [ref=e406]
+                  - generic [ref=e409]: Conocía solamente EVA 3117.
+              - listitem [ref=e412]:
+                - generic [ref=e414]:
+                  - checkbox "No conocía ninguno." [disabled] [ref=e415]
+                  - generic [ref=e418]: No conocía ninguno.
+      - generic [ref=e422]:
+        - button "Enviar" [ref=e424] [cursor=pointer]
+        - button "Borrar formulario" [ref=e429] [cursor=pointer]
+    - generic [ref=e433]:
+      - generic [ref=e434]:
+        - text: Google no creó ni aprobó este contenido. -
+        - button "Comunicarse con el propietario del formulario" [ref=e435]
+        - text: "-"
+        - link "Condiciones del Servicio" [ref=e436] [cursor=pointer]:
+          - /url: https://policies.google.com/terms
+        - text: "-"
+        - link "Política de Privacidad" [ref=e437] [cursor=pointer]:
+          - /url: https://policies.google.com/privacy
+        - paragraph [ref=e438]:
+          - text: ¿El formulario parece sospechoso?
+          - link "Informe" [ref=e439] [cursor=pointer]:
+            - /url: https://docs.google.com/forms/u/0/d/e/1FAIpQLSf8OY4M1n53dFRXqMirYHP85-FmopQqfNrTQk0HUOI8IEw60Q/abuse
+      - link [ref=e441] [cursor=pointer]:
+        - /url: //www.google.com/forms/about/?utm_source=product&utm_medium=forms_logo&utm_campaign=forms
+        - img "Google" [ref=e442]
+        - text: Formularios
+  - generic [ref=e446]:
+    - button "ayuda y comentarios" [ref=e447] [cursor=pointer]
+    - tooltip [aria-hidden] [ref=e450]: Ayuda y comentarios

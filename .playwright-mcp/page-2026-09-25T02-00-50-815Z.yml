@@ -1,0 +1,25 @@
+- generic [ref=f43e3]:
+  - generic [ref=f43e5]:
+    - heading "Necesitas permiso" [level=1] [ref=f43e7]
+    - generic [ref=f43e8]:
+      - paragraph [ref=f43e9]: No se ha publicado el resumen de las respuestas de este formulario.
+      - paragraph [ref=f43e10]:
+        - text: Si crees que es un error, te sugerimos que te pongas en contacto con el propietario del formulario.
+        - link "Más información" [ref=f43e11] [cursor=pointer]:
+          - /url: //support.google.com/docs/?p=forms_settings
+  - generic [ref=f43e12]:
+    - generic [ref=f43e13]:
+      - text: "-"
+      - link "Términos del Servicio" [ref=f43e14] [cursor=pointer]:
+        - /url: https://policies.google.com/terms
+      - text: "-"
+      - link "Política de Privacidad" [ref=f43e15] [cursor=pointer]:
+        - /url: https://policies.google.com/privacy
+      - paragraph [ref=f43e16]:
+        - text: ¿Parece sospechoso este formulario?
+        - link "Informe" [ref=f43e17] [cursor=pointer]:
+          - /url: https://docs.google.com/forms/d/e/1FAIpQLScOuNwKmYuvZwItSj6zhsyq1oiRAP6wryotd8gO7FQHytFAgA/abuse
+    - link [ref=f43e19] [cursor=pointer]:
+      - /url: //www.google.com/forms/about/?utm_source=product&utm_medium=forms_logo&utm_campaign=forms
+      - img "Google" [ref=f43e20]
+      - text: Formularios

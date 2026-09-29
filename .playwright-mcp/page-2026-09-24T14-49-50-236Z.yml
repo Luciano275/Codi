@@ -1,0 +1,249 @@
+- generic [active] [ref=f13e1]:
+  - banner [ref=f13e2]:
+    - button "Ir al contenido" [ref=f13e3] [cursor=pointer]
+    - button "Comentarios de accesibilidad" [ref=f13e6] [cursor=pointer]
+    - generic [ref=f13e9]:
+      - link [ref=f13e10] [cursor=pointer]:
+        - /url: /?FORM=Z9FD1
+        - heading "Volver a la búsqueda de Bing" [level=1] [ref=f13e11]
+      - search [ref=f13e12]:
+        - generic [ref=f13e14] [cursor=pointer]
+        - searchbox "Escribe tu búsqueda aquí; irán apareciendo sugerencias de búsqueda a medida que escribes" [ref=f13e17]: servidor Xeon 32GB RAM Argentina precio
+        - generic [ref=f13e19] [cursor=pointer]
+        - button "Buscar con una imagen" [ref=f13e24] [cursor=pointer]
+        - button "Buscar" [ref=f13e26] [cursor=pointer]
+    - complementary "Premios y preferencias de la cuenta" [ref=f13e28]:
+      - button "Microsoft Rewards"
+      - link "Iniciar sesión" [ref=f13e29] [cursor=pointer]:
+        - /url: javascript:void(0)
+    - navigation "Filtro de búsqueda" [ref=f13e31]:
+      - list [ref=f13e32]:
+        - listitem [ref=f13e33]:
+          - link "Todo" [ref=f13e34] [cursor=pointer]:
+            - /url: /?scope=web&FORM=HDRSC1
+        - listitem [ref=f13e35]:
+          - link "Búsqueda" [ref=f13e36] [cursor=pointer]:
+            - /url: /copilotsearch?q=servidor+Xeon+32GB+RAM+Argentina+precio&FORM=CSSCOP
+        - listitem [ref=f13e39]:
+          - link "Imágenes" [ref=f13e40] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=3f4bf05e8c21dd5e25bd1f89f61898d23c2d71f81303312dccf475373fa28a8eJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1L2ltYWdlcy9zZWFyY2g_cT1zZXJ2aWRvcitYZW9uKzMyR0IrUkFNK0FyZ2VudGluYStwcmVjaW8mRk9STT1IRFJTQzM&ntb=1
+        - listitem [ref=f13e41]:
+          - link "Vídeos" [ref=f13e42] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=bd80f5711d1f5662447482ed6c806548048de9dd165be6886fdeb926ef900212JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1L3ZpZGVvcy9zZWFyY2g_cT1zZXJ2aWRvcitYZW9uKzMyR0IrUkFNK0FyZ2VudGluYStwcmVjaW8mRk9STT1IRFJTQzQ&ntb=1
+        - listitem [ref=f13e43]:
+          - link "Mapas" [ref=f13e44] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=78016c82fd9d3464c307f50c01fee7fef814cb5dead759f7f7183319159edb81JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1L21hcHM_cT1zZXJ2aWRvcitYZW9uKzMyR0IrUkFNK0FyZ2VudGluYStwcmVjaW8mRk9STT1IRFJTQzY&ntb=1
+        - listitem [ref=f13e45]:
+          - button [ref=f13e46] [cursor=pointer]
+  - generic [ref=f13e50]:
+    - main "Resultados de la búsqueda" [ref=f13e51]:
+      - generic [ref=f13e53]:
+        - generic [aria-hidden] [ref=f13e54]:
+          - generic [ref=f13e55] [cursor=pointer]
+          - generic [ref=f13e57] [cursor=pointer]
+          - generic [ref=f13e59] [cursor=pointer]
+        - text: Aproximadamente 1.880 resultados
+      - list [ref=f13e61]:
+        - listitem [ref=f13e62]:
+          - link "Mercado Libre" [ref=f13e64] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=999ecfbdb3f2d58a12ec8399ad6e0f77dd001c33fc7a08073dad800af5f70943JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2Vydmlkb3IteGVvbi0zMmdi&ntb=1
+            - generic [ref=f13e69]:
+              - generic [ref=f13e70]: Mercado Libre
+              - generic [ref=f13e71]: https://listado.mercadolibre.com.ar
+          - heading [level=2] [ref=f13e74]:
+            - link "Servidor Xeon 32gb - MercadoLibre" [ref=f13e75] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=999ecfbdb3f2d58a12ec8399ad6e0f77dd001c33fc7a08073dad800af5f70943JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2Vydmlkb3IteGVvbi0zMmdi&ntb=1
+          - paragraph [ref=f13e77]:
+            - text: Equipado con un procesador Intel Xeon, 32GB de memoria RAM y diversas opciones de almacenamiento, conectividad y sistema …
+            - link "Más información" [ref=f13e78] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=999ecfbdb3f2d58a12ec8399ad6e0f77dd001c33fc7a08073dad800af5f70943JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2Vydmlkb3IteGVvbi0zMmdi&ntb=1
+          - generic [ref=f13e79]:
+            - list [ref=f13e80]:
+              - listitem [ref=f13e81]:
+                - link "Servidor Intel Xeon 32gb Hd…" [ref=f13e82] [cursor=pointer]:
+                  - /url: https://www.bing.com/ck/a?!&&p=0cbd5d571d95824dd2b3049c8c0e3bd13404486f0a176a21794eab31f19a8fd5JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cubWVyY2Fkb2xpYnJlLmNvbS5hci9zZXJ2aWRvci1pbnRlbC14ZW9uLTMyZ2ItaGRkLTF0Yi0yLXJqNDUtMXUtcmFjay1zZXJ2ZXItcGx1cy91cC9NTEFVMjM4MDg4ODEw&ntb=1
+                - paragraph [ref=f13e83]: Envíos gratis en el día Compra en cuotas sin interés y …
+              - listitem [ref=f13e84]:
+                - link "Server Xeon - MercadoLibre" [ref=f13e85] [cursor=pointer]:
+                  - /url: https://www.bing.com/ck/a?!&&p=dcef18444195168e82b5d654ad58be5fc8cf4ca1784e3530dbd39be87deb376dJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2VydmVyLXhlb24&ntb=1
+                - paragraph [ref=f13e86]: Servidor Server Rackeable 4u Xeon 32gb Ram Ssd …
+            - list [ref=f13e87]:
+              - listitem [ref=f13e88]:
+                - link "Servidor Intel Xeon 32gb Se…" [ref=f13e89] [cursor=pointer]:
+                  - /url: https://www.bing.com/ck/a?!&&p=3966f0a695cc3b8118153c0ee5aad31ee52f350ac5b342697b48e4fbcf7ef137JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9hcnRpY3Vsby5tZXJjYWRvbGlicmUuY29tLmFyL01MQS0xMzk1NTg3MzA5LXNlcnZpZG9yLWludGVsLXhlb24tMzJnYi1zZXJ2ZXItcmFjay0ydS1yYWNrZWFibGUtcGx1cy1fSk0&ntb=1
+                - paragraph [ref=f13e90]: Envíos gratis en el día Compra en cuotas sin interés y …
+          - link "Ver resultados solo de listado.mercadolibre.com.ar" [ref=f13e91] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=655256ddaa0f32dccd4e0aae0f8240d9d67bf8db76a8c822e8cb0c51168100efJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1L3NlYXJjaD9xPXNpdGU6bGlzdGFkby5tZXJjYWRvbGlicmUuY29tLmFyK3NlcnZpZG9yK1hlb24rMzJHQitSQU0rQXJnZW50aW5hK3ByZWNpbyZmb3JtPURMSU5LUg&ntb=1
+        - listitem [ref=f13e92]:
+          - link "Mercado Libre Argentina" [ref=f13e94] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=0cbd5d571d95824dd2b3049c8c0e3bd13404486f0a176a21794eab31f19a8fd5JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cubWVyY2Fkb2xpYnJlLmNvbS5hci9zZXJ2aWRvci1pbnRlbC14ZW9uLTMyZ2ItaGRkLTF0Yi0yLXJqNDUtMXUtcmFjay1zZXJ2ZXItcGx1cy91cC9NTEFVMjM4MDg4ODEw&ntb=1
+            - generic [ref=f13e99]:
+              - generic [ref=f13e100]: Mercado Libre Argentina
+              - generic [ref=f13e101]: https://www.mercadolibre.com.ar
+          - heading [level=2] [ref=f13e104]:
+            - link "Servidor Intel Xeon 32gb Hdd 1tb 2 Rj45 1u Rack Server Plus 32 Gb" [ref=f13e105] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=0cbd5d571d95824dd2b3049c8c0e3bd13404486f0a176a21794eab31f19a8fd5JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cubWVyY2Fkb2xpYnJlLmNvbS5hci9zZXJ2aWRvci1pbnRlbC14ZW9uLTMyZ2ItaGRkLTF0Yi0yLXJqNDUtMXUtcmFjay1zZXJ2ZXItcGx1cy91cC9NTEFVMjM4MDg4ODEw&ntb=1
+          - paragraph [ref=f13e107]: Envíos gratis en el día Compra en cuotas sin interés y recibe tu ☞ Servidor Intel Xeon 32gb Hdd 1tb 2 Rj45 1u Rack Server Plus 32 Gb
+        - listitem [ref=f13e108]:
+          - link "Mercado Libre Argentina" [ref=f13e110] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=0731dc8221fc070cdec0d1496b838b94b30543e0de7fe6115e089ce464141ffaJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cubWVyY2Fkb2xpYnJlLmNvbS5hci9zZXJ2aWRvci1pbnRlbC14ZW9uLTMyZ2ItcmFja2VhYmxlLTR1LXNlcnZlci1yYWNrL3VwL01MQVUzMzc1NTAyNzQ&ntb=1
+            - generic [ref=f13e115]:
+              - generic [ref=f13e116]: Mercado Libre Argentina
+              - generic [ref=f13e117]: https://www.mercadolibre.com.ar › up › ...
+          - heading [level=2] [ref=f13e120]:
+            - link "Servidor Intel Xeon 32gb Rackeable 4u Server Rack 32 Gb" [ref=f13e121] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=0731dc8221fc070cdec0d1496b838b94b30543e0de7fe6115e089ce464141ffaJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cubWVyY2Fkb2xpYnJlLmNvbS5hci9zZXJ2aWRvci1pbnRlbC14ZW9uLTMyZ2ItcmFja2VhYmxlLTR1LXNlcnZlci1yYWNrL3VwL01MQVUzMzc1NTAyNzQ&ntb=1
+          - paragraph [ref=f13e123]: "Servidor Intel Xeon 32gb Rackeable 4u Server Rack 32 Gb $ 1.421.200 6 cuotas de $ 352.576 03 Precio sin impuestos nacionales: $ …"
+        - listitem [ref=f13e124]:
+          - link "Mercado Libre" [ref=f13e126] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=dcef18444195168e82b5d654ad58be5fc8cf4ca1784e3530dbd39be87deb376dJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2VydmVyLXhlb24&ntb=1
+            - generic [ref=f13e131]:
+              - generic [ref=f13e132]: Mercado Libre
+              - generic [ref=f13e133]: https://listado.mercadolibre.com.ar › server-xeon
+          - heading [level=2] [ref=f13e136]:
+            - link "Server Xeon - MercadoLibre" [ref=f13e137] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=dcef18444195168e82b5d654ad58be5fc8cf4ca1784e3530dbd39be87deb376dJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9saXN0YWRvLm1lcmNhZG9saWJyZS5jb20uYXIvc2VydmVyLXhlb24&ntb=1
+          - paragraph [ref=f13e139]: Servidor Server Rackeable 4u Xeon 32gb Ram Ssd 4tb Sup. I7 $ 1.259.999 Mismo precio en 6 cuotas de $ 209.999 Envío gratis
+        - listitem [ref=f13e140]:
+          - link "controlpc.com.ar" [ref=f13e142] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=ce2bf2e9b47bbbe6014f38525bd1bc0e21767c75eef902d217ae7998fc01ee67JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9jb250cm9scGMuY29tLmFyL3NlcnZpZG9yZXMvc2Vydmlkb3Jlcy9zZXJ2aWRvci1sZW5vdm8tc3I2MzAtdjMtN2Q3M2EwN2VsYS1jb24taW50ZWwteGVvbi1zaWx2ZXItNDUxMC0zMmdiLXJhbS15LXJhaWQtOHgyNS1yZHF1bzstNDMzODgwLmh0bWw&ntb=1
+            - img "Icono de web global" [ref=f13e145]
+            - generic [ref=f13e146]:
+              - generic [ref=f13e147]: controlpc.com.ar
+              - generic [ref=f13e148]: https://controlpc.com.ar › servidores › servidores
+          - heading [level=2] [ref=f13e151]:
+            - link "Servidor Lenovo SR630 V3 7D73A07ELA con Intel Xeon Silver 4510, …" [ref=f13e152] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=ce2bf2e9b47bbbe6014f38525bd1bc0e21767c75eef902d217ae7998fc01ee67JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9jb250cm9scGMuY29tLmFyL3NlcnZpZG9yZXMvc2Vydmlkb3Jlcy9zZXJ2aWRvci1sZW5vdm8tc3I2MzAtdjMtN2Q3M2EwN2VsYS1jb24taW50ZWwteGVvbi1zaWx2ZXItNDUxMC0zMmdiLXJhbS15LXJhaWQtOHgyNS1yZHF1bzstNDMzODgwLmh0bWw&ntb=1
+          - paragraph [ref=f13e154]: Comprá Servidor Lenovo SR630 V3 7D73A07ELA con Intel Xeon Silver 4510, 32GB RAM y RAID 8x2.5” al mejor precio en …
+        - listitem [ref=f13e155]:
+          - link "mercadolibre.com.ar" [ref=f13e157] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=6c0ab0713e16e57b2add64f044357767e68b977bd51d753d62eeb2fa8a96b3a9JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9hcnRpY3Vsby5tZXJjYWRvbGlicmUuY29tLmFyL01MQS0xNDQ0ODQzNDI3LXNlcnZpZG9yLWhwZS1pbnRlbC14ZW9uLXNpbHZlci0zMmdiLXJhbS1nMTAtZXRoZXJuZXQtcGNyZWctX0pN&ntb=1
+            - generic [ref=f13e162]:
+              - generic [ref=f13e163]: mercadolibre.com.ar
+              - generic [ref=f13e164]: https://articulo.mercadolibre.com.ar
+          - heading [level=2] [ref=f13e167]:
+            - link "Servidor Hpe Intel Xeon Silver 32gb Ram G10+ Ethernet Pcreg" [ref=f13e168] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=6c0ab0713e16e57b2add64f044357767e68b977bd51d753d62eeb2fa8a96b3a9JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9hcnRpY3Vsby5tZXJjYWRvbGlicmUuY29tLmFyL01MQS0xNDQ0ODQzNDI3LXNlcnZpZG9yLWhwZS1pbnRlbC14ZW9uLXNpbHZlci0zMmdiLXJhbS1nMTAtZXRoZXJuZXQtcGNyZWctX0pN&ntb=1
+          - paragraph [ref=f13e170]: Envíos gratis en el día Comprá online de manera segura con Compra Protegida © Servidor Hpe Intel Xeon Silver 32gb Ram G10+ …
+        - listitem [ref=f13e171]:
+          - link "mercadolibre.com.ar" [ref=f13e173] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=3966f0a695cc3b8118153c0ee5aad31ee52f350ac5b342697b48e4fbcf7ef137JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9hcnRpY3Vsby5tZXJjYWRvbGlicmUuY29tLmFyL01MQS0xMzk1NTg3MzA5LXNlcnZpZG9yLWludGVsLXhlb24tMzJnYi1zZXJ2ZXItcmFjay0ydS1yYWNrZWFibGUtcGx1cy1fSk0&ntb=1
+            - generic [ref=f13e178]:
+              - generic [ref=f13e179]: mercadolibre.com.ar
+              - generic [ref=f13e180]: https://articulo.mercadolibre.com.ar
+          - heading [level=2] [ref=f13e183]:
+            - link "Servidor Intel Xeon 32gb Server Rack 2u Rackeable - Plus | Mismo …" [ref=f13e184] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=3966f0a695cc3b8118153c0ee5aad31ee52f350ac5b342697b48e4fbcf7ef137JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9hcnRpY3Vsby5tZXJjYWRvbGlicmUuY29tLmFyL01MQS0xMzk1NTg3MzA5LXNlcnZpZG9yLWludGVsLXhlb24tMzJnYi1zZXJ2ZXItcmFjay0ydS1yYWNrZWFibGUtcGx1cy1fSk0&ntb=1
+          - paragraph [ref=f13e186]: Envíos gratis en el día Compra en cuotas sin interés y recibe tu ☞ Servidor Intel Xeon 32gb Server Rack 2u Rackeable - Plus
+        - listitem [ref=f13e187]:
+          - link "grupotecno.com.ar" [ref=f13e189] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=5d364a3d1306e111ee214c3c3eb4a9e598e1ab026f219ea12944c76b79aca17eJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9ncnVwb3RlY25vLmNvbS5hci9wcm9kdWN0b3Mvc2Vydmlkb3ItaW50ZWwteGVvbi0zMmdiLXJhY2tlYWJsZS00dS1zZXJ2ZXItcmFjay8&ntb=1
+            - generic [ref=f13e194]:
+              - generic [ref=f13e195]: grupotecno.com.ar
+              - generic [ref=f13e196]: https://grupotecno.com.ar › productos
+          - heading [level=2] [ref=f13e199]:
+            - link "Servidor Intel Xeon 32gb Rackeable 4u Server Rack" [ref=f13e200] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=5d364a3d1306e111ee214c3c3eb4a9e598e1ab026f219ea12944c76b79aca17eJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9ncnVwb3RlY25vLmNvbS5hci9wcm9kdWN0b3Mvc2Vydmlkb3ItaW50ZWwteGVvbi0zMmdiLXJhY2tlYWJsZS00dS1zZXJ2ZXItcmFjay8&ntb=1
+          - paragraph [ref=f13e202]: El descuento se aplicará sobre el precio del producto (sin envío) al elegir el medio de pago. No acumulable con algunas …
+        - listitem [ref=f13e203]:
+          - link "WNPower" [ref=f13e205] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=86f0d1b0bd33edf804e2d604649a492d500d00c82c29444f0f12d68de56201fbJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cud25wb3dlci5jb20vc2Vydmlkb3Jlcy1kZWRpY2Fkb3MteGVvbi8&ntb=1
+            - generic [ref=f13e210]:
+              - generic [ref=f13e211]: WNPower
+              - generic [ref=f13e212]: https://www.wnpower.com › servidores-dedicados-xeon
+          - heading [level=2] [ref=f13e215]:
+            - link "Servidor Dedicado Xeon Argentina, Servidor Xeon - WNPower" [ref=f13e216] [cursor=pointer]:
+              - /url: https://www.bing.com/ck/a?!&&p=86f0d1b0bd33edf804e2d604649a492d500d00c82c29444f0f12d68de56201fbJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly93d3cud25wb3dlci5jb20vc2Vydmlkb3Jlcy1kZWRpY2Fkb3MteGVvbi8&ntb=1
+          - paragraph [ref=f13e218]: Cuenta con un Servidor Dedicado Xeon y configuraciones personalizadas con 32GB, 64GB, 128GB, 512GB y 1TB de RAM; 2 a 4 …
+        - listitem [ref=f13e219]:
+          - link "gruponetworld.com.ar" [ref=f13e221] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=0aa19e3bfe0ac768d1d5e3d141b169da34ebfcd3a645ad23162e45e2c004e0f7JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9ncnVwb25ldHdvcmxkLmNvbS5hci9zZXJ2aWRvcmVzLXktc3RvcmFnZS9zZXJ2aWRvcmVzL3NlcnZpZG9yLWxlbm92by1zcjYzMC12Mi1pbnRlbC14ZW9uLXNpbHZlci00MzEwLTMyZ2ItMzE5NTQ0Lmh0bWw&ntb=1
+            - generic [ref=f13e226]:
+              - generic [ref=f13e227]: gruponetworld.com.ar
+              - generic [ref=f13e228]: https://gruponetworld.com.ar › servidores-y-storage › servidores
+          - heading "Servidor Lenovo SR630 V2 Intel Xeon Silver 4310 32GB" [level=2] [ref=f13e231]:
+            - link "Servidor Lenovo SR630 V2 Intel Xeon Silver 4310 32GB":
+              - /url: https://www.bing.com/ck/a?!&&p=0aa19e3bfe0ac768d1d5e3d141b169da34ebfcd3a645ad23162e45e2c004e0f7JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cHM6Ly9ncnVwb25ldHdvcmxkLmNvbS5hci9zZXJ2aWRvcmVzLXktc3RvcmFnZS9zZXJ2aWRvcmVzL3NlcnZpZG9yLWxlbm92by1zcjYzMC12Mi1pbnRlbC14ZW9uLXNpbHZlci00MzEwLTMyZ2ItMzE5NTQ0Lmh0bWw&ntb=1
+          - paragraph [ref=f13e233]: Comprá Servidor Lenovo SR630 V2 Intel Xeon Silver 4310 32GB al mejor precio en gruponetworld.com.ar. Envíos a todo el país.
+        - listitem [ref=f13e234]:
+          - link "Se han quitado algunos resultados" [ref=f13e236] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=badea377c716b43e9311fdeedefb0d0c256178b0e0edc3e67d82ee853433eae9JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cDovL2dvLm1pY3Jvc29mdC5jb20vZndsaW5rLz9MaW5rSUQ9NjE3MzUw&ntb=1
+        - listitem [ref=f13e237]:
+          - navigation "Más resultados para servidor Xeon 32GB RAM Argentina precio":
+            - list:
+              - listitem [ref=f13e238]:
+                - generic "Página 1" [ref=f13e239]: "1"
+              - listitem [ref=f13e240]:
+                - link "Página 2" [ref=f13e241] [cursor=pointer]:
+                  - /url: /search?q=servidor+Xeon+32GB+RAM+Argentina+precio&FPIG=A0E4B88120B34838A650E8EAAD3C49ED&first=11&FORM=PERE
+                  - text: "2"
+              - listitem [ref=f13e242]:
+                - link "Página 3" [ref=f13e243] [cursor=pointer]:
+                  - /url: /search?q=servidor+Xeon+32GB+RAM+Argentina+precio&FPIG=A0E4B88120B34838A650E8EAAD3C49ED&first=21&FORM=PERE1
+                  - text: "3"
+              - listitem [ref=f13e244]:
+                - link "Página siguiente" [ref=f13e245] [cursor=pointer]:
+                  - /url: /search?q=servidor+Xeon+32GB+RAM+Argentina+precio&FPIG=A0E4B88120B34838A650E8EAAD3C49ED&first=11&FORM=PORE
+    - complementary "Resultados adicionales" [ref=f13e246]:
+      - list [ref=f13e247]:
+        - listitem [ref=f13e248]:
+          - list [ref=f13e249]:
+            - listitem [ref=f13e250]:
+              - generic [ref=f13e252]:
+                - generic [ref=f13e253]:
+                  - generic [ref=f13e254]:
+                    - generic [ref=f13e255]: Patrocinado
+                    - link "Why this ad" [ref=f13e257] [cursor=pointer]:
+                      - /url: javascript:void(0)
+                      - img "Sobre nuestra publicidad" [ref=f13e258]
+                  - heading "Ver Servidor Xeon 32Gb Ram Argentina Precio" [level=2] [ref=f13e259]:
+                    - link "Ver Servidor Xeon 32Gb Ram Argentina Precio" [ref=f13e260] [cursor=pointer]:
+                      - /url: https://www.bing.com/ck/a?!&&p=54365358275545a25242eb56896a4273531bc4fa4900c57ed2b174ae459bb878JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1L3Nob3AvdG9waWNzP3E9c2Vydmlkb3IreGVvbiszMmdiK3JhbSthcmdlbnRpbmErcHJlY2lvJkZPUk09U0hPUFBBJmVwPTEmb3JpZ2luSUdVSUQ9QTBFNEI4ODEyMEIzNDgzOEE2NTBFOEVBQUQzQzQ5RUQ&ntb=1
+                - generic [ref=f13e262]:
+                  - generic [ref=f13e263] [cursor=pointer]:
+                    - link "Servidor Dell T160, Intel Xeon 6333P, 16GB Ram, 2TB 3.5\" SATA, Controladora PERC H355" [ref=f13e264]:
+                      - /url: https://www.bing.com/aclick?ld=e8xT4ZmpmZr5kt1aGxdWUINzVUCUx9VmQIKYieHc-R-SSKHQSHZFZpvANdQwKms3n9UHSH30tqpryQrz_w86fP4cS8sR3TML0dBNpod3H9N_je2qagBfCDzJeN2LVYWdvpM1PGh2hvVgGvVsCfaJTMqdSBg4F2tZSPwsaNYcwkee0r-8aiAhE8DMjspv-FVUMGBzW5Q1LiPmhnSFnwvpU6lU7rNag&u=aHR0cHMlM2ElMmYlMmZhcnJpY2hldHRhLmNvbS5hciUyZnByb2R1Y3RvJTJmc2Vydmlkb3ItZGVsbC10MTYwLWludGVsLXhlb24tNjMzM3AtMTZnYi1yYW0tMnRiLTMtNS1zYXRhLWNvbnRyb2xhZG9yYS1wZXJjLWgzNTUlMmYlM2Z1dG1fc291cmNlJTNkR29vZ2xlJTI1MjBTaG9wcGluZy1GZWVkJTI2dXRtX2NhbXBhaWduJTNkb3Ryb21hc19udWV2byUyNnV0bV9tZWRpdW0lM2RjcGMlMjZ1dG1fdGVybSUzZDE4Nzg5NCUyNm1zY2xraWQlM2Q0ZDA4NWJkNTM5M2IxNmQ5Yzg1ZTMxNjAwMWI0MDY2MA&rlid=4d085bd5393b16d9c85e316001b40660&ntb=1
+                      - generic [ref=f13e265]:
+                        - img "Servidor Dell T160, Intel Xeon 6333P, 16GB Ram, 2TB 3.5\" SATA, Controladora PERC H355" [ref=f13e268]
+                        - generic [ref=f13e270]: Servidor Dell T160, Intel Xeon 6333P, 16GB Ram, 2TB 3.5" SATA, Controladora PERC H355
+                    - generic [ref=f13e271]:
+                      - strong [ref=f13e273]: $ 4.024.929,00
+                      - generic [ref=f13e274]: ARRICHETTA SA
+                  - generic: Servidor Dell T160, Intel Xeon 6333P, 16GB Ram, 2TB 3.5" SATA, Controladora PERC H355
+                  - generic [ref=f13e275] [cursor=pointer]:
+                    - link "Servidor Fujitsu Primergy Rx2530 M5 2X 10C Silver 4210 32Gb Ram 4X" [ref=f13e276]:
+                      - /url: https://www.bing.com/aclick?ld=e8lfIrev4MZtQY_-TZqzwQGjVUCUygoB5b8vB9ABQIn63Q8d0wMInzU745VsObV05TxzyLCuj7VqrqXrTHkG_UrchUp17-uUQABYG_aqFjUsfcBC6PIbWdLUd-Vq0YZjZ7AjgW6UBTn-osqkzTobISFT25GBlRzuVlYI_tnDHlZCqY8dO2b7WgQeVw1WbxDDoK9WyaGSC2tLU6gUYjFupd36TxNQM&u=aHR0cHMlM2ElMmYlMmZ3d3cuZWJheS5jb20lMmZpdG0lMmYzNjQyODg5OTU2NzglM2ZjaG4lM2RwcyUyNm5vcm92ZXIlM2QxJTI2bWtldnQlM2QxJTI2bWtyaWQlM2Q3MTEtMTcxMjA0LTI0MTczNS0zJTI2bWtjaWQlM2QyJTI2aXRlbWlkJTNkMzY0Mjg4OTk1Njc4JTI2dGFyZ2V0aWQlM2Q0NTgwNzAyODk2NzE3OTEzJTI2ZGV2aWNlJTNkYyUyNm1rdHlwZSUzZCUyNmdvb2dsZWxvYyUzZCUyNnBvaSUzZDglMjZjYW1wYWlnbmlkJTNkNDg2NDM4NjA0JTI2bWtncm91cGlkJTNkMTIzMzY1MzE0MzgxMzExMiUyNnJsc2F0YXJnZXQlM2RwbGEtNDU4MDcwMjg5NjcxNzkxMyUyNmFiY0lkJTNkMTAyMzgyNjAlMjZtZXJjaGFudGlkJTNkMzQ5Njk2NCUyNm1zY2xraWQlM2Q0NTI5ODU1ZDIyZTMxNWIxYzYyYmVmZTgxYTZjODdhOQ&rlid=4529855d22e315b1c62befe81a6c87a9&ntb=1
+                      - generic [ref=f13e277]:
+                        - img "Servidor Fujitsu Primergy Rx2530 M5 2X 10C Silver 4210 32Gb Ram 4X" [ref=f13e280]
+                        - generic [ref=f13e282]: Servidor Fujitsu Primergy Rx2530 M5 2X 10C Silver 4210 32Gb Ram 4X
+                    - generic [ref=f13e283]:
+                      - strong [ref=f13e285]: $ 3.790.645,75
+                      - generic [ref=f13e286]: (US $ 2.500,00)
+                      - generic [ref=f13e287]: eBay MX
+                      - generic [ref=f13e289]:
+                        - img "Shipping Icon" [ref=f13e290]
+                        - text: Envío gratuito
+                  - generic: Servidor Fujitsu Primergy Rx2530 M5 2X 10C Silver 4210 32Gb Ram 4X
+                  - generic [ref=f13e291] [cursor=pointer]:
+                    - link "Servidor Rack Fujitsu Primergy Rx1330 M4 Quad-Core E-2124 32Gb Ram 4X" [ref=f13e292]:
+                      - /url: https://www.bing.com/aclick?ld=e81HF-ZyyAmaxyIgvdOVm74DVUCUxK4Jisnij4Bn_jcQmntlYp5paGIQLa51vR_wyC9aqDXfsoPj_MbGuNDoL-qc1-IBMi_Cq8uZZb4zY_dNos8pLtZgcp7L2_3PvhKgxPvteOmraGc6pRLjSZV9FKdJCvZS4pxBhczv041GbuEAGdl-N9CgXSoUed7bCFOVqiJngAoCP_FvTQLkFaVV1WW3-UvGY&u=aHR0cHMlM2ElMmYlMmZ3d3cuZWJheS5jb20lMmZpdG0lMmYzNjQ4NTc5NTc2OTAlM2ZjaG4lM2RwcyUyNm5vcm92ZXIlM2QxJTI2bWtldnQlM2QxJTI2bWtyaWQlM2Q3MTEtMTcxMjA0LTI0MTczNS0zJTI2bWtjaWQlM2QyJTI2aXRlbWlkJTNkMzY0ODU3OTU3NjkwJTI2dGFyZ2V0aWQlM2Q0NTgwNzAyODk2NzE3OTEzJTI2ZGV2aWNlJTNkYyUyNm1rdHlwZSUzZCUyNmdvb2dsZWxvYyUzZCUyNnBvaSUzZDglMjZjYW1wYWlnbmlkJTNkNDg2NDM4NjA0JTI2bWtncm91cGlkJTNkMTIzMzY1MzE0MzgxMzExMiUyNnJsc2F0YXJnZXQlM2RwbGEtNDU4MDcwMjg5NjcxNzkxMyUyNmFiY0lkJTNkMTAyMzgyNjAlMjZtZXJjaGFudGlkJTNkMzQ5Njk2NCUyNm1zY2xraWQlM2QxNDZhZTEwNGYxOGYxYmYyYmVhMjhiYjFjOTAwYTRmNQ&rlid=146ae104f18f1bf2bea28bb1c900a4f5&ntb=1
+                      - generic [ref=f13e293]:
+                        - img "Servidor Rack Fujitsu Primergy Rx1330 M4 Quad-Core E-2124 32Gb Ram 4X" [ref=f13e296]
+                        - generic [ref=f13e298]: Servidor Rack Fujitsu Primergy Rx1330 M4 Quad-Core E-2124 32Gb Ram 4X
+                    - generic [ref=f13e299]:
+                      - strong [ref=f13e301]: $ 2.653.452,00
+                      - generic [ref=f13e302]: (US $ 1.750,00)
+                      - generic [ref=f13e303]: eBay MX
+                      - generic [ref=f13e305]:
+                        - img "Shipping Icon" [ref=f13e306]
+                        - text: Envío gratuito
+                  - generic: Servidor Rack Fujitsu Primergy Rx1330 M4 Quad-Core E-2124 32Gb Ram 4X
+  - contentinfo [ref=f13e307]:
+    - generic [ref=f13e308]:
+      - list:
+        - listitem [ref=f13e309]:
+          - link "Privacidad" [ref=f13e310] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=ed6ee2ffcdc05244edffd7ad95f97366d2246f4cce6ec40ef7a0ef1cee7ce97dJmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cDovL2dvLm1pY3Jvc29mdC5jb20vZndsaW5rLz9MaW5rSWQ9NTIxODM5&ntb=1
+        - listitem [ref=f13e311]:
+          - link "Términos" [ref=f13e312] [cursor=pointer]:
+            - /url: https://www.bing.com/ck/a?!&&p=f1d07a8d6fbef31bc27a324f5aea06b97c77cf9538f5b6582b2432dd515f95c5JmltdHM9MTc5MDIwODAwMA&ptn=3&ver=2&hsh=4&fclid=09ae6ef4-78d8-6bb0-02f5-792a797d6a36&u=a1aHR0cDovL2dvLm1pY3Jvc29mdC5jb20vZndsaW5rLz9MaW5rSUQ9MjQ2MzM4&ntb=1
