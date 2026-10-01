@@ -64,6 +64,7 @@ function formatEvaluationContent(submission: EvaluationSubmission) {
 
 export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
   const [evaluating, setEvaluating] = useState(false);
+  const evaluatingRef = useRef(false);
   const pollIntervalsRef = useRef<Set<number>>(new Set());
   const pollTimeoutsRef = useRef<Set<number>>(new Set());
 
@@ -84,7 +85,8 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
       onGemReward: (reward: { amount: number; exerciseTitle: string }) => void,
       onEvaluationComplete: (outcome: EvaluationOutcome) => void,
     ) => {
-      if (!exercise) return;
+      if (!exercise || evaluatingRef.current) return;
+      evaluatingRef.current = true;
       clearPolling();
       setEvaluating(true);
       const tabId = `eval_${Date.now()}`;
@@ -116,10 +118,16 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
           pollTimeoutsRef.current.delete(pollTimeout);
         };
 
+        let polling = false;
+        let active = true;
         const pollInterval = window.setInterval(async () => {
+          if (polling || !active) return;
+          polling = true;
           try {
             const submission = await apiGet<EvaluationSubmission>(`/api/submissions/${result.id}`);
+            if (!active) return;
             if (!PENDING_STATUSES.has(submission.status)) {
+              active = false;
               stopCurrentPolling(pollInterval, pollTimeout);
               try {
                 const { score, content } = formatEvaluationContent(submission);
@@ -147,17 +155,22 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
                 }
               } finally {
                 setEvaluating(false);
+                evaluatingRef.current = false;
               }
             }
           } catch {
             // continue polling
+          } finally {
+            polling = false;
           }
         }, 500);
         pollIntervalsRef.current.add(pollInterval);
 
         const pollTimeout = window.setTimeout(() => {
+          active = false;
           stopCurrentPolling(pollInterval, pollTimeout);
           setEvaluating(false);
+          evaluatingRef.current = false;
         }, 60000);
         pollTimeoutsRef.current.add(pollTimeout);
       } catch (err: any) {
@@ -169,6 +182,7 @@ export function useEvaluation(addConsoleTab: (tab: ConsoleTab) => void) {
           error: err.message,
         });
         setEvaluating(false);
+        evaluatingRef.current = false;
       }
     },
     [addConsoleTab, clearPolling],
