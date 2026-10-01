@@ -55,6 +55,12 @@ async function bootstrap() {
     throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
   }
 
+  app.enableCors({
+    origin: config.get<string>('frontendUrl') || process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  });
+
   app.disable('x-powered-by');
   app.use(json({ limit: '1mb' }));
 
