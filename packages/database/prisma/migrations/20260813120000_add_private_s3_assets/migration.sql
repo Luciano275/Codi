@@ -1,3 +1,15 @@
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM "codi_user"
+    WHERE "avatarUrl" IS NOT NULL
+  ) THEN
+    RAISE EXCEPTION
+      'Migration stopped: codi_user.avatarUrl contains data that must be migrated before dropping the column';
+  END IF;
+END $$;
+
 ALTER TABLE "codi_user"
   DROP COLUMN "avatarUrl",
   ADD COLUMN "avatarObjectKey" TEXT;
