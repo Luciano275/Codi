@@ -14,8 +14,8 @@
     {
       "class_name": "EvaluatorSandbox",
       "image": "./Dockerfile",
-      "instance_type": "lite",
-      "max_instances": 40
+      "instance_type": "basic",
+      "max_instances": 100
     }
   ],
   "durable_objects": {
