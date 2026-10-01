@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from '@/components/ui/Icon';
 import { motion, useReducedMotion } from 'motion/react';
 import type {
@@ -116,7 +117,7 @@ export function RewardEditorDialog({
     });
   }
 
-  return (
+  return createPortal(
     <motion.div
       className="fixed inset-0 z-[120] overflow-y-auto bg-gray-950/40 p-4 sm:p-8"
       initial={reducedMotion ? false : { opacity: 0 }}
@@ -255,7 +256,8 @@ export function RewardEditorDialog({
           </div>
         </form>
       </motion.section>
-    </motion.div>
+    </motion.div>,
+    document.body,
   );
 }
 
