@@ -37,7 +37,7 @@ export function SuccessMascot({ title, description, score, reducedMotion }: Succ
         >
           <DynamicCodiMascot
             animation="Codi_Correct_Small"
-            loopAfter={isPerfectScore ? 'Codi_Excited' : undefined}
+            playOnce
             label={
               isPerfectScore
                 ? 'Codi celebra una puntuación perfecta'

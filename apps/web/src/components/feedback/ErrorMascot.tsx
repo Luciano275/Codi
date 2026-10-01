@@ -37,7 +37,7 @@ export function ErrorMascot({ title, description, score, reducedMotion }: ErrorM
         >
           <DynamicCodiMascot
             animation={hasNoCorrectAnswers ? 'Codi_Frustrated' : 'Codi_Wrong_Small'}
-            loopAfter={hasNoCorrectAnswers ? 'Codi_Crying' : undefined}
+            playOnce
             label={
               hasNoCorrectAnswers
                 ? 'Codi se frustra y acompaña a volver a intentar el ejercicio'

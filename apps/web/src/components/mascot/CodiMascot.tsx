@@ -26,6 +26,7 @@ export type CodiAnimation = (typeof CODI_ANIMATIONS)[number];
 export interface CodiMascotProps {
   animation: CodiAnimation;
   loopAfter?: CodiAnimation;
+  playOnce?: boolean;
   cameraFov?: number;
   className?: string;
   label?: string;
@@ -52,6 +53,7 @@ function disposeModel(model: THREE.Object3D) {
 export function CodiMascot({
   animation,
   loopAfter,
+  playOnce = false,
   cameraFov = 30,
   className = '',
   label = 'Codi',
@@ -187,6 +189,9 @@ export function CodiMascot({
           activeAction = loopAction;
         };
         mixer.addEventListener('finished', finishedHandler);
+      } else if (playOnce) {
+        nextAction.setLoop(THREE.LoopOnce, 1);
+        nextAction.clampWhenFinished = true;
       } else {
         nextAction.setLoop(THREE.LoopRepeat, Infinity);
       }
