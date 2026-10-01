@@ -23,7 +23,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
     return NextResponse.json({ message: 'No se encontró la isla.' }, { status: 404 });
   }
 
-  const modelPath = island.modelPath || '/islands/isla.glb';
+  const defaultModelPath = '/islands/isla.glb';
+  const modelPath =
+    slug === 'programacion-mobile' && island.modelPath === defaultModelPath
+      ? '/islands/isla-original.glb'
+      : island.modelPath || defaultModelPath;
   const modelUrl = modelPath.startsWith('/')
     ? new URL(modelPath, `http://127.0.0.1:${process.env.PORT || '3000'}`).toString()
     : modelPath;
@@ -35,7 +39,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
       cache: 'no-store',
     });
   } catch {
-    return NextResponse.json({ message: 'No se pudo cargar el modelo de la isla.' }, { status: 502 });
+    return NextResponse.json(
+      { message: 'No se pudo cargar el modelo de la isla.' },
+      { status: 502 },
+    );
   }
   if (!modelResponse.ok || !modelResponse.body) {
     return NextResponse.json(

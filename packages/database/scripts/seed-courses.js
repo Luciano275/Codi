@@ -20,7 +20,7 @@ const defaultIslands = [
     title: 'Programación Mobile',
     slug: 'programacion-mobile',
     description: 'Creá aplicaciones móviles y experiencias para cualquier dispositivo.',
-    modelPath: '/islands/isla.glb',
+    modelPath: '/islands/isla-original.glb',
     available: false,
     accent: '#9ca3af',
     order: 2,

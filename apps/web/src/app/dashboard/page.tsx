@@ -27,7 +27,7 @@ function toIslandViewModel(island: IslandSummary, progress: ProgressData): Islan
     title: island.title,
     description: island.description,
     modelPath: `/api/island-model/${island.slug}?version=${encodeURIComponent(island.modelPath)}`,
-    modelCacheKey: island.modelPath,
+    modelCacheKey: `${island.slug}:${island.modelPath}`,
     available: island.available,
     accent: island.accent,
     href: `/dashboard/islands/${island.slug}`,
