@@ -25,13 +25,18 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
   const modelPath = island.modelPath || '/islands/isla.glb';
   const modelUrl = modelPath.startsWith('/')
-    ? new URL(modelPath, request.url).toString()
+    ? new URL(modelPath, `http://127.0.0.1:${process.env.PORT || '3000'}`).toString()
     : modelPath;
   const range = request.headers.get('range');
-  const modelResponse = await fetch(modelUrl, {
-    headers: range ? { Range: range } : {},
-    cache: 'no-store',
-  });
+  let modelResponse: Response;
+  try {
+    modelResponse = await fetch(modelUrl, {
+      headers: range ? { Range: range } : {},
+      cache: 'no-store',
+    });
+  } catch {
+    return NextResponse.json({ message: 'No se pudo cargar el modelo de la isla.' }, { status: 502 });
+  }
   if (!modelResponse.ok || !modelResponse.body) {
     return NextResponse.json(
       { message: 'No se pudo cargar el modelo de la isla.' },
