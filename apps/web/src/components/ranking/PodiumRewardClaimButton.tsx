@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Gift } from '@/components/ui/Icon';
+import { readApiErrorMessage } from '@/lib/api-error';
 import styles from './ranking.module.css';
 import type { PodiumRewardClaim } from './types';
 
@@ -24,7 +25,15 @@ export function PodiumRewardClaimButton({ gems, onRewardClaimed }: PodiumRewardC
         message?: string;
         reward?: PodiumRewardClaim;
       };
-      if (!response.ok) throw new Error(payload.message ?? 'No pudimos reclamar tu recompensa.');
+      if (!response.ok) {
+        throw new Error(
+          readApiErrorMessage({
+            status: response.status,
+            message: payload.message,
+            fallback: 'No pudimos reclamar tu recompensa.',
+          }),
+        );
+      }
       if (!payload.reward) throw new Error('No recibimos los datos de tu recompensa.');
       window.dispatchEvent(new CustomEvent('user-updated'));
       await onRewardClaimed(payload.reward);

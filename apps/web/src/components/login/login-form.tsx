@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import { DynamicCodiMascot } from '@/components/mascot/DynamicCodiMascot';
 import { User, Lock, Eye, EyeOff, Loader2, AlertCircle } from '@/components/ui/Icon';
+import { readApiErrorMessage } from '@/lib/api-error';
+
+const LOGIN_ERROR_MESSAGES: Record<number, string> = {
+  400: 'Revisá el usuario y la contraseña',
+  401: 'Usuario o contraseña incorrectos',
+};
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -22,22 +28,23 @@ export default function LoginForm() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ username: email, password }),
       });
+
       if (!response.ok) {
         const payload = (await response.json().catch(() => null)) as { message?: unknown } | null;
-        throw new Error(
-          typeof payload?.message === 'string' ? payload.message : `HTTP ${response.status}`,
+        setError(
+          readApiErrorMessage({
+            status: response.status,
+            message: payload?.message,
+            fallback: 'No pudimos iniciar sesión',
+            overrides: LOGIN_ERROR_MESSAGES,
+          }),
         );
+        return;
       }
 
       window.location.href = '/dashboard';
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message === 'Unauthorized'
-            ? 'Usuario o contraseña incorrectos'
-            : err.message
-          : 'Error de conexión con el servidor',
-      );
+    } catch {
+      setError('Error de conexión con el servidor');
     } finally {
       setLoading(false);
     }
@@ -56,9 +63,7 @@ export default function LoginForm() {
               className="h-full w-full drop-shadow-[0_10px_18px_rgba(0,0,0,0.3)]"
             />
           </div>
-          <h1 className="login-title font-extrabold text-white drop-shadow-sm">
-            ¡Bienvenido!
-          </h1>
+          <h1 className="login-title font-extrabold text-white drop-shadow-sm">¡Bienvenido!</h1>
           <p className="login-subtitle text-white/60 font-medium">
             Iniciá sesión para continuar tu aventura.
           </p>
