@@ -65,6 +65,13 @@ async function proxy(request: NextRequest, context: RouteContext): Promise<Respo
     init,
   );
   const responseHeaders = forwardedHeaders(backendResponse.headers, FORWARDED_RESPONSE_HEADERS);
+  if (
+    backendResponse.headers.get('content-type')?.includes('application/pdf') &&
+    !backendResponse.headers.has('content-encoding')
+  ) {
+    const length = backendResponse.headers.get('content-length');
+    if (length) responseHeaders.set('content-length', length);
+  }
   responseHeaders.set('cache-control', 'no-store');
 
   return new Response(backendResponse.body, {

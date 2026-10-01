@@ -26,6 +26,12 @@ const STATUS_LABELS: Record<string, string> = {
   MEMORY_LIMIT_EXCEEDED: 'Memoria agotada',
 };
 
+const submissionTime = new Intl.DateTimeFormat('es-AR', {
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: 'America/Argentina/Buenos_Aires',
+});
+
 interface ExerciseInfo {
   id: string;
   title: string;
@@ -91,11 +97,13 @@ export function ExerciseStatement({
         </div>
 
         <div className="relative flex-1 bg-gray-50">
-          <iframe
-            src={`/api/proxy/api/problems/${problemId}/attachment`}
-            className="h-full w-full"
-            title="Enunciado del ejercicio"
-          />
+          {problemId ? (
+            <iframe
+              src={`/api/proxy/api/problems/${problemId}/attachment`}
+              className="h-full w-full"
+              title="Enunciado del ejercicio"
+            />
+          ) : null}
         </div>
 
         <div className="border-t border-gray-200 bg-white">
@@ -166,10 +174,7 @@ export function ExerciseStatement({
                           </span>
                         </div>
                         <span className="shrink-0 text-gray-400">
-                          {new Date(s.submittedAt).toLocaleTimeString([], {
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
+                          {submissionTime.format(new Date(s.submittedAt))}
                         </span>
                       </div>
                     );
