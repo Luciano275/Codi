@@ -14,7 +14,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  @Throttle({ default: { limit: 5, ttl: 300000 } })
+  @Throttle({ default: { limit: 10, ttl: 300000 } })
   @UseGuards(CsrfGuard)
   async login(@Body() dto: LoginDto) {
     return this.authService.login(dto.username, dto.password);
