@@ -7,12 +7,15 @@ import {
   ContentCacheService,
 } from '../content-cache/content-cache.service';
 import { createSlug } from './slug-generator';
+import { S3Service } from '../s3/s3.service';
+import { deleteLessonAssets } from './delete-lesson-assets';
 
 @Injectable()
 export class AdminCoursesService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly contentCache: ContentCacheService,
+    private readonly s3: S3Service,
   ) {}
 
   async findAll() {
@@ -57,17 +60,33 @@ export class AdminCoursesService {
       const course = await this.prisma.course.update({ where: { id }, data: dto });
       await this.contentCache.invalidateCourseTree([course.id]);
       return course;
-    } catch {
-      throw new NotFoundException('Course not found');
+    } catch (error) {
+      if (this.isRecordNotFound(error)) throw new NotFoundException('Course not found');
+      throw error;
     }
   }
 
   async remove(id: string) {
     try {
-      await this.prisma.course.delete({ where: { id } });
-      await this.contentCache.invalidateCourseTree([id]);
-    } catch {
-      throw new NotFoundException('Course not found');
+      const lessons = await this.prisma.$transaction(async (transaction) => {
+        const lessonAssets = await transaction.lesson.findMany({
+          where: { module: { courseId: id } },
+          select: { id: true, imageObjectKey: true, pdfObjectKey: true, videoObjectKey: true },
+        });
+        await transaction.lesson.deleteMany({ where: { module: { courseId: id } } });
+        await transaction.module.deleteMany({ where: { courseId: id } });
+        await transaction.course.delete({ where: { id } });
+        return lessonAssets;
+      });
+      await this.contentCache.invalidateDeletedLessons(
+        lessons.map((lesson) => lesson.id),
+        id,
+      );
+      await deleteLessonAssets(this.s3, lessons);
+      return { deleted: true };
+    } catch (error) {
+      if (this.isRecordNotFound(error)) throw new NotFoundException('Course not found');
+      throw error;
     }
   }
 
@@ -106,5 +125,9 @@ export class AdminCoursesService {
 
   private isUniqueConstraintError(error: unknown) {
     return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
+  }
+
+  private isRecordNotFound(error: unknown) {
+    return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025';
   }
 }

@@ -58,6 +58,19 @@ export class ContentCacheService {
     await this.delete([ADMIN_LESSONS_CACHE_KEY, ...this.courseKeys(courseIds)]);
   }
 
+  async invalidateDeletedLessons(lessonIds: string[], courseId: string) {
+    await this.delete([
+      ADMIN_LESSONS_CACHE_KEY,
+      ...this.courseKeys([courseId]),
+      ...lessonIds.flatMap((lessonId) => [
+        `lessons:${lessonId}`,
+        `lessons:v2:${lessonId}`,
+        `lessons:v3:${lessonId}`,
+        `lessons:v4:${lessonId}`,
+      ]),
+    ]);
+  }
+
   async invalidateIslands() {
     await this.delete([
       ISLANDS_CACHE_KEY,
