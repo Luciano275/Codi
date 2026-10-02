@@ -60,7 +60,7 @@ export default function StatChip({
       <span
         className={`font-candy-beans text-sm ${appearance === 'subtle' ? '' : 'text-white drop-shadow-xs'}`}
       >
-        {displayValue.toLocaleString()}
+        {displayValue.toLocaleString('es-AR')}
         {suffix}
       </span>
     </div>
